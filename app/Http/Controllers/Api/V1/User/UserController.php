@@ -4,69 +4,62 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\ChangeUserStatusRequest;
 use App\Models\User;
+use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Requests\User\ChangeUserStatusRequest;
-use App\Traits\FileUploadTrait;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
     use FileUploadTrait;
+
     /**
      * User Listing
      */
     public function index(Request $request): JsonResponse
     {
-        $query = User::query()
-            ->with('roles')
-            ->latest();
+        try {
+            $query = User::query()
+                ->with('roles')
+                ->latest();
 
-        /**
-         * Search
-         */
-        if ($request->filled('search')) {
+            // Search
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('last_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('username', 'ILIKE', "%{$search}%")
+                        ->orWhere('email', 'ILIKE', "%{$search}%")
+                        ->orWhere('mobile', 'ILIKE', "%{$search}%");
+                });
+            }
 
-            $search = $request->search;
+            // Status Filter
+            if ($request->filled('status')) {
+                $query->where('is_active', $request->boolean('status'));
+            }
 
-            $query->where(function ($q) use ($search) {
+            $users = $query->paginate(
+                $request->get('per_page', 10)
+            );
 
-                $q->where('first_name', 'ILIKE', "%{$search}%")
-                    ->orWhere('last_name', 'ILIKE', "%{$search}%")
-                    ->orWhere('username', 'ILIKE', "%{$search}%")
-                    ->orWhere('email', 'ILIKE', "%{$search}%")
-                    ->orWhere('mobile', 'ILIKE', "%{$search}%");
+            return response()->json([
+                'success' => true,
+                'message' => 'Users fetched successfully.',
+                'data' => $users
+            ]);
 
-            });
-
+        } catch (\Exception $e) {
+            return $this->handleException($e);
         }
-
-        /**
-         * Status Filter
-         */
-        if ($request->filled('status')) {
-
-            $query->where('is_active', $request->status);
-
-        }
-
-        $users = $query->paginate(
-            $request->get('per_page', 10)
-        );
-
-        return response()->json([
-
-            'success' => true,
-
-            'message' => 'Users fetched successfully.',
-
-            'data' => $users
-
-        ]);
     }
 
     /**
@@ -77,129 +70,104 @@ class UserController extends Controller
         DB::beginTransaction();
 
         try {
-
             $data = [
-
                 'first_name' => $request->first_name,
-
                 'last_name' => $request->last_name,
-
                 'username' => $request->username,
-
                 'email' => $request->email,
-
                 'mobile' => $request->mobile,
-
                 'password' => Hash::make($request->password),
-
                 'is_active' => $request->boolean('is_active'),
-
             ];
 
-            /**
-             * Upload Profile Photo
-             */
+            // Upload Profile Photo
             if ($request->hasFile('profile_photo')) {
-
                 $data['profile_photo'] = $this->uploadFile(
                     $request->file('profile_photo'),
                     'users/profile'
                 );
             }
 
-            /**
-             * Create User
-             */
+            // Create User
             $user = User::create($data);
 
-            /**
-             * Assign Role
-             */
-            $user->assignRole($request->role);
+            // Assign Role
+            if ($request->filled('role')) {
+                $user->assignRole($request->role);
+            }
 
             DB::commit();
 
             return response()->json([
-
                 'success' => true,
-
                 'message' => 'User created successfully.',
-
                 'data' => $user->load('roles')
-
             ], 201);
 
-        } catch (\Throwable $e) {
-
+        } catch (ValidationException $e) {
             DB::rollBack();
-
-            /**
-             * Delete Uploaded Image if Transaction Failed
-             */
-            if (
-                isset($data['profile_photo']) &&
-                !empty($data['profile_photo'])
-            ) {
-                $this->deleteFile($data['profile_photo']);
-            }
+            $this->cleanupUploadedFile($data['profile_photo'] ?? null);
 
             return response()->json([
-
                 'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
 
-                'message' => $e->getMessage()
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->cleanupUploadedFile($data['profile_photo'] ?? null);
 
-            ], 500);
-
+            return $this->handleException($e);
         }
     }
-
 
     /**
      * Display User Details
      */
-    public function show(User $user): JsonResponse
+    public function show($id): JsonResponse
     {
-        $user->load('roles');
+        try {
+            $user = User::with('roles')->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User fetched successfully.',
-            'data' => $user,
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'User fetched successfully.',
+                'data' => $user,
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
-
 
     /**
      * Update User
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, $id): JsonResponse
     {
         DB::beginTransaction();
 
         try {
+            $user = User::findOrFail($id);
 
             $data = [
-
                 'first_name' => $request->first_name,
-
                 'last_name' => $request->last_name,
-
                 'username' => $request->username,
-
                 'email' => $request->email,
-
                 'mobile' => $request->mobile,
-
                 'is_active' => $request->boolean('is_active'),
-
             ];
 
-            /**
-             * Upload Profile Photo
-             */
+            // Upload Profile Photo
             if ($request->hasFile('profile_photo')) {
-
                 $data['profile_photo'] = $this->replaceFile(
                     $request->file('profile_photo'),
                     $user->profile_photo,
@@ -207,136 +175,255 @@ class UserController extends Controller
                 );
             }
 
-            /**
-             * Update Password
-             */
+            // Update Password
             if ($request->filled('password')) {
-
                 $data['password'] = Hash::make($request->password);
-
             }
 
-            /**
-             * Update User
-             */
+            // Update User
             $user->update($data);
 
-            /**
-             * Update Role
-             */
-            $user->syncRoles([$request->role]);
+            // Update Role
+            if ($request->filled('role')) {
+                $user->syncRoles([$request->role]);
+            }
 
             DB::commit();
 
             return response()->json([
-
                 'success' => true,
-
                 'message' => 'User updated successfully.',
-
                 'data' => $user->load('roles')
-
             ]);
 
-        } catch (\Throwable $e) {
-
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
-
             return response()->json([
-
                 'success' => false,
+                'message' => 'User not found.'
+            ], 404);
 
-                'message' => $e->getMessage()
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
 
-            ], 500);
-
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->handleException($e);
         }
     }
 
     /**
-     * Delete User
+     * Delete User (Soft Delete)
      */
-    public function destroy(User $user): JsonResponse
+    public function destroy($id): JsonResponse
     {
         DB::beginTransaction();
 
         try {
+            $user = User::findOrFail($id);
 
+            // Prevent deletion of Super Admin
             if ($user->hasRole('Super Admin')) {
-
                 return response()->json([
-
                     'success' => false,
-
                     'message' => 'Super Admin cannot be deleted.'
-
                 ], 403);
             }
 
-            /**
-             * Delete Profile Photo
-             */
+            // Delete Profile Photo
             if (!empty($user->profile_photo)) {
-
                 $this->deleteFile($user->profile_photo);
-
             }
 
-            /**
-             * Delete User
-             */
+            // Soft Delete User
             $user->delete();
 
             DB::commit();
 
             return response()->json([
-
                 'success' => true,
-
                 'message' => 'User deleted successfully.'
-
             ]);
 
-        } catch (\Throwable $e) {
-
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
-
             return response()->json([
-
                 'success' => false,
+                'message' => 'User not found.'
+            ], 404);
 
-                'message' => $e->getMessage()
-
-            ], 500);
-
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->handleException($e);
         }
     }
 
     /**
      * Change User Status
      */
-    public function changeStatus(
-        ChangeUserStatusRequest $request,
-        User $user
-    ): JsonResponse {
+    public function changeStatus(ChangeUserStatusRequest $request, $id): JsonResponse
+    {
+        try {
+            $user = User::findOrFail($id);
 
-        $user->update([
+            $user->update([
+                'is_active' => $request->boolean('is_active')
+            ]);
 
-            'is_active' => $request->boolean('is_active')
+            return response()->json([
+                'success' => true,
+                'message' => 'User status updated successfully.',
+                'data' => $user
+            ]);
 
-        ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
 
-        return response()->json([
-
-            'success' => true,
-
-            'message' => 'User status updated successfully.',
-
-            'data' => $user
-
-        ]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
     }
 
+    /**
+     * Get Trashed Users
+     */
+    public function trash(Request $request): JsonResponse
+    {
+        try {
+            $users = User::onlyTrashed()
+                ->with('roles')
+                ->latest()
+                ->paginate($request->get('per_page', 10));
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Trashed users fetched successfully.',
+                'data' => $users
+            ]);
 
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Restore Trashed User
+     */
+    public function restore($id): JsonResponse
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::onlyTrashed()->findOrFail($id);
+            $user->restore();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User restored successfully.',
+                'data' => $user->load('roles')
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found in trash.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Force Delete User (Permanent)
+     */
+    public function forceDelete($id): JsonResponse
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::withTrashed()->findOrFail($id);
+
+            // Prevent force deletion of Super Admin
+            if ($user->hasRole('Super Admin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Super Admin cannot be permanently deleted.'
+                ], 403);
+            }
+
+            // Delete Profile Photo
+            if (!empty($user->profile_photo)) {
+                $this->deleteFile($user->profile_photo);
+            }
+
+            // Force Delete User
+            $user->forceDelete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User permanently deleted successfully.'
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Handle Exception
+     */
+    private function handleException(\Exception $e): JsonResponse
+    {
+        $statusCode = $e->getCode() >= 100 && $e->getCode() < 600 ? $e->getCode() : 500;
+
+        // Log error in production
+        if (config('app.env') !== 'local') {
+            \Log::error('UserController Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => config('app.env') === 'local'
+                ? $e->getMessage()
+                : 'An error occurred while processing your request.',
+            'code' => $statusCode
+        ], $statusCode >= 400 && $statusCode < 600 ? $statusCode : 500);
+    }
+
+    /**
+     * Cleanup Uploaded File
+     */
+    private function cleanupUploadedFile(?string $filePath): void
+    {
+        if (!empty($filePath)) {
+            $this->deleteFile($filePath);
+        }
+    }
 }

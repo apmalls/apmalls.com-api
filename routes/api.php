@@ -72,14 +72,19 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/', 'store');                  // Create User
 
-            Route::get('/{user}', 'show');              // User Details
+            Route::get('/{id}', 'show');              // User Details
 
-            Route::put('/{user}', 'update');            // Update User
+            Route::put('/{id}', 'update');            // Update User
 
-            Route::delete('/{user}', 'destroy');        // Delete User
+            Route::delete('/{id}', 'destroy');        // Delete User
 
-            Route::patch('/{user}/status', 'changeStatus'); // Change Status
+            Route::patch('/{id}/status', 'changeStatus'); // Change Status
 
+            Route::get('/trash', 'trash');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
         });
 
 
@@ -92,19 +97,17 @@ Route::prefix('v1')->group(function () {
         ->prefix('categories')
         ->controller(CategoryController::class)
         ->group(function () {
-
-            Route::get('/', 'index');
-
-            Route::post('/', 'store');
-
-            Route::get('/{category}', 'show');
-
-            Route::put('/{category}', 'update');
-
-            Route::delete('/{category}', 'destroy');
-
-            Route::patch('/{category}/status', 'changeStatus');
-
+            Route::get('/', 'index');                    // Category List
+            Route::post('/', 'store');                   // Create Category
+            Route::get('/tree', 'tree');                 // Category Tree
+            Route::get('/trash', 'trash');               // Trashed Categories
+            Route::get('/{id}', 'show');                 // Category Details
+            Route::put('/{id}', 'update');               // Update Category
+            Route::delete('/{id}', 'destroy');           // Delete Category
+            Route::patch('/{id}/status', 'changeStatus'); // Change Status
+            Route::put('/{id}/restore', 'restore');      // Restore Category
+            Route::delete('/{id}/force-delete', 'forceDelete'); // Force Delete
+            Route::post('/bulk-delete', 'bulkDelete');   // Bulk Delete
         });
 
 });

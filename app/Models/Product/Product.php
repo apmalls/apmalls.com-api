@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Product\Brand;
+use App\Models\Product\Category;
 use App\Models\Product\ProductImage;
 use App\Models\Product\Unit;
 use App\Traits\HasMedia;

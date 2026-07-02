@@ -2,11 +2,16 @@
 
 
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Customer\CustomerController;
+
+use App\Http\Controllers\Api\V1\CustomerAddressController;
 use App\Http\Controllers\Api\V1\Product\BrandController;
 use App\Http\Controllers\Api\V1\Product\CategoryController;
 use App\Http\Controllers\Api\V1\Product\ProductController;
 use App\Http\Controllers\Api\V1\Product\ProductImageController;
 use App\Http\Controllers\Api\V1\Product\UnitController;
+use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
+use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -211,6 +216,104 @@ Route::prefix('v1')->group(function () {
             Route::delete('/images/{image}', 'destroy');
 
             Route::patch('/images/{image}/sort-order', 'updateSortOrder');
+
+        });
+
+
+    Route::middleware('auth:sanctum')
+        ->prefix('suppliers')
+        ->controller(SupplierController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+            Route::controller(SupplierAddressController::class)
+                ->group(function () {
+
+                    Route::get('{supplier}/addresses', 'index');
+
+                    Route::post('{supplier}/addresses', 'store');
+
+                    Route::get('addresses/trash/{supplier}', 'trash');
+
+                    Route::get('addresses/{id}', 'show');
+
+                    Route::put('addresses/{id}', 'update');
+
+                    Route::delete('addresses/{id}', 'destroy');
+
+                    Route::patch('addresses/{id}/default', 'changeDefault');
+
+                    Route::put('addresses/{id}/restore', 'restore');
+
+                    Route::delete('addresses/{id}/force-delete', 'forceDelete');
+
+                });
+
+        });
+
+
+    Route::middleware('auth:sanctum')
+        ->prefix('customers')
+        ->controller(CustomerController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+            Route::controller(CustomerAddressController::class)
+                ->group(function () {
+
+                    Route::get('{customer}/addresses', 'index');
+
+                    Route::post('{customer}/addresses', 'store');
+
+                    Route::get('addresses/trash/{customer}', 'trash');
+
+                    Route::get('addresses/{id}', 'show');
+
+                    Route::put('addresses/{id}', 'update');
+
+                    Route::delete('addresses/{id}', 'destroy');
+
+                    Route::patch('addresses/{id}/default', 'changeDefault');
+
+                    Route::put('addresses/{id}/restore', 'restore');
+
+                    Route::delete('addresses/{id}/force-delete', 'forceDelete');
+
+                });
 
         });
 

@@ -22,6 +22,10 @@ class DatabaseSeeder extends Seeder
 
             SuperAdminSeeder::class,
 
+            CategorySeeder::class,
+            BrandSeeder::class,
+            UnitSeeder::class,
+
         ]);
         // User::factory(10)->create();
 

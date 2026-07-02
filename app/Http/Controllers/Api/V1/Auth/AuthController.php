@@ -10,10 +10,8 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\UpdateProfileRequest;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
@@ -30,7 +28,7 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
 
@@ -60,7 +58,7 @@ class AuthController extends Controller
              */
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
 
@@ -78,17 +76,11 @@ class AuthController extends Controller
 
             ], 201);
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
 
-            DB::rollBack();
+            $this->rollback();
 
-            return response()->json([
-
-                'success' => false,
-
-                'message' => $e->getMessage(),
-
-            ], 500);
+            return $this->handleException($e);
 
         }
     }
@@ -194,7 +186,7 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
 
@@ -205,21 +197,16 @@ class AuthController extends Controller
              */
             if ($request->hasFile('profile_photo')) {
 
-                if (
-                    $user->profile_photo &&
-                    Storage::disk('public')->exists($user->profile_photo)
-                ) {
-                    Storage::disk('public')->delete($user->profile_photo);
-                }
-
-                $data['profile_photo'] = $request
-                    ->file('profile_photo')
-                    ->store('profile', 'public');
+                $data['profile_photo'] = $this->replaceFile(
+                    $request->file('profile_photo'),
+                    $user->profile_photo,
+                    'profile'
+                );
             }
 
             $user->update($data);
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -227,14 +214,11 @@ class AuthController extends Controller
                 'data' => $user->fresh(),
             ]);
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
 
-            DB::rollBack();
+            $this->rollback();
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            return $this->handleException($e);
         }
     }
 

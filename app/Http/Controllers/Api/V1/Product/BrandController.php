@@ -3,29 +3,29 @@
 namespace App\Http\Controllers\Api\V1\Product;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Product\Category\StoreCategoryRequest;
-use App\Http\Requests\Product\Category\UpdateCategoryRequest;
-use App\Models\Product\Category;
+use App\Http\Requests\Product\Brand\StoreBrandRequest;
+use App\Http\Requests\Product\Brand\UpdateBrandRequest;
+use App\Http\Requests\Product\Brand\ChangeBrandStatusRequest;
+use App\Models\Product\Brand;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
-class CategoryController extends Controller
+class BrandController extends Controller
 {
     /**
-     * Category Listing
+     * Brand Listing
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Category::with(['parent', 'children'])
-                ->latest();
+            $query = Brand::query()->latest();
 
             // Search
             if ($request->filled('search')) {
-                $search = $request->search;
+                $search = trim($request->search);
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'ILIKE', "%{$search}%")
                         ->orWhere('slug', 'ILIKE', "%{$search}%")
@@ -38,23 +38,14 @@ class CategoryController extends Controller
                 $query->where('is_active', $request->boolean('status'));
             }
 
-            // Parent Category Filter
-            if ($request->filled('parent_id')) {
-                if ($request->parent_id === 'null' || $request->parent_id === '') {
-                    $query->whereNull('parent_id');
-                } else {
-                    $query->where('parent_id', $request->parent_id);
-                }
-            }
-
-            $categories = $query->paginate(
-                $request->get('per_page', 10)
+            $brands = $query->paginate(
+                $request->integer('per_page', 10)
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category list fetched successfully.',
-                'data' => $categories
+                'message' => 'Brand list fetched successfully.',
+                'data' => $brands,
             ]);
 
         } catch (\Exception $e) {
@@ -63,44 +54,42 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store Category
+     * Store Brand
      */
-    public function store(StoreCategoryRequest $request): JsonResponse
+    public function store(StoreBrandRequest $request): JsonResponse
     {
         $this->beginTransaction();
 
         try {
             $data = [
-                'parent_id' => $request->parent_id,
                 'name' => $request->name,
                 'slug' => $request->slug ?: Str::slug($request->name),
                 'description' => $request->description,
-                'sort_order' => $request->sort_order ?? 0,
                 'is_active' => $request->boolean('is_active'),
                 'created_by' => auth()->id(),
             ];
 
-            // Upload Image
-            if ($request->hasFile('image')) {
-                $data['image'] = $this->uploadFile(
-                    $request->file('image'),
-                    'categories'
+            // Upload Logo
+            if ($request->hasFile('logo')) {
+                $data['logo'] = $this->uploadFile(
+                    $request->file('logo'),
+                    'brands'
                 );
             }
 
-            $category = Category::create($data);
+            $brand = Brand::create($data);
 
             $this->commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category created successfully.',
-                'data' => $category->load('parent')
+                'message' => 'Brand created successfully.',
+                'data' => $brand,
             ], 201);
 
         } catch (ValidationException $e) {
             $this->rollback();
-            $this->cleanupUploadedFile($data['image'] ?? null);
+            $this->cleanupUploadedFile($data['logo'] ?? null);
 
             return response()->json([
                 'success' => false,
@@ -110,30 +99,30 @@ class CategoryController extends Controller
 
         } catch (\Exception $e) {
             $this->rollback();
-            $this->cleanupUploadedFile($data['image'] ?? null);
+            $this->cleanupUploadedFile($data['logo'] ?? null);
 
             return $this->handleException($e);
         }
     }
 
     /**
-     * Display Category
+     * Display Brand
      */
     public function show($id): JsonResponse
     {
         try {
-            $category = Category::with(['parent', 'children'])->findOrFail($id);
+            $brand = Brand::findOrFail($id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category fetched successfully.',
-                'data' => $category
+                'message' => 'Brand fetched successfully.',
+                'data' => $brand,
             ]);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Brand not found.',
             ], 404);
 
         } catch (\Exception $e) {
@@ -142,57 +131,47 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update Category
+     * Update Brand
      */
-    public function update(UpdateCategoryRequest $request, $id): JsonResponse
+    public function update(UpdateBrandRequest $request, $id): JsonResponse
     {
         $this->beginTransaction();
 
         try {
-            $category = Category::findOrFail($id);
-
-            // Prevent category from being its own parent
-            if ($request->parent_id == $id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'A category cannot be its own parent.'
-                ], 422);
-            }
+            $brand = Brand::findOrFail($id);
 
             $data = [
-                'parent_id' => $request->parent_id,
                 'name' => $request->name,
                 'slug' => $request->slug ?: Str::slug($request->name),
                 'description' => $request->description,
-                'sort_order' => $request->sort_order ?? 0,
                 'is_active' => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ];
 
-            // Replace Image
-            if ($request->hasFile('image')) {
-                $data['image'] = $this->replaceFile(
-                    $request->file('image'),
-                    $category->image,
-                    'categories'
+            // Replace Logo
+            if ($request->hasFile('logo')) {
+                $data['logo'] = $this->replaceFile(
+                    $request->file('logo'),
+                    $brand->logo,
+                    'brands'
                 );
             }
 
-            $category->update($data);
+            $brand->update($data);
 
             $this->commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category updated successfully.',
-                'data' => $category->fresh()->load('parent')
+                'message' => 'Brand updated successfully.',
+                'data' => $brand->fresh(),
             ]);
 
         } catch (ModelNotFoundException $e) {
             $this->rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Brand not found.'
             ], 404);
 
         } catch (ValidationException $e) {
@@ -210,50 +189,42 @@ class CategoryController extends Controller
     }
 
     /**
-     * Delete Category
+     * Delete Brand (Soft Delete)
      */
     public function destroy($id): JsonResponse
     {
         $this->beginTransaction();
 
         try {
-            $category = Category::findOrFail($id);
+            $brand = Brand::findOrFail($id);
 
-            // Check if category has children
-            if ($category->children()->exists()) {
+            // Check if brand is being used by products
+            if ($brand->products()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete category with child categories. Please delete or reassign child categories first.'
+                    'message' => 'Cannot delete brand that has associated products. Please reassign products first.'
                 ], 422);
             }
 
-            // Check if category is being used by products
-            if ($category->products()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cannot delete category that has associated products. Please reassign products first.'
-                ], 422);
+            // Delete Logo
+            if (!empty($brand->logo)) {
+                $this->cleanupUploadedFile($brand->logo);
             }
 
-            // Delete Image
-            if (!empty($category->image)) {
-                $this->cleanupUploadedFile($category->image);
-            }
-
-            $category->delete();
+            $brand->delete();
 
             $this->commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category deleted successfully.'
+                'message' => 'Brand deleted successfully.'
             ]);
 
         } catch (ModelNotFoundException $e) {
             $this->rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Brand not found.'
             ], 404);
 
         } catch (\Exception $e) {
@@ -263,7 +234,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Change Category Status
+     * Change Brand Status
      */
     public function changeStatus(Request $request, $id): JsonResponse
     {
@@ -272,23 +243,23 @@ class CategoryController extends Controller
                 'is_active' => 'required|boolean'
             ]);
 
-            $category = Category::findOrFail($id);
+            $brand = Brand::findOrFail($id);
 
-            $category->update([
+            $brand->update([
                 'is_active' => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category status updated successfully.',
-                'data' => $category
+                'message' => 'Brand status updated successfully.',
+                'data' => $brand
             ]);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Brand not found.'
             ], 404);
 
         } catch (ValidationException $e) {
@@ -304,20 +275,19 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get Trashed Categories
+     * Get Trashed Brands
      */
     public function trash(Request $request): JsonResponse
     {
         try {
-            $categories = Category::onlyTrashed()
-                ->with(['parent', 'children'])
+            $brands = Brand::onlyTrashed()
                 ->latest()
-                ->paginate($request->get('per_page', 10));
+                ->paginate($request->integer('per_page', 10));
 
             return response()->json([
                 'success' => true,
-                'message' => 'Trashed categories fetched successfully.',
-                'data' => $categories
+                'message' => 'Trashed brands fetched successfully.',
+                'data' => $brands
             ]);
 
         } catch (\Exception $e) {
@@ -326,47 +296,29 @@ class CategoryController extends Controller
     }
 
     /**
-     * Restore Trashed Category
+     * Restore Trashed Brand
      */
     public function restore($id): JsonResponse
     {
         $this->beginTransaction();
 
         try {
-            $category = Category::onlyTrashed()->findOrFail($id);
-
-            // Check if parent category exists and is active
-            if ($category->parent_id) {
-                $parent = Category::where('id', $category->parent_id)->first();
-                if (!$parent) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Parent category does not exist.'
-                    ], 422);
-                }
-                if (!$parent->is_active) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Parent category is inactive. Please activate parent category first.'
-                    ], 422);
-                }
-            }
-
-            $category->restore();
+            $brand = Brand::onlyTrashed()->findOrFail($id);
+            $brand->restore();
 
             $this->commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category restored successfully.',
-                'data' => $category->load('parent')
+                'message' => 'Brand restored successfully.',
+                'data' => $brand
             ]);
 
         } catch (ModelNotFoundException $e) {
             $this->rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found in trash.'
+                'message' => 'Brand not found in trash.'
             ], 404);
 
         } catch (\Exception $e) {
@@ -376,42 +328,42 @@ class CategoryController extends Controller
     }
 
     /**
-     * Force Delete Category (Permanent)
+     * Force Delete Brand (Permanent)
      */
     public function forceDelete($id): JsonResponse
     {
         $this->beginTransaction();
 
         try {
-            $category = Category::withTrashed()->findOrFail($id);
+            $brand = Brand::withTrashed()->findOrFail($id);
 
-            // Check if category has children (including soft-deleted)
-            if ($category->children()->withTrashed()->exists()) {
+            // Check if brand is being used by products (including soft-deleted)
+            if ($brand->products()->withTrashed()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot permanently delete category with child categories.'
+                    'message' => 'Cannot permanently delete brand that has associated products.'
                 ], 422);
             }
 
-            // Delete Image
-            if (!empty($category->image)) {
-                $this->cleanupUploadedFile($category->image);
+            // Delete Logo
+            if (!empty($brand->logo)) {
+                $this->cleanupUploadedFile($brand->logo);
             }
 
-            $category->forceDelete();
+            $brand->forceDelete();
 
             $this->commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category permanently deleted successfully.'
+                'message' => 'Brand permanently deleted successfully.'
             ]);
 
         } catch (ModelNotFoundException $e) {
             $this->rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Brand not found.'
             ], 404);
 
         } catch (\Exception $e) {
@@ -421,63 +373,39 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get Category Tree (Nested)
-     */
-    public function tree(Request $request): JsonResponse
-    {
-        try {
-            $categories = Category::with([
-                'children' => function ($query) {
-                    $query->where('is_active', true)
-                        ->orderBy('sort_order')
-                        ->orderBy('name');
-                }
-            ])
-                ->whereNull('parent_id')
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->orderBy('name')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Category tree fetched successfully.',
-                'data' => $categories
-            ]);
-
-        } catch (\Exception $e) {
-            return $this->handleException($e);
-        }
-    }
-
-    /**
-     * Bulk Delete Categories
+     * Bulk Delete Brands
      */
     public function bulkDelete(Request $request): JsonResponse
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:categories,id'
+            'ids.*' => 'exists:brands,id'
         ]);
 
         $this->beginTransaction();
 
         try {
-            $categories = Category::whereIn('id', $request->ids)->get();
+            $brands = Brand::whereIn('id', $request->ids)->get();
             $deleted = 0;
             $failed = [];
 
-            foreach ($categories as $category) {
-                if ($category->children()->exists() || $category->products()->exists()) {
-                    $failed[] = $category->id;
+            foreach ($brands as $brand) {
+                // Check if brand has products
+                if ($brand->products()->exists()) {
+                    $failed[] = [
+                        'id' => $brand->id,
+                        'name' => $brand->name,
+                        'reason' => 'Has associated products'
+                    ];
                     continue;
                 }
 
-                if (!empty($category->image)) {
-                    $this->cleanupUploadedFile($category->image);
+                // Delete Logo
+                if (!empty($brand->logo)) {
+                    $this->cleanupUploadedFile($brand->logo);
                 }
 
-                $category->delete();
+                $brand->delete();
                 $deleted++;
             }
 
@@ -485,7 +413,7 @@ class CategoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "{$deleted} categories deleted successfully.",
+                'message' => "{$deleted} brands deleted successfully.",
                 'data' => [
                     'deleted' => $deleted,
                     'failed' => $failed
@@ -502,6 +430,66 @@ class CategoryController extends Controller
 
         } catch (\Exception $e) {
             $this->rollback();
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Get Active Brands List (for dropdown)
+     */
+    public function dropdown(Request $request): JsonResponse
+    {
+        try {
+            $brands = Brand::where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'logo']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Brands fetched successfully.',
+                'data' => $brands
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Bulk Update Brand Status
+     */
+    public function bulkStatusUpdate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:brands,id',
+            'is_active' => 'required|boolean'
+        ]);
+
+        try {
+            Brand::whereIn('id', $request->ids)
+                ->update([
+                    'is_active' => $request->boolean('is_active'),
+                    'updated_by' => auth()->id(),
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Brand status updated successfully.',
+                'data' => [
+                    'updated_count' => count($request->ids),
+                    'is_active' => $request->boolean('is_active')
+                ]
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }

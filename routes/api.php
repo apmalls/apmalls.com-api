@@ -2,7 +2,11 @@
 
 
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Product\BrandController;
 use App\Http\Controllers\Api\V1\Product\CategoryController;
+use App\Http\Controllers\Api\V1\Product\ProductController;
+use App\Http\Controllers\Api\V1\Product\ProductImageController;
+use App\Http\Controllers\Api\V1\Product\UnitController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,6 +112,106 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/restore', 'restore');      // Restore Category
             Route::delete('/{id}/force-delete', 'forceDelete'); // Force Delete
             Route::post('/bulk-delete', 'bulkDelete');   // Bulk Delete
+        });
+
+
+    Route::middleware('auth:sanctum')
+        ->prefix('brands')
+        ->controller(BrandController::class)
+        ->group(function () {
+            Route::get('/', 'index');                        // Brand List
+            Route::get('/dropdown', 'dropdown');             // Brand Dropdown
+            Route::get('/trash', 'trash');                   // Trashed Brands
+            Route::post('/', 'store');                       // Create Brand
+            Route::get('/{id}', 'show');                     // Brand Details
+            Route::put('/{id}', 'update');                   // Update Brand
+            Route::delete('/{id}', 'destroy');               // Delete Brand
+            Route::patch('/{id}/status', 'changeStatus');    // Change Status
+            Route::put('/{id}/restore', 'restore');          // Restore Brand
+            Route::delete('/{id}/force-delete', 'forceDelete'); // Force Delete
+            Route::post('/bulk-delete', 'bulkDelete');       // Bulk Delete
+            Route::patch('/bulk-status', 'bulkStatusUpdate'); // Bulk Status Update
+        });
+
+
+    Route::middleware('auth:sanctum')->prefix('units')
+        ->controller(UnitController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+        });
+
+
+    Route::middleware('auth:sanctum')
+        ->prefix('products')
+        ->controller(ProductController::class)
+        ->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Product CRUD
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/', 'index');                    // Product List
+
+            Route::post('/', 'store');                   // Create Product
+
+            Route::get('/trash', 'trash');               // Trash List
+
+            Route::get('/{id}', 'show');                 // Product Details
+
+            Route::put('/{id}', 'update');               // Update Product
+
+            Route::delete('/{id}', 'destroy');           // Soft Delete
+
+            Route::patch('/{id}/status', 'changeStatus');// Change Status
+
+            Route::put('/{id}/restore', 'restore');      // Restore Product
+
+            Route::delete('/{id}/force-delete', 'forceDelete'); // Permanent Delete
+
+
+        });
+
+    Route::middleware('auth:sanctum')
+        ->prefix('products')
+        ->controller(ProductImageController::class)
+        ->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Product Gallery
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/{product}/images', 'index');
+
+            Route::post('/{product}/images', 'store');
+
+            Route::put('/images/{image}', 'update');
+
+            Route::delete('/images/{image}', 'destroy');
+
+            Route::patch('/images/{image}/sort-order', 'updateSortOrder');
+
         });
 
 });

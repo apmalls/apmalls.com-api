@@ -7,10 +7,8 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\ChangeUserStatusRequest;
 use App\Models\User;
-use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -18,8 +16,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
-    use FileUploadTrait;
-
     /**
      * User Listing
      */
@@ -67,7 +63,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
             $data = [
@@ -96,7 +92,7 @@ class UserController extends Controller
                 $user->assignRole($request->role);
             }
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -105,7 +101,7 @@ class UserController extends Controller
             ], 201);
 
         } catch (ValidationException $e) {
-            DB::rollBack();
+            $this->rollback();
             $this->cleanupUploadedFile($data['profile_photo'] ?? null);
 
             return response()->json([
@@ -115,7 +111,7 @@ class UserController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             $this->cleanupUploadedFile($data['profile_photo'] ?? null);
 
             return $this->handleException($e);
@@ -152,7 +148,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, $id): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
             $user = User::findOrFail($id);
@@ -188,7 +184,7 @@ class UserController extends Controller
                 $user->syncRoles([$request->role]);
             }
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -197,14 +193,14 @@ class UserController extends Controller
             ]);
 
         } catch (ModelNotFoundException $e) {
-            DB::rollBack();
+            $this->rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
             ], 404);
 
         } catch (ValidationException $e) {
-            DB::rollBack();
+            $this->rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
@@ -212,7 +208,7 @@ class UserController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             return $this->handleException($e);
         }
     }
@@ -222,7 +218,7 @@ class UserController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
             $user = User::findOrFail($id);
@@ -237,13 +233,13 @@ class UserController extends Controller
 
             // Delete Profile Photo
             if (!empty($user->profile_photo)) {
-                $this->deleteFile($user->profile_photo);
+                $this->cleanupUploadedFile($user->profile_photo);
             }
 
             // Soft Delete User
             $user->delete();
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -251,14 +247,14 @@ class UserController extends Controller
             ]);
 
         } catch (ModelNotFoundException $e) {
-            DB::rollBack();
+            $this->rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
             ], 404);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             return $this->handleException($e);
         }
     }
@@ -319,13 +315,13 @@ class UserController extends Controller
      */
     public function restore($id): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
             $user = User::onlyTrashed()->findOrFail($id);
             $user->restore();
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -334,14 +330,14 @@ class UserController extends Controller
             ]);
 
         } catch (ModelNotFoundException $e) {
-            DB::rollBack();
+            $this->rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'User not found in trash.'
             ], 404);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             return $this->handleException($e);
         }
     }
@@ -351,7 +347,7 @@ class UserController extends Controller
      */
     public function forceDelete($id): JsonResponse
     {
-        DB::beginTransaction();
+        $this->beginTransaction();
 
         try {
             $user = User::withTrashed()->findOrFail($id);
@@ -366,13 +362,13 @@ class UserController extends Controller
 
             // Delete Profile Photo
             if (!empty($user->profile_photo)) {
-                $this->deleteFile($user->profile_photo);
+                $this->cleanupUploadedFile($user->profile_photo);
             }
 
             // Force Delete User
             $user->forceDelete();
 
-            DB::commit();
+            $this->commit();
 
             return response()->json([
                 'success' => true,
@@ -380,50 +376,16 @@ class UserController extends Controller
             ]);
 
         } catch (ModelNotFoundException $e) {
-            DB::rollBack();
+            $this->rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
             ], 404);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            $this->rollback();
             return $this->handleException($e);
         }
     }
 
-    /**
-     * Handle Exception
-     */
-    private function handleException(\Exception $e): JsonResponse
-    {
-        $statusCode = $e->getCode() >= 100 && $e->getCode() < 600 ? $e->getCode() : 500;
-
-        // Log error in production
-        if (config('app.env') !== 'local') {
-            \Log::error('UserController Error: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => config('app.env') === 'local'
-                ? $e->getMessage()
-                : 'An error occurred while processing your request.',
-            'code' => $statusCode
-        ], $statusCode >= 400 && $statusCode < 600 ? $statusCode : 500);
-    }
-
-    /**
-     * Cleanup Uploaded File
-     */
-    private function cleanupUploadedFile(?string $filePath): void
-    {
-        if (!empty($filePath)) {
-            $this->deleteFile($filePath);
-        }
-    }
 }

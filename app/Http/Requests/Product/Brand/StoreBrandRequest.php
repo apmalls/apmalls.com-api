@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Product;
+namespace App\Http\Requests\Product\Brand;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class StoreCategoryRequest extends FormRequest
+class StoreBrandRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,39 +24,31 @@ class StoreCategoryRequest extends FormRequest
     {
         return [
 
-            'parent_id' => [
-                'nullable',
-                'exists:categories,id',
-            ],
 
             'name' => [
                 'required',
                 'string',
                 'max:255',
+                'unique:brands,name',
             ],
 
             'slug' => [
                 'nullable',
                 'string',
-                Rule::unique('categories', 'slug'),
+                'max:255',
+                'unique:brands,slug',
             ],
 
-            'description' => [
-                'nullable',
-                'string',
-            ],
-
-            'image' => [
+            'logo' => [
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
 
-            'sort_order' => [
+            'description' => [
                 'nullable',
-                'integer',
-                'min:0',
+                'string',
             ],
 
             'is_active' => [
@@ -67,4 +58,26 @@ class StoreCategoryRequest extends FormRequest
 
         ];
     }
+
+    /**
+     * Get custom messages for validation errors.
+     */
+    public function messages(): array
+    {
+        return [
+             'name.required' => 'Brand name is required.',
+
+            'name.unique' => 'Brand name already exists.',
+
+            'slug.unique' => 'Slug already exists.',
+
+            'logo.image' => 'Logo must be an image.',
+
+            'logo.mimes' => 'Logo must be a jpg, jpeg, png or webp file.',
+
+            'logo.max' => 'Logo size must not exceed 2 MB.',
+        ];
+    }
+
+
 }

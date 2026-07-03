@@ -4,12 +4,13 @@
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
-use App\Http\Controllers\Api\V1\CustomerAddressController;
+use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
 use App\Http\Controllers\Api\V1\Product\BrandController;
 use App\Http\Controllers\Api\V1\Product\CategoryController;
 use App\Http\Controllers\Api\V1\Product\ProductController;
 use App\Http\Controllers\Api\V1\Product\ProductImageController;
 use App\Http\Controllers\Api\V1\Product\UnitController;
+use App\Http\Controllers\Api\V1\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
@@ -243,28 +244,31 @@ Route::prefix('v1')->group(function () {
 
             Route::delete('/{id}/force-delete', 'forceDelete');
 
-            Route::controller(SupplierAddressController::class)
-                ->group(function () {
 
-                    Route::get('{supplier}/addresses', 'index');
 
-                    Route::post('{supplier}/addresses', 'store');
+        });
 
-                    Route::get('addresses/trash/{supplier}', 'trash');
+    Route::middleware('auth:sanctum')
+        ->prefix('suppliers')->controller(SupplierAddressController::class)
+        ->group(function () {
 
-                    Route::get('addresses/{id}', 'show');
+            Route::get('{supplier}/addresses', 'index');
 
-                    Route::put('addresses/{id}', 'update');
+            Route::post('{supplier}/addresses', 'store');
 
-                    Route::delete('addresses/{id}', 'destroy');
+            Route::get('addresses/trash/{supplier}', 'trash');
 
-                    Route::patch('addresses/{id}/default', 'changeDefault');
+            Route::get('addresses/{id}', 'show');
 
-                    Route::put('addresses/{id}/restore', 'restore');
+            Route::put('addresses/{id}', 'update');
 
-                    Route::delete('addresses/{id}/force-delete', 'forceDelete');
+            Route::delete('addresses/{id}', 'destroy');
 
-                });
+            Route::patch('addresses/{id}/default', 'changeDefault');
+
+            Route::put('addresses/{id}/restore', 'restore');
+
+            Route::delete('addresses/{id}/force-delete', 'forceDelete');
 
         });
 
@@ -292,28 +296,56 @@ Route::prefix('v1')->group(function () {
 
             Route::delete('/{id}/force-delete', 'forceDelete');
 
-            Route::controller(CustomerAddressController::class)
-                ->group(function () {
 
-                    Route::get('{customer}/addresses', 'index');
 
-                    Route::post('{customer}/addresses', 'store');
+        });
 
-                    Route::get('addresses/trash/{customer}', 'trash');
+    Route::middleware('auth:sanctum')
+        ->prefix('customers')->controller(CustomerAddressController::class)
+        ->group(function () {
 
-                    Route::get('addresses/{id}', 'show');
+            Route::get('{customer}/addresses', 'index');
 
-                    Route::put('addresses/{id}', 'update');
+            Route::post('{customer}/addresses', 'store');
 
-                    Route::delete('addresses/{id}', 'destroy');
+            Route::get('addresses/trash/{customer}', 'trash');
 
-                    Route::patch('addresses/{id}/default', 'changeDefault');
+            Route::get('addresses/{id}', 'show');
 
-                    Route::put('addresses/{id}/restore', 'restore');
+            Route::put('addresses/{id}', 'update');
 
-                    Route::delete('addresses/{id}/force-delete', 'forceDelete');
+            Route::delete('addresses/{id}', 'destroy');
 
-                });
+            Route::patch('addresses/{id}/default', 'changeDefault');
+
+            Route::put('addresses/{id}/restore', 'restore');
+
+            Route::delete('addresses/{id}/force-delete', 'forceDelete');
+
+        });
+
+
+    Route::prefix('purchase-orders')
+        ->controller(PurchaseOrderController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
 
         });
 

@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockAdjustment;
+use App\Models\Inventory\StockMovement;
 use App\Models\Product\Brand;
 use App\Models\Product\Category;
 use App\Models\Product\ProductImage;
@@ -91,5 +94,20 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function stock()
+    {
+        return $this->hasOne(Stock::class);
+    }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function stockAdjustments()
+    {
+        return $this->hasMany(StockAdjustment::class);
     }
 }

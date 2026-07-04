@@ -12,8 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sale_return_items', function (Blueprint $table) {
+
             $table->id();
+
+            $table->foreignId('sale_return_id')
+                ->constrained('sale_returns')
+                ->cascadeOnDelete();
+
+            $table->foreignId('sale_order_item_id')
+                ->constrained('sale_order_items')
+                ->restrictOnDelete();
+
+            $table->foreignId('product_id')
+                ->constrained('products')
+                ->restrictOnDelete();
+
+            $table->decimal('selling_price',12,2);
+
+            $table->integer('quantity');
+
+            $table->decimal('line_total',12,2);
+
             $table->timestamps();
+
         });
     }
 

@@ -11,7 +11,9 @@ use App\Http\Controllers\Api\V1\Product\ProductController;
 use App\Http\Controllers\Api\V1\Product\ProductImageController;
 use App\Http\Controllers\Api\V1\Product\UnitController;
 use App\Http\Controllers\Api\V1\Purchase\PurchaseOrderController;
+use App\Http\Controllers\Api\V1\Purchase\PurchaseReturnController;
 use App\Http\Controllers\Api\V1\Sale\SaleOrderController;
+use App\Http\Controllers\Api\V1\Sale\SaleReturnController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
@@ -353,6 +355,56 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('sale-orders')
         ->controller(SaleOrderController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+        });
+
+
+    Route::prefix('purchase-returns')
+        ->controller(PurchaseReturnController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+        });
+
+
+    Route::prefix('sale-returns')
+        ->controller(SaleReturnController::class)
         ->group(function () {
 
             Route::get('/', 'index');

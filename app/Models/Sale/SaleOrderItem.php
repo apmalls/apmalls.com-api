@@ -2,7 +2,8 @@
 
 namespace App\Models\Sale;
 
-use App\Models\Product;
+
+use App\Models\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -68,5 +69,10 @@ class SaleOrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function saleReturnItems()
+    {
+        return $this->hasMany(SaleReturnItem::class);
     }
 }

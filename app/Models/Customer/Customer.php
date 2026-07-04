@@ -3,6 +3,7 @@
 namespace App\Models\Customer;
 
 use App\Models\Sale\SaleOrder;
+use App\Models\Sale\SaleReturnItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -102,12 +103,17 @@ class Customer extends Model
     }
 
     public function addresses()
-{
-    return $this->hasMany(CustomerAddress::class);
-}
+    {
+        return $this->hasMany(CustomerAddress::class);
+    }
 
-public function saleOrders()
-{
-    return $this->hasMany(SaleOrder::class);
-}
+    public function saleOrders()
+    {
+        return $this->hasMany(SaleOrder::class);
+    }
+
+    public function saleReturnItems()
+    {
+        return $this->hasMany(SaleReturnItem::class);
+    }
 }

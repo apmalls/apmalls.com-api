@@ -2,6 +2,7 @@
 
 namespace App\Models\Supplier;
 
+use App\Models\Purchase\PurchaseReturn;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -97,6 +98,11 @@ class Supplier extends Model
     public function addresses()
     {
         return $this->hasMany(SupplierAddress::class);
+    }
+
+    public function purchaseReturns()
+    {
+        return $this->hasMany(PurchaseReturn::class);
     }
 
 }

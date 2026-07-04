@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Product;
 
 use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockAdjustment;
@@ -9,7 +9,9 @@ use App\Models\Product\Brand;
 use App\Models\Product\Category;
 use App\Models\Product\ProductImage;
 use App\Models\Product\Unit;
+use App\Models\Purchase\PurchaseReturnItem;
 use App\Models\Sale\SaleOrderItem;
+use App\Models\User;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -113,7 +115,12 @@ class Product extends Model
     }
 
     public function saleItems()
-{
-    return $this->hasMany(SaleOrderItem::class);
-}
+    {
+        return $this->hasMany(SaleOrderItem::class);
+    }
+
+    public function purchaseReturnItems()
+    {
+        return $this->hasMany(PurchaseReturnItem::class);
+    }
 }

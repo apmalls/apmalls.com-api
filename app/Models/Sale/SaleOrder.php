@@ -104,4 +104,9 @@ class SaleOrder extends Model
     {
         return $this->items()->sum('quantity');
     }
+
+    public function saleReturns()
+    {
+        return $this->hasMany(SaleReturn::class);
+    }
 }

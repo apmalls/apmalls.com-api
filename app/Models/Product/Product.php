@@ -9,6 +9,7 @@ use App\Models\Product\Brand;
 use App\Models\Product\Category;
 use App\Models\Product\ProductImage;
 use App\Models\Product\Unit;
+use App\Models\Sale\SaleOrderItem;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -110,4 +111,9 @@ class Product extends Model
     {
         return $this->hasMany(StockAdjustment::class);
     }
+
+    public function saleItems()
+{
+    return $this->hasMany(SaleOrderItem::class);
+}
 }

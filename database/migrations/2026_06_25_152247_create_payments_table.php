@@ -16,7 +16,7 @@ return new class extends Migration {
 
             /*
             |--------------------------------------------------------------------------
-            | Payment Information
+            | Basic
             |--------------------------------------------------------------------------
             */
 
@@ -26,39 +26,18 @@ return new class extends Migration {
 
             /*
             |--------------------------------------------------------------------------
-            | Party
+            | Module
             |--------------------------------------------------------------------------
             */
 
-            $table->enum('party_type', [
+            $table->string('module');
 
-                'Supplier',
+            // purchase
+            // sale
+            // purchase_return
+            // sale_return
 
-                'Customer',
-
-            ]);
-
-            $table->unsignedBigInteger('party_id');
-
-            /*
-            |--------------------------------------------------------------------------
-            | Reference
-            |--------------------------------------------------------------------------
-            */
-
-            $table->enum('reference_type', [
-
-                'Purchase',
-
-                'Sale',
-
-                'Purchase Return',
-
-                'Sale Return',
-
-            ]);
-
-            $table->unsignedBigInteger('reference_id');
+            $table->unsignedBigInteger('module_id');
 
             /*
             |--------------------------------------------------------------------------
@@ -67,14 +46,14 @@ return new class extends Migration {
             */
 
             $table->foreignId('payment_mode_id')
-                ->constrained('payment_modes')
+                ->constrained()
                 ->restrictOnDelete();
 
             $table->decimal('amount', 12, 2);
 
             /*
             |--------------------------------------------------------------------------
-            | Transaction
+            | Bank Details
             |--------------------------------------------------------------------------
             */
 
@@ -89,15 +68,10 @@ return new class extends Migration {
             */
 
             $table->enum('status', [
-
                 'Pending',
-
                 'Completed',
-
-                'Failed',
-
                 'Cancelled',
-
+                'Failed'
             ])->default('Completed');
 
             $table->text('remarks')->nullable();

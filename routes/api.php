@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
+use App\Http\Controllers\Api\V1\Payment\PaymentController;
+use App\Http\Controllers\Api\V1\Payment\PaymentModeController;
 use App\Http\Controllers\Api\V1\Product\BrandController;
 use App\Http\Controllers\Api\V1\Product\CategoryController;
 use App\Http\Controllers\Api\V1\Product\ProductController;
@@ -420,6 +422,48 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/status', 'changeStatus');
 
             Route::delete('/{id}', 'destroy');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+        });
+
+
+    Route::prefix('payment-modes')
+        ->controller(PaymentModeController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+        });
+
+
+    Route::prefix('payments')
+        ->controller(PaymentController::class)
+        ->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::get('/trash', 'trash');
 
             Route::put('/{id}/restore', 'restore');
 

@@ -10,6 +10,7 @@ use App\Models\Purchase\PurchaseOrder;
 use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -27,6 +28,17 @@ class PaymentService
     public function paginate(array $filters = []): LengthAwarePaginator
     {
         return $this->paymentRepository->paginate($filters);
+    }
+
+    /**
+     * Trashed Payments Listing
+     */
+    public function trash(
+        array $filters = []
+    ): LengthAwarePaginator {
+
+        return $this->paymentRepository->trash($filters);
+
     }
 
     /**

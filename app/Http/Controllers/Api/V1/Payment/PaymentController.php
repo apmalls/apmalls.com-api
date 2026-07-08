@@ -204,6 +204,31 @@ class PaymentController extends Controller
 
     }
 
+    public function trash(Request $request): JsonResponse
+    {
+        try {
+
+            $payments = $this->paymentService->trash(
+                $request->all()
+            );
+
+            return response()->json([
+
+                'success' => true,
+
+                'message' => 'Trashed payments fetched successfully.',
+
+                'data' => $payments,
+
+            ]);
+
+        } catch (Throwable $e) {
+
+            return $this->handleException($e);
+
+        }
+    }
+
     /**
      * Delete Payment
      */

@@ -6,7 +6,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockAdjustment;
 use App\Models\Inventory\StockMovement;
 use App\Models\Product\Brand;
-use App\Models\Product\Category;
+use App\Models\Category\Category;
 use App\Models\Product\ProductImage;
 use App\Models\Product\Unit;
 use App\Models\Purchase\PurchaseReturnItem;

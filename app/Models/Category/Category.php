@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models\Product;
+namespace App\Models\Category;
 
-use App\Models\Product;
+
+use App\Models\Product\Product;
 use App\Models\User;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;

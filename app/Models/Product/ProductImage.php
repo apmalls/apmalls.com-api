@@ -2,7 +2,7 @@
 
 namespace App\Models\Product;
 
-use App\Models\Product;
+use App\Models\Product\Product;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

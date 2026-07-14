@@ -123,4 +123,36 @@ class Product extends Model
     {
         return $this->hasMany(PurchaseReturnItem::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where(
+            'is_active',
+            true
+        );
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where(
+            'featured',
+            true
+        );
+    }
+
+    public function scopeNewArrival($query)
+    {
+        return $query->where(
+            'new_arrival',
+            true
+        );
+    }
+
+    public function scopeBestSeller($query)
+    {
+        return $query->where(
+            'best_seller',
+            true
+        );
+    }
 }

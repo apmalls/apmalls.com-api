@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             UnitSeeder::class,
             PaymentModeSeeder::class,
+            ProductSeeder::class,
 
         ]);
         // User::factory(10)->create();

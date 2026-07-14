@@ -107,6 +107,7 @@ class CategorySeeder extends Seeder
                     'description' => $parent . ' Category',
                     'sort_order' => $sortOrder++,
                     'is_active' => true,
+                    'is_featured' => false,
                 ]
             );
 
@@ -119,6 +120,7 @@ class CategorySeeder extends Seeder
                         'description' => $child . ' Category',
                         'sort_order' => $sortOrder++,
                         'is_active' => true,
+                        'is_featured' => false,
                     ]
                 );
             }

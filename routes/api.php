@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
 
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
+use App\Http\Controllers\Api\V1\Website\HomeController;
+use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -527,6 +529,111 @@ Route::prefix('v1')->group(function () {
                     Route::get(
                         '/{slug}',
                         'show'
+                    );
+
+                });
+
+            /*
+   |--------------------------------------------------------------------------
+   | Products
+   |--------------------------------------------------------------------------
+   */
+
+            Route::controller(WebsiteProductController::class)
+                ->prefix('products')
+                ->group(function () {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Product Listing
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/',
+                        'index'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Product Search
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/search',
+                        'search'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Featured Products
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/featured',
+                        'featured'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | New Arrival Products
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/new-arrivals',
+                        'newArrivals'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Best Seller Products
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/best-sellers',
+                        'bestSellers'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Product Details
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/{slug}',
+                        'show'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Related Products
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/{slug}/related',
+                        'related'
+                    );
+
+                });
+
+            /*
+    |--------------------------------------------------------------------------
+    | Home
+    |--------------------------------------------------------------------------
+    */
+
+            Route::controller(HomeController::class)
+                ->group(function () {
+
+                    Route::get(
+                        'home',
+                        'index'
                     );
 
                 });

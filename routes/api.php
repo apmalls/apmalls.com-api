@@ -19,6 +19,9 @@ use App\Http\Controllers\Api\V1\Sale\SaleReturnController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
 use App\Http\Controllers\Api\V1\User\UserController;
+
+use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -470,5 +473,65 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}/force-delete', 'forceDelete');
 
         });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('website')
+        ->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Categories
+            |--------------------------------------------------------------------------
+            */
+
+            Route::controller(WebsiteCategoryController::class)
+
+                ->prefix('categories')
+
+                ->group(function () {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Category Listing
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/',
+                        'index'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Featured Categories
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/featured',
+                        'featured'
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Category Details
+                    |--------------------------------------------------------------------------
+                    */
+
+                    Route::get(
+                        '/{slug}',
+                        'show'
+                    );
+
+                });
+
+        });
+
 
 });

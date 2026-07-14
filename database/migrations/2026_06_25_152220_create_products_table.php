@@ -64,6 +64,11 @@ return new class extends Migration {
             $table->boolean('best_seller')->default(false);
 
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('sale_count')->default(0);
+
+            $table->decimal('rating', 3, 2)->default(0);
+
+            $table->unsignedInteger('review_count')->default(0);
 
             $table->foreignId('created_by')
                 ->nullable()

@@ -11,6 +11,10 @@ use App\Repositories\Purchase\PurchaseRepository;
 use App\Repositories\Contracts\CashRegisterRepositoryInterface;
 use App\Repositories\POS\CashRegisterRepository;
 
+use App\Repositories\Contracts\CategoryRepositoryInterface;
+use App\Repositories\Category\CategoryRepository;
+
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -31,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CashRegisterRepositoryInterface::class,
             CashRegisterRepository::class
+        );
+
+        $this->app->bind(
+            CategoryRepositoryInterface::class,
+            CategoryRepository::class
         );
 
     }

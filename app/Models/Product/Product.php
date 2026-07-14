@@ -6,7 +6,7 @@ use App\Models\Inventory\Stock;
 use App\Models\Inventory\StockAdjustment;
 use App\Models\Inventory\StockMovement;
 use App\Models\Product\Brand;
-use App\Models\Product\Category;
+use App\Models\Category\Category;
 use App\Models\Product\ProductImage;
 use App\Models\Product\Unit;
 use App\Models\Purchase\PurchaseReturnItem;
@@ -122,5 +122,37 @@ class Product extends Model
     public function purchaseReturnItems()
     {
         return $this->hasMany(PurchaseReturnItem::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where(
+            'is_active',
+            true
+        );
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where(
+            'featured',
+            true
+        );
+    }
+
+    public function scopeNewArrival($query)
+    {
+        return $query->where(
+            'new_arrival',
+            true
+        );
+    }
+
+    public function scopeBestSeller($query)
+    {
+        return $query->where(
+            'best_seller',
+            true
+        );
     }
 }

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('cash_register_transactions', function (Blueprint $table) {
             $table->id();
-            $table->id();
 
             /*
             |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer\Customer;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Auth\LoginRequest;
@@ -22,6 +23,68 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
 
+
+    /**
+     * Register New User
+     */
+    // public function register(RegisterRequest $request): JsonResponse
+    // {
+    //     $this->beginTransaction();
+
+    //     try {
+
+    //         $user = User::create([
+
+    //             'first_name' => $request->first_name,
+
+    //             'last_name' => $request->last_name,
+
+    //             'username' => $request->username,
+
+    //             'email' => $request->email,
+
+    //             'mobile' => $request->mobile,
+
+    //             'password' => Hash::make($request->password),
+
+    //         ]);
+
+    //         /**
+    //          * Default Role
+    //          */
+    //         $user->assignRole(config('roles.default'));
+
+    //         /**
+    //          * Sanctum Token
+    //          */
+    //         $token = $user->createToken('auth_token')->plainTextToken;
+
+    //         $this->commit();
+
+    //         return response()->json([
+
+    //             'success' => true,
+
+    //             'message' => 'Registration successful.',
+
+    //             'data' => [
+
+    //                 'user' => $user,
+
+    //                 'token' => $token,
+
+    //             ]
+
+    //         ], 201);
+
+    //     } catch (\Exception $e) {
+
+    //         $this->rollback();
+
+    //         return $this->handleException($e);
+
+    //     }
+    // }
 
     /**
      * Register New User
@@ -51,7 +114,41 @@ class AuthController extends Controller
             /**
              * Default Role
              */
-            $user->assignRole(config('roles.default'));
+            $role = config('roles.default');
+
+            $user->assignRole($role);
+
+            /**
+             * Create Customer Profile
+             */
+            if ($role === 'Customer') {
+
+                Customer::create([
+
+                    'user_id' => $user->id,
+
+                    'customer_code' => 'CUS-' . str_pad(
+                        (string) (Customer::max('id') + 1),
+                        6,
+                        '0',
+                        STR_PAD_LEFT
+                    ),
+
+                    'customer_type' => 'Retail',
+
+                    'first_name' => $user->first_name,
+
+                    'last_name' => $user->last_name,
+
+                    'mobile' => $user->mobile,
+
+                    'email' => $user->email,
+
+                    'is_active' => true,
+
+                ]);
+
+            }
 
             /**
              * Sanctum Token
@@ -68,7 +165,7 @@ class AuthController extends Controller
 
                 'data' => [
 
-                    'user' => $user,
+                    'user' => $user->load('roles'),
 
                     'token' => $token,
 
@@ -84,7 +181,6 @@ class AuthController extends Controller
 
         }
     }
-
 
     /**
      * User Login
@@ -105,7 +201,7 @@ class AuthController extends Controller
 
         }
 
-        /** @var \App\Models\User $user */
+
         $user = Auth::user();
 
         if (!$user->is_active) {

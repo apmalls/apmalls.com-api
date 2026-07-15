@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\Website\CartController;
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
 use App\Http\Controllers\Api\V1\Website\HomeController;
 use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
+use App\Http\Controllers\Api\V1\Website\CustomerAddressController as WebsiteCustomerAddressController;
 
 use App\Http\Controllers\Api\V1\Website\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -723,6 +724,39 @@ Route::prefix('v1')->group(function () {
                     Route::delete(
                         '/clear',
                         'clear'
+                    );
+
+                });
+
+
+            Route::middleware('auth:sanctum')
+                ->prefix('customer-addresses')
+                ->controller(WebsiteCustomerAddressController::class)
+                ->group(function () {
+
+                    Route::get(
+                        '/',
+                        'index'
+                    );
+
+                    Route::get(
+                        '/default',
+                        'default'
+                    );
+
+                    Route::post(
+                        '/',
+                        'store'
+                    );
+
+                    Route::put(
+                        '/{id}',
+                        'update'
+                    );
+
+                    Route::delete(
+                        '/{id}',
+                        'destroy'
                     );
 
                 });

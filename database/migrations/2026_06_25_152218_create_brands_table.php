@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->text('description')->nullable();
 
             $table->boolean('is_active')->default(true);
+            $table->boolean('featured')->default(false);
 
             $table->foreignId('created_by')
                 ->nullable()

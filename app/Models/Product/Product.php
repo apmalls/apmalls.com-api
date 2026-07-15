@@ -12,6 +12,7 @@ use App\Models\Product\Unit;
 use App\Models\Purchase\PurchaseReturnItem;
 use App\Models\Sale\SaleOrderItem;
 use App\Models\User;
+use App\Models\Wishlist\Wishlist;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -153,6 +154,13 @@ class Product extends Model
         return $query->where(
             'best_seller',
             true
+        );
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(
+            Wishlist::class
         );
     }
 }

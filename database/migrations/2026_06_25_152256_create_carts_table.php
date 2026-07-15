@@ -10,72 +10,89 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('cart_items', function (Blueprint $table) {
+        Schema::create('carts', function (Blueprint $table) {
             $table->id();
 
             /*
             |--------------------------------------------------------------------------
-            | Cart
+            | Cart Information
             |--------------------------------------------------------------------------
             */
 
-            $table->foreignId('cart_id')
-                ->constrained('carts')
+            $table->string('cart_no')
+                ->unique();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Customer
+            |--------------------------------------------------------------------------
+            */
+
+            $table->foreignId('customer_id')
+                ->constrained('customers')
                 ->cascadeOnDelete();
 
             /*
             |--------------------------------------------------------------------------
-            | Product
+            | Coupon
             |--------------------------------------------------------------------------
             */
 
-            $table->foreignId('product_id')
-                ->constrained('products')
-                ->restrictOnDelete();
+            $table->foreignId('coupon_id')
+                ->nullable()
+                ->constrained('coupons')
+                ->nullOnDelete();
+
+            $table->string('coupon_code')
+                ->nullable();
 
             /*
             |--------------------------------------------------------------------------
-            | Quantity
+            | Amount
             |--------------------------------------------------------------------------
             */
 
-            $table->unsignedInteger('quantity')
-                ->default(1);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pricing Snapshot
-            |--------------------------------------------------------------------------
-            */
-
-            $table->decimal('price', 12, 2);
-
-            $table->decimal('tax_percent', 5, 2)
-                ->default(0);
-
-            $table->decimal('tax_amount', 12, 2)
-                ->default(0);
-
-            $table->decimal('discount_percent', 5, 2)
+            $table->decimal('subtotal', 12, 2)
                 ->default(0);
 
             $table->decimal('discount_amount', 12, 2)
                 ->default(0);
 
-            $table->decimal('subtotal', 12, 2);
+            $table->decimal('tax_amount', 12, 2)
+                ->default(0);
 
-            $table->timestamps();
+            $table->decimal('shipping_charge', 12, 2)
+                ->default(0);
+
+            $table->decimal('grand_total', 12, 2)
+                ->default(0);
 
             /*
             |--------------------------------------------------------------------------
-            | Prevent Duplicate Product In Same Cart
+            | Status
             |--------------------------------------------------------------------------
             */
 
-            $table->unique([
-                'cart_id',
-                'product_id',
-            ]);
+            $table->enum('status', [
+
+                'Active',
+
+                'Converted',
+
+                'Abandoned',
+
+            ])->default('Active');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remarks
+            |--------------------------------------------------------------------------
+            */
+
+            $table->text('remarks')
+                ->nullable();
+
+            $table->timestamps();
         });
     }
 
@@ -84,6 +101,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('cart_items');
+        Schema::dropIfExists('carts');
     }
 };

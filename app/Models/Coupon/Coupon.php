@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Coupon;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Wishlist extends Model
+class Coupon extends Model
 {
     //
 }

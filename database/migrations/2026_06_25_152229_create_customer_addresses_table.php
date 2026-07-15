@@ -25,6 +25,9 @@ return new class extends Migration {
             */
 
             $table->enum('address_type', [
+                'Home',
+
+                'Office',
 
                 'Billing',
 

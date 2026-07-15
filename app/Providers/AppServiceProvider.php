@@ -14,6 +14,23 @@ use App\Repositories\POS\CashRegisterRepository;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Category\CategoryRepository;
 
+use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Product\ProductRepository;
+
+use App\Repositories\Contracts\BrandRepositoryInterface;
+use App\Repositories\Product\BrandRepository;
+
+use App\Repositories\Contracts\CartRepositoryInterface;
+use App\Repositories\Cart\CartRepository;
+
+use App\Repositories\Contracts\CartItemRepositoryInterface;
+use App\Repositories\Cart\CartItemRepository;
+
+use App\Repositories\Contracts\WishlistRepositoryInterface;
+use App\Repositories\Wishlist\WishlistRepository;
+
+
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +58,33 @@ class AppServiceProvider extends ServiceProvider
             CategoryRepositoryInterface::class,
             CategoryRepository::class
         );
+
+        $this->app->bind(
+            ProductRepositoryInterface::class,
+            ProductRepository::class
+        );
+
+        $this->app->bind(
+            BrandRepositoryInterface::class,
+            BrandRepository::class
+        );
+
+        $this->app->bind(
+            CartRepositoryInterface::class,
+            CartRepository::class
+        );
+
+        $this->app->bind(
+            CartItemRepositoryInterface::class,
+            CartItemRepository::class
+        );
+
+        $this->app->bind(
+            WishlistRepositoryInterface::class,
+            WishlistRepository::class
+        );
+
+
 
     }
 

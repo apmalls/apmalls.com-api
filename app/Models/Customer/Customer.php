@@ -5,6 +5,7 @@ namespace App\Models\Customer;
 use App\Models\Sale\SaleOrder;
 use App\Models\Sale\SaleReturnItem;
 use App\Models\User;
+use App\Models\Wishlist\Wishlist;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -115,5 +116,12 @@ class Customer extends Model
     public function saleReturnItems()
     {
         return $this->hasMany(SaleReturnItem::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(
+            Wishlist::class
+        );
     }
 }

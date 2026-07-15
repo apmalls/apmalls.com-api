@@ -50,6 +50,7 @@ class BrandSeeder extends Seeder
                     'name'        => $brand,
                     'description' => $brand . ' Brand',
                     'is_active'   => true,
+                    'featured'    => false,
                 ]
             );
         }

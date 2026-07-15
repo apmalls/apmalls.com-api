@@ -2,7 +2,8 @@
 
 namespace App\Models\Product;
 
-use App\Models\Product;
+use App\Models\Product\Product;
+
 use App\Models\User;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
@@ -19,12 +20,14 @@ class Brand extends Model
         'logo',
         'description',
         'is_active',
+        'featured',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'featured' => 'boolean',
     ];
 
     /*

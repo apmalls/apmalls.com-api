@@ -39,6 +39,13 @@ interface CustomerAddressRepositoryInterface
     ): ?CustomerAddress;
 
     /**
+     * Set Default Address
+     */
+    public function setDefault(
+        int $addressId
+    ): CustomerAddress;
+
+    /**
      * Create Address
      */
     public function create(

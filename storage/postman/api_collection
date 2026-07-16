@@ -77,7 +77,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user91@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user4@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -117,7 +117,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user18@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"email\": \"user50@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -157,7 +157,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user50@example.com\"\n}",
+                                            "raw": "{\n    \"email\": \"user67@example.com\"\n}",
                                             "options": []
                                         }
                                     }
@@ -197,7 +197,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user83@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user50@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -407,7 +407,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user25@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user32@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 0\n}",
                                     "options": []
                                 }
                             }
@@ -474,7 +474,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user34@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user3@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -724,7 +724,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 3,\n    \"is_active\": 0\n}",
+                                    "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 4,\n    \"is_active\": 0\n}",
                                     "options": []
                                 }
                             }
@@ -861,7 +861,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 0,\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 2,\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -1523,7 +1523,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                    "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -1840,7 +1840,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 56,\n    \"selling_price\": 44,\n    \"mrp\": 60,\n    \"tax_percent\": 87,\n    \"discount_percent\": 81,\n    \"stock\": 2,\n    \"minimum_stock\": 10,\n    \"featured\": 1,\n    \"new_arrival\": 1,\n    \"best_seller\": 0,\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 57,\n    \"selling_price\": 82,\n    \"mrp\": 92,\n    \"tax_percent\": 52,\n    \"discount_percent\": 26,\n    \"stock\": 9,\n    \"minimum_stock\": 0,\n    \"featured\": 0,\n    \"new_arrival\": 0,\n    \"best_seller\": 0,\n    \"is_active\": 0\n}",
                                     "options": []
                                 }
                             }
@@ -1942,7 +1942,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 6,\n    \"selling_price\": 17,\n    \"mrp\": 56,\n    \"tax_percent\": 43,\n    \"discount_percent\": 77,\n    \"stock\": 7,\n    \"minimum_stock\": 5,\n    \"featured\": 0,\n    \"new_arrival\": 0,\n    \"best_seller\": 0,\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 15,\n    \"selling_price\": 56,\n    \"mrp\": 21,\n    \"tax_percent\": 73,\n    \"discount_percent\": 50,\n    \"stock\": 10,\n    \"minimum_stock\": 10,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 0\n}",
                                     "options": []
                                 }
                             }
@@ -2343,7 +2343,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user94@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 44,\n    \"credit_limit\": 73,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user10@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 79,\n    \"credit_limit\": 23,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -2445,7 +2445,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user33@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 16,\n    \"credit_limit\": 62,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user5@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 61,\n    \"credit_limit\": 83,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
                                     "options": []
                                 }
                             }
@@ -2516,7 +2516,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -2664,7 +2664,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user9@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user95@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -2771,7 +2771,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user45@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user49@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2844,7 +2844,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -2992,7 +2992,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user4@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 57,\n    \"credit_limit\": 73,\n    \"reward_points\": 7,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user13@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 25,\n    \"credit_limit\": 53,\n    \"reward_points\": 1,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -3094,7 +3094,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user39@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 77,\n    \"credit_limit\": 74,\n    \"reward_points\": 4,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                    "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user14@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 65,\n    \"credit_limit\": 99,\n    \"reward_points\": 2,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                     "options": []
                                 }
                             }
@@ -3165,7 +3165,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -3313,7 +3313,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user98@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user29@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -3420,7 +3420,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user40@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user44@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3493,7 +3493,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3641,7 +3641,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"supplier_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 50,\n    \"discount_amount\": 60,\n    \"tax_amount\": 63,\n    \"shipping_charge\": 88,\n    \"other_charge\": 52,\n    \"grand_total\": 100,\n    \"paid_amount\": 91,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 71,\n            \"selling_price\": 61,\n            \"quantity\": 5,\n            \"tax_percent\": 23,\n            \"discount_percent\": 2,\n            \"line_total\": 8\n        }\n    ]\n}",
+                                    "raw": "{\n    \"supplier_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 53,\n    \"discount_amount\": 9,\n    \"tax_amount\": 95,\n    \"shipping_charge\": 39,\n    \"other_charge\": 93,\n    \"grand_total\": 7,\n    \"paid_amount\": 47,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 58,\n            \"selling_price\": 17,\n            \"quantity\": 3,\n            \"tax_percent\": 97,\n            \"discount_percent\": 53,\n            \"line_total\": 81\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -3743,7 +3743,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"supplier_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 35,\n    \"discount_amount\": 2,\n    \"tax_amount\": 29,\n    \"shipping_charge\": 24,\n    \"other_charge\": 7,\n    \"grand_total\": 60,\n    \"paid_amount\": 10,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 28,\n            \"selling_price\": 22,\n            \"quantity\": 5,\n            \"tax_percent\": 100,\n            \"tax_amount\": 1,\n            \"discount_percent\": 1,\n            \"discount_amount\": 25,\n            \"line_total\": 10\n        }\n    ]\n}",
+                                    "raw": "{\n    \"supplier_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 56,\n    \"discount_amount\": 70,\n    \"tax_amount\": 20,\n    \"shipping_charge\": 43,\n    \"other_charge\": 84,\n    \"grand_total\": 40,\n    \"paid_amount\": 49,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 7,\n            \"selling_price\": 65,\n            \"quantity\": 4,\n            \"tax_percent\": 90,\n            \"tax_amount\": 14,\n            \"discount_percent\": 59,\n            \"discount_amount\": 86,\n            \"line_total\": 24\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -3958,7 +3958,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"customer_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"sub_total\": 31,\n    \"discount_amount\": 14,\n    \"tax_amount\": 38,\n    \"shipping_charge\": 64,\n    \"other_charge\": 78,\n    \"grand_total\": 87,\n    \"paid_amount\": 17,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 92,\n            \"selling_price\": 51,\n            \"quantity\": 7,\n            \"tax_percent\": 70,\n            \"tax_amount\": 74,\n            \"discount_percent\": 51,\n            \"discount_amount\": 41,\n            \"line_total\": 31\n        }\n    ]\n}",
+                                    "raw": "{\n    \"customer_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"sub_total\": 42,\n    \"discount_amount\": 91,\n    \"tax_amount\": 88,\n    \"shipping_charge\": 19,\n    \"other_charge\": 62,\n    \"grand_total\": 80,\n    \"paid_amount\": 95,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 23,\n            \"selling_price\": 46,\n            \"quantity\": 6,\n            \"tax_percent\": 92,\n            \"tax_amount\": 64,\n            \"discount_percent\": 36,\n            \"discount_amount\": 27,\n            \"line_total\": 54\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -4060,7 +4060,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"customer_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"sub_total\": 50,\n    \"discount_amount\": 97,\n    \"tax_amount\": 8,\n    \"shipping_charge\": 15,\n    \"other_charge\": 25,\n    \"grand_total\": 70,\n    \"paid_amount\": 40,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 48,\n            \"selling_price\": 20,\n            \"quantity\": 8,\n            \"tax_percent\": 74,\n            \"tax_amount\": 35,\n            \"discount_percent\": 78,\n            \"discount_amount\": 61,\n            \"line_total\": 30\n        }\n    ]\n}",
+                                    "raw": "{\n    \"customer_id\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"sub_total\": 92,\n    \"discount_amount\": 74,\n    \"tax_amount\": 92,\n    \"shipping_charge\": 84,\n    \"other_charge\": 93,\n    \"grand_total\": 58,\n    \"paid_amount\": 35,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 42,\n            \"selling_price\": 25,\n            \"quantity\": 4,\n            \"tax_percent\": 77,\n            \"tax_amount\": 93,\n            \"discount_percent\": 71,\n            \"discount_amount\": 22,\n            \"line_total\": 51\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -4270,7 +4270,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"purchase_order_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 32,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"purchase_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 74,\n            \"quantity\": 5,\n            \"line_total\": 53\n        }\n    ]\n}",
+                                    "raw": "{\n    \"purchase_order_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 6,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"purchase_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 96,\n            \"quantity\": 10,\n            \"line_total\": 31\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -4372,7 +4372,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"purchase_order_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 19,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"purchase_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 62,\n            \"quantity\": 9,\n            \"line_total\": 7\n        }\n    ]\n}",
+                                    "raw": "{\n    \"purchase_order_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 21,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"purchase_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"purchase_price\": 58,\n            \"quantity\": 10,\n            \"line_total\": 13\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -4587,7 +4587,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"sale_order_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 81,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"sale_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"selling_price\": 98,\n            \"quantity\": 5,\n            \"line_total\": 70\n        }\n    ]\n}",
+                                    "raw": "{\n    \"sale_order_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 34,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"sale_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"selling_price\": 22,\n            \"quantity\": 10,\n            \"line_total\": 29\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -4689,7 +4689,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"sale_order_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 7,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"sale_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"selling_price\": 16,\n            \"quantity\": 10,\n            \"line_total\": 72\n        }\n    ]\n}",
+                                    "raw": "{\n    \"sale_order_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"return_date\": \"sample_text\",\n    \"total_amount\": 12,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"sale_order_item_id\": \"sample_text\",\n            \"product_id\": \"sample_text\",\n            \"selling_price\": 50,\n            \"quantity\": 7,\n            \"line_total\": 68\n        }\n    ]\n}",
                                     "options": []
                                 }
                             }
@@ -5055,7 +5055,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"module\": \"sample_text\",\n    \"module_id\": 6,\n    \"payment_mode_id\": \"sample_text\",\n    \"payment_date\": \"sample_text\",\n    \"amount\": 45,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                    "raw": "{\n    \"module\": \"sample_text\",\n    \"module_id\": 6,\n    \"payment_mode_id\": \"sample_text\",\n    \"payment_date\": \"sample_text\",\n    \"amount\": 32,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                     "options": []
                                 }
                             }
@@ -5122,7 +5122,7 @@
                                 },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"payment_mode_id\": \"sample_text\",\n    \"payment_date\": \"sample_text\",\n    \"amount\": 33,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                    "raw": "{\n    \"payment_mode_id\": \"sample_text\",\n    \"payment_date\": \"sample_text\",\n    \"amount\": 99,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                     "options": []
                                 }
                             }
@@ -5347,7 +5347,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"search\": \"sample_text\",\n    \"per_page\": 5\n}",
+                                            "raw": "{\n    \"search\": \"sample_text\",\n    \"per_page\": 4\n}",
                                             "options": []
                                         }
                                     }
@@ -5455,7 +5455,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"search\": \"sample_text\",\n    \"category_id\": 4,\n    \"brand_id\": 4,\n    \"min_price\": 63,\n    \"max_price\": 43,\n    \"sort\": \"sample_text\",\n    \"per_page\": 9\n}",
+                                            "raw": "{\n    \"search\": \"sample_text\",\n    \"category_id\": 5,\n    \"brand_id\": 8,\n    \"min_price\": 4,\n    \"max_price\": 88,\n    \"sort\": \"sample_text\",\n    \"per_page\": 23\n}",
                                             "options": []
                                         }
                                     }
@@ -5494,7 +5494,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"search\": \"sample_text\",\n    \"category_id\": 5,\n    \"brand_id\": 4,\n    \"min_price\": 87,\n    \"max_price\": 22,\n    \"sort\": \"sample_text\",\n    \"per_page\": 58\n}",
+                                                    "raw": "{\n    \"search\": \"sample_text\",\n    \"category_id\": 8,\n    \"brand_id\": 4,\n    \"min_price\": 91,\n    \"max_price\": 34,\n    \"sort\": \"sample_text\",\n    \"per_page\": 17\n}",
                                                     "options": []
                                                 }
                                             }
@@ -5819,7 +5819,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"product_id\": 8,\n    \"quantity\": 1\n}",
+                                                    "raw": "{\n    \"product_id\": 2,\n    \"quantity\": 2\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6029,7 +6029,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"product_id\": 10,\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"product_id\": 5,\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -6101,6 +6101,438 @@
                                             }
                                         }
                                     ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "customer-addresses",
+                            "item": [
+                                {
+                                    "name": "[GET] api/v1/website/customer-addresses",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/customer-addresses",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "customer-addresses"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "default",
+                                    "item": [
+                                        {
+                                            "name": "[GET] api/v1/website/customer-addresses/default",
+                                            "request": {
+                                                "method": "GET",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/website/customer-addresses/default",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "website",
+                                                        "customer-addresses",
+                                                        "default"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "name": "[PATCH] api/v1/website/customer-addresses/{id}/default",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/website/customer-addresses/:id/default",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "website",
+                                                        "customer-addresses",
+                                                        ":id",
+                                                        "default"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "[POST] api/v1/website/customer-addresses",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/customer-addresses",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "customer-addresses"
+                                            ]
+                                        },
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user50@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                            "options": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[PUT] api/v1/website/customer-addresses/{id}",
+                                    "request": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/customer-addresses/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "customer-addresses",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        },
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user66@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                            "options": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[DELETE] api/v1/website/customer-addresses/{id}",
+                                    "request": {
+                                        "method": "DELETE",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/customer-addresses/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "customer-addresses",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "orders",
+                            "item": [
+                                {
+                                    "name": "[GET] api/v1/website/orders",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/orders",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "orders"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[GET] api/v1/website/orders/{id}",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/orders/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "orders",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "place-order",
+                                    "item": [
+                                        {
+                                            "name": "[POST] api/v1/website/orders/place-order",
+                                            "request": {
+                                                "method": "POST",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/website/orders/place-order",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "website",
+                                                        "orders",
+                                                        "place-order"
+                                                    ]
+                                                },
+                                                "body": {
+                                                    "mode": "raw",
+                                                    "raw": "{\n    \"billing_address_id\": 7,\n    \"shipping_address_id\": 2,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "options": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "cancel",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/website/orders/{id}/cancel",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/website/orders/:id/cancel",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "website",
+                                                        "orders",
+                                                        ":id",
+                                                        "cancel"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "payments",
+                            "item": [
+                                {
+                                    "name": "modes",
+                                    "item": [
+                                        {
+                                            "name": "[GET] api/v1/website/payments/modes",
+                                            "request": {
+                                                "method": "GET",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/website/payments/modes",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "website",
+                                                        "payments",
+                                                        "modes"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "[POST] api/v1/website/payments/{orderId}",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/website/payments/:orderId",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "website",
+                                                "payments",
+                                                ":orderId"
+                                            ],
+                                            "variable": []
+                                        },
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"payment_mode_id\": 7,\n    \"amount\": 41,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                            "options": []
+                                        }
+                                    }
                                 }
                             ]
                         }

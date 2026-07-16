@@ -271,12 +271,22 @@ class CategoryRepository implements CategoryRepositoryInterface
 
         return Category::query()
 
-            ->withCount([
-                'products' => fn($query) =>
-                    $query->where(
-                        'is_active',
-                        true
-                    ),
+            ->with([
+                'children' => fn($query) =>
+
+                    $query
+
+                        ->where('is_active', true)
+
+                        ->withCount([
+                            'products' => fn($query) =>
+                                $query->where(
+                                    'is_active',
+                                    true
+                                ),
+                        ])
+
+                        ->orderBy('sort_order'),
             ])
 
             ->where(
@@ -315,12 +325,22 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return Category::query()
 
-            ->withCount([
-                'products' => fn($query) =>
-                    $query->where(
-                        'is_active',
-                        true
-                    ),
+            ->with([
+                'children' => fn($query) =>
+
+                    $query
+
+                        ->where('is_active', true)
+
+                        ->withCount([
+                            'products' => fn($query) =>
+                                $query->where(
+                                    'is_active',
+                                    true
+                                ),
+                        ])
+
+                        ->orderBy('sort_order'),
             ])
 
             ->where(
@@ -332,6 +352,8 @@ class CategoryRepository implements CategoryRepositoryInterface
                 'is_featured',
                 true
             )
+
+            ->whereNull('parent_id')
 
             ->orderBy('sort_order')
 
@@ -349,15 +371,25 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::query()
 
             ->with([
-                'children',
-            ])
 
-            ->withCount([
-                'products' => fn($query) =>
-                    $query->where(
-                        'is_active',
-                        true
-                    ),
+                'parent',
+
+                'children' => fn($query) =>
+
+                    $query
+
+                        ->where('is_active', true)
+
+                        ->withCount([
+                            'products' => fn($query) =>
+                                $query->where(
+                                    'is_active',
+                                    true
+                                ),
+                        ])
+
+                        ->orderBy('sort_order'),
+
             ])
 
             ->where(

@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
 use App\Repositories\Payment\PaymentRepository;
+use App\Repositories\Contracts\PaymentModeRepositoryInterface;
+use App\Repositories\Payment\PaymentModeRepository;
 use App\Repositories\Contracts\PurchaseRepositoryInterface;
 use App\Repositories\Purchase\PurchaseRepository;
 use App\Repositories\Contracts\CashRegisterRepositoryInterface;
@@ -29,6 +31,20 @@ use App\Repositories\Cart\CartItemRepository;
 use App\Repositories\Contracts\WishlistRepositoryInterface;
 use App\Repositories\Wishlist\WishlistRepository;
 
+use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Repositories\Customer\CustomerRepository;
+
+use App\Repositories\Contracts\CustomerAddressRepositoryInterface;
+use App\Repositories\Customer\CustomerAddressRepository;
+
+use App\Repositories\Contracts\SaleOrderRepositoryInterface;
+use App\Repositories\Sale\SaleOrderRepository;
+
+use App\Repositories\Contracts\SaleOrderItemRepositoryInterface;
+use App\Repositories\Sale\SaleOrderItemRepository;
+
+
+
 
 
 
@@ -42,6 +58,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PaymentRepositoryInterface::class,
             PaymentRepository::class
+        );
+
+        $this->app->bind(
+            PaymentModeRepositoryInterface::class,
+            PaymentModeRepository::class
         );
 
         $this->app->bind(
@@ -83,6 +104,28 @@ class AppServiceProvider extends ServiceProvider
             WishlistRepositoryInterface::class,
             WishlistRepository::class
         );
+
+        $this->app->bind(
+            CustomerRepositoryInterface::class,
+            CustomerRepository::class
+        );
+
+        $this->app->bind(
+            CustomerAddressRepositoryInterface::class,
+            CustomerAddressRepository::class
+        );
+
+        $this->app->bind(
+            SaleOrderRepositoryInterface::class,
+            SaleOrderRepository::class
+        );
+
+        $this->app->bind(
+            SaleOrderItemRepositoryInterface::class,
+            SaleOrderItemRepository::class
+        );
+
+
 
 
 

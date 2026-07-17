@@ -88,6 +88,25 @@ class CustomerAddressRepository implements CustomerAddressRepositoryInterface
     }
 
     /**
+     * Set Default Address
+     */
+    public function setDefault(
+        int $addressId
+    ): CustomerAddress {
+
+        $address = $this->find($addressId);
+
+        $address->update([
+
+            'is_default' => true,
+
+        ]);
+
+        return $address->refresh();
+
+    }
+
+    /**
      * Create Address
      */
     public function create(

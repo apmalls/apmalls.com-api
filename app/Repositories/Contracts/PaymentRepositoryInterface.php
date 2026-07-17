@@ -43,8 +43,13 @@ interface PaymentRepositoryInterface
     /**
      * Update record.
      */
-    public function update(
-        Payment $payment,
+    // public function update(
+    //     Payment $payment,
+    //     array $data
+    // ): Payment;
+
+     public function update(
+        int $id,
         array $data
     ): Payment;
 

@@ -25,8 +25,9 @@ use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryCon
 use App\Http\Controllers\Api\V1\Website\HomeController;
 use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
 use App\Http\Controllers\Api\V1\Website\CustomerAddressController as WebsiteCustomerAddressController;
-
+use App\Http\Controllers\Api\V1\Website\SaleOrderController as WebsiteSaleOrderController;
 use App\Http\Controllers\Api\V1\Website\WishlistController;
+use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -754,9 +755,58 @@ Route::prefix('v1')->group(function () {
                         'update'
                     );
 
+                    Route::patch(
+                        '/{id}/default',
+                        'setDefault'
+                    );
+
                     Route::delete(
                         '/{id}',
                         'destroy'
+                    );
+
+                });
+
+            Route::middleware('auth:sanctum')
+                ->prefix('orders')
+                ->controller(WebsiteSaleOrderController::class)
+                ->group(function () {
+
+                    Route::get(
+                        '/',
+                        'index'
+                    );
+
+                    Route::get(
+                        '/{id}',
+                        'show'
+                    );
+
+                    Route::post(
+                        '/place-order',
+                        'placeOrder'
+                    );
+
+                    Route::patch(
+                        '/{id}/cancel',
+                        'cancel'
+                    );
+
+                });
+
+            Route::middleware('auth:sanctum')
+                ->prefix('payments')
+                ->controller(WebsitePaymentController::class)
+                ->group(function () {
+
+                    Route::get(
+                        '/modes',
+                        'paymentModes'
+                    );
+
+                    Route::post(
+                        '/{orderId}',
+                        'pay'
                     );
 
                 });

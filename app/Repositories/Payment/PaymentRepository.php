@@ -151,10 +151,22 @@ class PaymentRepository implements PaymentRepositoryInterface
     /**
      * Update payment.
      */
-    public function update(
-        Payment $payment,
+    // public function update(
+    //     Payment $payment,
+    //     array $data
+    // ): Payment {
+
+    //     $payment->update($data);
+
+    //     return $payment->refresh();
+    // }
+
+     public function update(
+        int $id,
         array $data
     ): Payment {
+
+        $payment = $this->find($id);
 
         $payment->update($data);
 

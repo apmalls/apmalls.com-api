@@ -120,4 +120,34 @@ class CustomerAddressService
             ->default($customerId);
 
     }
+
+    /**
+     * Set Default Address
+     */
+    public function setDefault(
+        int $customerId,
+        int $addressId
+    ): CustomerAddress {
+
+        return DB::transaction(function () use ($customerId, $addressId) {
+
+            $this->addressRepository
+                ->findByCustomer(
+                    $customerId,
+                    $addressId
+                );
+
+            $this->addressRepository
+                ->clearDefault(
+                    $customerId
+                );
+
+            return $this->addressRepository
+                ->setDefault(
+                    $addressId
+                );
+
+        });
+
+    }
 }

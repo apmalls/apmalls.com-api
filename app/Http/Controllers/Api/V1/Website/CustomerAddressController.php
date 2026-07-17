@@ -182,4 +182,41 @@ class CustomerAddressController extends Controller
 
         }
     }
+
+    /**
+     * Set Default Address
+     */
+    public function setDefault(
+        int $id
+    ): JsonResponse {
+
+        try {
+
+            $customerId = auth()->user()->customer->id;
+
+            $address = $this->addressService
+                ->setDefault(
+
+                    $customerId,
+
+                    $id
+
+                );
+
+            return response()->json([
+
+                'success' => true,
+
+                'message' => 'Default address updated successfully.',
+
+                'data' => $address,
+
+            ]);
+
+        } catch (Throwable $exception) {
+
+            return $this->handleException($exception);
+
+        }
+    }
 }

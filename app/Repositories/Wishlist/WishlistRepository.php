@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\Wishlist;
 
+
 use App\Models\Wishlist\Wishlist;
 use Illuminate\Database\Eloquent\Collection;
 use App\Repositories\Contracts\WishlistRepositoryInterface;

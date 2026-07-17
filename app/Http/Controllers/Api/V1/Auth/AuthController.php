@@ -12,7 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
@@ -243,9 +243,7 @@ class AuthController extends Controller
 
             'data' => [
 
-                'user' => $user,
-                'role' => $user->getRoleNames()->first(),
-
+                'user' => $user->load('roles'),
                 'token' => $token,
 
 

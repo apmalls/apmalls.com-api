@@ -12,13 +12,22 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+
+use App\Mail\ForgotPasswordMail;
+use Illuminate\Support\Facades\DB;
+
+use App\Mail\PasswordResetSuccessMail;
+
+
+use Illuminate\Support\Facades\Mail;
+
 
 class AuthController extends Controller
 {
@@ -234,9 +243,9 @@ class AuthController extends Controller
 
             'data' => [
 
-                'user' => $user,
-
+                'user' => $user->load('roles'),
                 'token' => $token,
+
 
             ]
 
@@ -354,25 +363,102 @@ class AuthController extends Controller
     /**
      * Send Reset Password Link
      */
+    // public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    // {
+    //     $status = Password::sendResetLink([
+    //         'email' => $request->email,
+    //     ]);
+
+    //     if ($status !== Password::RESET_LINK_SENT) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => __($status),
+    //         ], 422);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Password reset link sent successfully.',
+    //     ]);
+    // }
+
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        $status = Password::sendResetLink([
-            'email' => $request->email,
-        ]);
+        $user = User::where('email', $request->email)->first();
 
-        if ($status !== Password::RESET_LINK_SENT) {
+        if (!$user) {
 
             return response()->json([
                 'success' => false,
-                'message' => __($status),
-            ], 422);
+                'message' => 'No account found with this email address.',
+            ], 404);
         }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            [
+                'email' => $user->email,
+            ],
+            [
+                'token' => Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        Mail::to($user->email)
+            ->send(new ForgotPasswordMail($user, $token));
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset link sent successfully.',
+            'message' => 'Password reset link has been sent to your email address.',
         ]);
     }
+
+    // public function forgotPassword(
+    //     ForgotPasswordRequest $request
+    // ): JsonResponse {
+
+    //     $status = Password::sendResetLink([
+    //         'email' => $request->validated('email'),
+    //     ]);
+
+    //     return match ($status) {
+
+    //         Password::RESET_LINK_SENT => response()->json([
+
+    //             'success' => true,
+
+    //             'message' => 'Password reset link has been sent to your email address.',
+
+    //         ], 200),
+
+    //         Password::INVALID_USER => response()->json([
+
+    //             'success' => false,
+
+    //             'message' => 'No account found with this email address.',
+
+    //         ], 404),
+
+    //         Password::RESET_THROTTLED => response()->json([
+
+    //             'success' => false,
+
+    //             'message' => 'Please wait before requesting another password reset link.',
+
+    //         ], 429),
+
+    //         default => response()->json([
+
+    //             'success' => false,
+
+    //             'message' => 'Unable to send password reset link. Please try again later.',
+
+    //         ], 500),
+    //     };
+    // }
 
     /**
      * Reset Password
@@ -397,6 +483,9 @@ class AuthController extends Controller
                  * Logout All Devices
                  */
                 $user->tokens()->delete();
+
+                 Mail::to($user->email)
+            ->send(new PasswordResetSuccessMail($user));
 
                 event(new PasswordReset($user));
             }

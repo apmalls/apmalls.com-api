@@ -63,4 +63,9 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function gatewayTransaction()
+    {
+        return $this->hasOne(PaymentGatewayTransaction::class);
+    }
 }

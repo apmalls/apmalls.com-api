@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
 
             SuperAdminSeeder::class,
+            DefaultUsersSeeder::class,
 
             CategorySeeder::class,
             BrandSeeder::class,

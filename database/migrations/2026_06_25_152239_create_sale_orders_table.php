@@ -20,7 +20,9 @@ return new class extends Migration {
 
             $table->string('sale_no')->unique();
 
-            $table->string('invoice_no')->nullable();
+            $table->string('invoice_no')->nullable()->unique();
+            $table->timestamp('invoice_date')
+                ->nullable();
 
             $table->date('sale_date');
 
@@ -57,6 +59,15 @@ return new class extends Migration {
             $table->foreignId('updated_by')
                 ->nullable()
                 ->constrained('users')
+                ->nullOnDelete();
+            $table->foreignId('billing_address_id')
+                ->nullable()
+                ->constrained('customer_addresses')
+                ->nullOnDelete();
+
+            $table->foreignId('shipping_address_id')
+                ->nullable()
+                ->constrained('customer_addresses')
                 ->nullOnDelete();
 
             $table->softDeletes();

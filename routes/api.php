@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\Product\ProductImageController;
 use App\Http\Controllers\Api\V1\Product\UnitController;
 use App\Http\Controllers\Api\V1\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Api\V1\Purchase\PurchaseReturnController;
+use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\Sale\SaleOrderController;
 use App\Http\Controllers\Api\V1\Sale\SaleReturnController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
@@ -74,7 +75,21 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [PermissionController::class, 'destroy'])
                 ->middleware('permission:permission.delete');
         });
+    Route::prefix('roles')
+        ->middleware('auth:sanctum')
+        ->controller(RoleController::class)
+        ->group(function () {
 
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+        });
     /*
     |--------------------------------------------------------------------------
     | Public Routes

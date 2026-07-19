@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
+
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentModeController;
 use App\Http\Controllers\Api\V1\Product\BrandController;
@@ -43,6 +45,11 @@ Route::get('/test', function () {
 */
 
 Route::prefix('v1')->group(function () {
+
+    Route::middleware([
+        'auth:sanctum',
+        'permission:dashboard.view'
+    ])->get('/dashboard', DashboardController::class);
 
     /*
     |--------------------------------------------------------------------------

@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
+use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use App\Repositories\Permission\PermissionRepository;
+use App\Repositories\Role\RoleRepository;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -150,6 +152,11 @@ class AppServiceProvider extends ServiceProvider
             PermissionRepository::class
         );
 
+        // Role
+        $this->app->bind(
+            RoleRepositoryInterface::class,
+            RoleRepository::class
+        );
 
 
 

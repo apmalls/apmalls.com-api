@@ -242,9 +242,27 @@ class AuthController extends Controller
             'message' => 'Login successful.',
 
             'data' => [
-
-                'user' => $user->load('roles'),
                 'token' => $token,
+                'user' => [
+
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'full_name' => $user->full_name,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'mobile' => $user->mobile,
+                    'profile_photo' => $user->profile_photo_url,
+                    'is_active' => $user->is_active,
+
+                ],
+
+                'roles' => $user->getRoleNames()->values(),
+
+                'permissions' => $user->getAllPermissions()
+                    ->pluck('name')
+                    ->values(),
+
 
 
             ]
@@ -484,8 +502,8 @@ class AuthController extends Controller
                  */
                 $user->tokens()->delete();
 
-                 Mail::to($user->email)
-            ->send(new PasswordResetSuccessMail($user));
+                Mail::to($user->email)
+                    ->send(new PasswordResetSuccessMail($user));
 
                 event(new PasswordReset($user));
             }

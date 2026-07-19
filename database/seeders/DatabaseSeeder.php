@@ -18,9 +18,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
 
-            RolePermissionSeeder::class,
+            RoleSeeder::class,
 
-            SuperAdminSeeder::class,
+            PermissionSeeder::class,
+
+            RolePermissionSeeder::class,
             DefaultUsersSeeder::class,
 
             CategorySeeder::class,
@@ -28,7 +30,7 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             PaymentModeSeeder::class,
             ProductSeeder::class,
-            PermissionSeeder::class
+
 
         ]);
         // User::factory(10)->create();

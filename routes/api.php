@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\Api\V1\Admin\Permission\PermissionController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
@@ -50,6 +51,29 @@ Route::prefix('v1')->group(function () {
         'auth:sanctum',
         'permission:dashboard.view'
     ])->get('/dashboard', DashboardController::class);
+
+    Route::middleware('auth:sanctum')
+        ->prefix('permissions')
+        ->group(function () {
+
+            Route::get('/', [PermissionController::class, 'index'])
+                ->middleware('permission:permission.view');
+
+            Route::get('/grouped', [PermissionController::class, 'grouped'])
+                ->middleware('permission:permission.view');
+
+            Route::get('/{id}', [PermissionController::class, 'show'])
+                ->middleware('permission:permission.view');
+
+            Route::post('/', [PermissionController::class, 'store'])
+                ->middleware('permission:permission.create');
+
+            Route::put('/{id}', [PermissionController::class, 'update'])
+                ->middleware('permission:permission.update');
+
+            Route::delete('/{id}', [PermissionController::class, 'destroy'])
+                ->middleware('permission:permission.delete');
+        });
 
     /*
     |--------------------------------------------------------------------------

@@ -31,7 +31,7 @@ class WishlistController extends Controller
                 'message' => 'Wishlist fetched successfully.',
 
                 'data' => $this->wishlistService->index(
-                    auth()->id()
+                    auth()->user()->customer->id
                 ),
 
             ]);
@@ -60,7 +60,7 @@ class WishlistController extends Controller
 
                 'data' => $this->wishlistService->add(
 
-                    auth()->id(),
+                    auth()->user()->customer->id,
 
                     $request->validated()
 
@@ -112,7 +112,7 @@ class WishlistController extends Controller
 
             $this->wishlistService
                 ->clear(
-                    auth()->id()
+                    auth()->user()->customer->id
                 );
 
             return response()->json([
@@ -146,7 +146,7 @@ class WishlistController extends Controller
                 'data' => [
 
                     'count' => $this->wishlistService
-                        ->count(auth()->id()),
+                        ->count(auth()->user()->customer->id),
 
                 ],
 

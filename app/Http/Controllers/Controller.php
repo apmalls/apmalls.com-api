@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -44,7 +45,7 @@ abstract class Controller extends BaseController
     /**
      * Handle Exception
      */
-    protected function handleException(Exception $e): JsonResponse
+    protected function handleException(Throwable $e): JsonResponse
     {
         $statusCode = $e->getCode() >= 100 && $e->getCode() < 600
             ? $e->getCode()

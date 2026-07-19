@@ -32,7 +32,7 @@ class CartController extends Controller
                 'message' => 'Cart fetched successfully.',
 
                 'data' => $this->cartService->index(
-                    auth()->id()
+                    auth()->user()->customer->id
                 ),
 
             ]);
@@ -61,7 +61,7 @@ class CartController extends Controller
 
                 'data' => $this->cartService->add(
 
-                    auth()->id(),
+                    auth()->user()->customer->id,
 
                     $request->validated()
 
@@ -148,7 +148,7 @@ class CartController extends Controller
         try {
 
             $this->cartService->clear(
-                auth()->id()
+                auth()->user()->customer->id
             );
 
             return response()->json([
@@ -180,7 +180,7 @@ class CartController extends Controller
                 'message' => 'Cart summary fetched successfully.',
 
                 'data' => $this->cartService->summary(
-                    auth()->id()
+                    auth()->user()->customer->id
                 ),
 
             ]);

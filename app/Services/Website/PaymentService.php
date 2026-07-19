@@ -156,7 +156,7 @@ class PaymentService
             config('services.razorpay.secret')
         );
 
-        $razorpayOrder = $api->orders->create([
+        $razorpayOrder = $api->order->create([
 
             'receipt' => $order->sale_no,
 

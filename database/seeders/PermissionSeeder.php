@@ -95,7 +95,7 @@ class PermissionSeeder extends Seeder
 
                 Permission::firstOrCreate([
                     'name' => "{$module}.{$action}",
-                    'guard_name' => 'sanctum',
+                    'guard_name' => 'web',
                 ]);
 
             }
@@ -139,23 +139,10 @@ class PermissionSeeder extends Seeder
 
             Permission::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => 'sanctum',
+                'guard_name' => 'web',
             ]);
 
         }
 
-        // Clear permission cache
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // Create Super Admin role if not exists
-        $superAdminRole = Role::firstOrCreate([
-            'name' => 'Super Admin',
-            'guard_name' => 'sanctum',
-        ]);
-
-        // Assign all permissions
-        $superAdminRole->syncPermissions(
-            Permission::where('guard_name', 'sanctum')->get()
-        );
     }
 }

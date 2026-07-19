@@ -15,6 +15,15 @@ class DefaultUsersSeeder extends Seeder
         $users = [
 
             [
+                'role'       => 'Super Admin',
+                'first_name' => 'Super',
+                'last_name'  => 'Admin',
+                'username'   => 'superadmin',
+                'email'      => 'superadmin@apmalls.com',
+                'mobile'     => '9999999991',
+            ],
+
+            [
                 'role'       => 'Admin',
                 'first_name' => 'System',
                 'last_name'  => 'Admin',

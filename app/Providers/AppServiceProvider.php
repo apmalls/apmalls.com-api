@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
+use App\Repositories\Contracts\PermissionRepositoryInterface;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
+use App\Repositories\Permission\PermissionRepository;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -143,6 +145,10 @@ class AppServiceProvider extends ServiceProvider
             DashboardRepository::class
         );
 
+        $this->app->bind(
+            PermissionRepositoryInterface::class,
+            PermissionRepository::class
+        );
 
 
 

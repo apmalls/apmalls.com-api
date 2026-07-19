@@ -24,6 +24,10 @@ interface SaleOrderRepositoryInterface
     ): SaleOrder;
 
 
+    public function show(
+        int $customerId,
+        int $id
+    ): SaleOrder;
     /**
      * Find Customer Order
      */
@@ -52,5 +56,12 @@ interface SaleOrderRepositoryInterface
      */
     public function cancel(
         int $id
+    ): SaleOrder;
+
+    public function generateInvoiceNumber(): string;
+
+    public function updateInvoice(
+        int $id,
+        array $data
     ): SaleOrder;
 }

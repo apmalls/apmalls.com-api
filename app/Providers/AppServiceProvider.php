@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
+use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -48,6 +50,8 @@ use App\Repositories\Sale\SaleOrderItemRepository;
 
 
 
+
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -64,6 +68,8 @@ class AppServiceProvider extends ServiceProvider
             PaymentModeRepositoryInterface::class,
             PaymentModeRepository::class
         );
+
+
 
         $this->app->bind(
             PurchaseRepositoryInterface::class,
@@ -123,6 +129,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             SaleOrderItemRepositoryInterface::class,
             SaleOrderItemRepository::class
+        );
+
+        $this->app->bind(
+            PaymentGatewayTransactionRepositoryInterface::class,
+            PaymentGatewayTransactionRepository::class
         );
 
 

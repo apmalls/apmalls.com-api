@@ -79,6 +79,36 @@ class SaleOrderRepository implements SaleOrderRepositoryInterface
     }
 
     /**
+     * Show Order (Invoice)
+     */
+    public function show(
+        int $customerId,
+        int $id
+    ): SaleOrder {
+
+        return SaleOrder::query()
+
+            ->with([
+
+                'customer',
+
+                'billingAddress',
+
+                'shippingAddress',
+
+                'items.product',
+
+                'payments.paymentMode',
+
+            ])
+
+            ->where('customer_id', $customerId)
+
+            ->where('id', $id)
+
+            ->firstOrFail();
+    }
+    /**
      * Create Order
      */
     public function create(
@@ -122,5 +152,33 @@ class SaleOrderRepository implements SaleOrderRepositoryInterface
 
         return $order->refresh();
 
+    }
+
+    /**
+     * Generate Invoice Number
+     */
+    public function generateInvoiceNumber(): string
+    {
+        return 'INV-' . date('Y') . '-' . str_pad(
+            (string) (SaleOrder::max('id') + 1),
+            6,
+            '0',
+            STR_PAD_LEFT
+        );
+    }
+
+    /**
+     * Update Invoice
+     */
+    public function updateInvoice(
+        int $id,
+        array $data
+    ): SaleOrder {
+
+        $order = $this->find($id);
+
+        $order->update($data);
+
+        return $order->fresh();
     }
 }

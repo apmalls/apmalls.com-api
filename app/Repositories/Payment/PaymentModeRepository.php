@@ -40,4 +40,12 @@ class PaymentModeRepository implements PaymentModeRepositoryInterface
 
             ->findOrFail($id);
     }
+
+    public function findByCode(string $code): ?PaymentMode
+    {
+        return PaymentMode::where(
+            'code',
+            strtoupper($code)
+        )->first();
+    }
 }

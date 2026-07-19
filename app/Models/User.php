@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Customer\Customer;
 use App\Traits\HasMedia;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,7 +37,7 @@ class User extends Authenticatable
         HasRoles,
         LogsActivity,
         Notifiable,
-        SoftDeletes,HasMedia;
+        SoftDeletes, HasMedia;
 
     /**
      * Get the attributes that should be cast.
@@ -81,5 +82,10 @@ class User extends Authenticatable
     public function getProfilePhotoUrlAttribute(): ?string
     {
         return $this->fileUrl($this->profile_photo);
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
     }
 }

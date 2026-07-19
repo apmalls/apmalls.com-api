@@ -36,4 +36,9 @@ class PaymentMode extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function gatewayTransactions()
+    {
+        return $this->hasMany(PaymentGatewayTransaction::class);
+    }
 }

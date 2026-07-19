@@ -3,6 +3,9 @@
 namespace App\Models\Sale;
 
 use App\Models\Customer\Customer;
+use App\Models\Customer\CustomerAddress;
+use App\Models\Payment\Payment;
+use App\Models\Payment\PaymentGatewayTransaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +22,7 @@ class SaleOrder extends Model
         'sale_no',
 
         'invoice_no',
+        'invoice_date',
 
         'sale_date',
 
@@ -67,6 +71,7 @@ class SaleOrder extends Model
         'paid_amount' => 'decimal:2',
 
         'due_amount' => 'decimal:2',
+        'invoice_date' => 'datetime',
 
     ];
 
@@ -108,5 +113,34 @@ class SaleOrder extends Model
     public function saleReturns()
     {
         return $this->hasMany(SaleReturn::class);
+    }
+
+    public function gatewayTransactions()
+    {
+        return $this->hasMany(PaymentGatewayTransaction::class);
+    }
+
+    public function billingAddress()
+    {
+        return $this->belongsTo(
+            CustomerAddress::class,
+            'billing_address_id'
+        );
+    }
+
+    public function shippingAddress()
+    {
+        return $this->belongsTo(
+            CustomerAddress::class,
+            'shipping_address_id'
+        );
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(
+            Payment::class,
+            'sale_order_id'
+        );
     }
 }

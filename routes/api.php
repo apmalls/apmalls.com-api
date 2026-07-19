@@ -792,6 +792,8 @@ Route::prefix('v1')->group(function () {
                         'cancel'
                     );
 
+                    Route::get('/{id}/invoice', 'downloadInvoice');
+
                 });
 
             Route::middleware('auth:sanctum')
@@ -807,6 +809,21 @@ Route::prefix('v1')->group(function () {
                     Route::post(
                         '/{orderId}',
                         'pay'
+                    );
+
+                    Route::post(
+                        '/razorpay/create-order',
+                        'createRazorpayOrder'
+                    );
+
+                    Route::post(
+                        '/razorpay/verify',
+                        'verifyRazorpayPayment'
+                    );
+
+                    Route::post(
+                        '/razorpay/webhook',
+                        'razorpayWebhook'
                     );
 
                 });

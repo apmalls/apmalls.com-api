@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Services\Website;
 
 use App\Repositories\Contracts\CartItemRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\CustomerAddressRepositoryInterface;
 use App\Repositories\Contracts\SaleOrderRepositoryInterface;
 use App\Repositories\Contracts\SaleOrderItemRepositoryInterface;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+use Illuminate\Http\Response;
 
 class SaleOrderService
 {
@@ -139,6 +143,9 @@ class SaleOrderService
                     'invoice_no' => null,
 
                     'sale_date' => now(),
+                    'billing_address_id' => $billingAddress->id,
+
+                    'shipping_address_id' => $shippingAddress->id,
 
                     'sub_total' => $cart->subtotal,
 
@@ -310,4 +317,49 @@ class SaleOrderService
 
     }
 
+    /**
+     * Download Invoice
+     */
+    /**
+     * Download Invoice
+     */
+    public function downloadInvoice(
+        int $customerId,
+        int $orderId
+    ): Response {
+        $order = $this->saleOrderRepository
+            ->show(
+                $customerId,
+                $orderId
+            );
+
+        if (!$order->invoice_no) {
+
+            $this->saleOrderRepository
+                ->updateInvoice(
+                    $order->id,
+                    [
+                        'invoice_no' => $this->saleOrderRepository
+                            ->generateInvoiceNumber(),
+
+                        'invoice_date' => now(),
+                    ]
+                );
+
+            $order = $this->saleOrderRepository
+                ->show(
+                    $customerId,
+                    $orderId
+                );
+        }
+
+        return Pdf::loadView(
+            'invoices.order',
+            [
+                'order' => $order,
+            ]
+        )->download(
+                $order->invoice_no . '.pdf'
+            );
+    }
 }

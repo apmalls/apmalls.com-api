@@ -20,4 +20,6 @@ interface PaymentModeRepositoryInterface
     public function find(
         int $id
     ): PaymentMode;
+
+    public function findByCode(string $code): ?PaymentMode;
 }

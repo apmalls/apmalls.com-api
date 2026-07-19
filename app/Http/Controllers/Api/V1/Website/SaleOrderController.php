@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -92,6 +93,11 @@ class SaleOrderController extends Controller
 
             $customerId = auth()->user()->customer->id;
 
+            Log::info('Invoice Show', [
+    'customer_id' => $customerId,
+    'order_id' => $id,
+]);
+
             return response()->json([
 
                 'success' => true,
@@ -152,4 +158,67 @@ class SaleOrderController extends Controller
 
         }
     }
+
+    /**
+     * Download Invoice
+     */
+    // public function downloadInvoice(
+    //     int $id
+    // ) {
+    //     try {
+
+    //         $customerId = auth()->user()->customer->id;
+
+    //         return $this->saleOrderService
+    //             ->downloadInvoice(
+    //                 $customerId,
+    //                 $id
+    //             );
+
+    //     } catch (Throwable $exception) {
+
+    //         return $this->handleException($exception);
+
+    //     }
+    // }
+
+    public function downloadInvoice(
+    int $id
+) {
+    try {
+
+        Log::info('Invoice API called', [
+            'order_id' => $id,
+            'user' => auth()->user(),
+        ]);
+
+        Log::info('Customer Relation', [
+            'customer' => auth()->user()->customer,
+        ]);
+
+        $customerId = auth()->user()->customer->id;
+
+        Log::info('Customer ID', [
+            'customer_id' => $customerId,
+        ]);
+
+        return $this->saleOrderService
+            ->downloadInvoice(
+                $customerId,
+                $id
+            );
+
+    } catch (Throwable $exception) {
+
+        Log::error('Invoice Download Error', [
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
+
+        return $this->handleException($exception);
+
+    }
+}
 }

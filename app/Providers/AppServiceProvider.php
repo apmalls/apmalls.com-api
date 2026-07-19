@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
+use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -135,6 +137,12 @@ class AppServiceProvider extends ServiceProvider
             PaymentGatewayTransactionRepositoryInterface::class,
             PaymentGatewayTransactionRepository::class
         );
+
+        $this->app->bind(
+            DashboardRepositoryInterface::class,
+            DashboardRepository::class
+        );
+
 
 
 

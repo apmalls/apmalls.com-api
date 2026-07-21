@@ -163,18 +163,20 @@ class CartService
 
         return DB::transaction(function () use ($itemId, $data) {
 
+            // Serialize concurrent qty writes for the same line
             $item = $this->cartItemRepository
-                ->find($itemId);
+                ->findForUpdate($itemId);
+
+            $quantity = (int) $data['quantity'];
 
             $this->cartItemRepository
                 ->update(
                     $itemId,
                     [
 
-                        'quantity' => $data['quantity'],
+                        'quantity' => $quantity,
 
-                        'subtotal' => $data['quantity']
-                            * $item->price,
+                        'subtotal' => $quantity * $item->price,
 
                     ]
                 );

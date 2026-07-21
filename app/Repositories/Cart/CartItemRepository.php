@@ -32,9 +32,26 @@ class CartItemRepository implements CartItemRepositoryInterface
                 $cartId
             )
 
-            ->orderByDesc('id')
+            ->orderBy('id')
 
             ->get();
+
+    }
+
+    /**
+     * Find Item (row lock for concurrent qty updates)
+     */
+    public function findForUpdate(
+        int $id
+    ): CartItem {
+
+        return CartItem::query()
+
+            ->whereKey($id)
+
+            ->lockForUpdate()
+
+            ->firstOrFail();
 
     }
 

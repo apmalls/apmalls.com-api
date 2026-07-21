@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +17,7 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
 
             // Document numbers
-            $table->string('purchase_no', 50);
+            $table->string('purchase_no', 50)->unique();
             $table->string('invoice_no', 50)->nullable();
 
             // Dates
@@ -36,7 +35,14 @@ return new class extends Migration
             $table->decimal('due_amount', 15, 2)->default(0.00);
 
             // Status and remarks
-            $table->enum('status', ['draft', 'ordered', 'received', 'partial', 'cancelled'])->default('draft');
+            $table->enum('status', [
+                'draft',
+                'ordered',
+                'partial',
+                'received',
+                'completed',
+                'cancelled',
+            ])->default('draft');
             $table->text('remarks')->nullable();
 
             // Audit fields

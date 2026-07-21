@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\Category\StoreCategoryRequest;
 use App\Http\Requests\Product\Category\UpdateCategoryRequest;
-use App\Models\Product\Category;
+use App\Models\Category\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

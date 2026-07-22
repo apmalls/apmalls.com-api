@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\Payment;
 
-use App\Models\Sale\SaleOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentGatewayTransaction extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-
-        'sale_order_id',
 
         'payment_id',
 
@@ -50,21 +49,17 @@ class PaymentGatewayTransaction extends Model
 
         'paid_at' => 'datetime',
 
+        'amount' => 'decimal:2',
+
     ];
 
-    public function saleOrder()
-    {
-        return $this->belongsTo(SaleOrder::class);
-    }
-
-    public function payment()
+    public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
     }
 
-    public function paymentMode()
+    public function paymentMode(): BelongsTo
     {
         return $this->belongsTo(PaymentMode::class);
     }
-
 }

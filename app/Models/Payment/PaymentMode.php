@@ -3,18 +3,26 @@
 namespace App\Models\Payment;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PaymentMode extends Model
 {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
 
         'name',
 
         'code',
+
+        'description',
+
+        'icon',
+
+        'is_online',
 
         'is_active',
 
@@ -24,21 +32,29 @@ class PaymentMode extends Model
 
     protected $casts = [
 
-        'is_active' => 'boolean',
+        'is_online' => 'boolean',
 
-        'sort_order' => 'integer',
+        'is_active' => 'boolean',
 
     ];
 
-
-
-    public function payments()
+    public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 
-    public function gatewayTransactions()
+    public function scopeActive($query)
     {
-        return $this->hasMany(PaymentGatewayTransaction::class);
+        return $query->where('is_active', true);
+    }
+
+    public function scopeOnline($query)
+    {
+        return $query->where('is_online', true);
+    }
+
+    public function scopeOffline($query)
+    {
+        return $query->where('is_online', false);
     }
 }

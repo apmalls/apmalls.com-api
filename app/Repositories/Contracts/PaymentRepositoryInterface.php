@@ -11,76 +11,80 @@ use Illuminate\Database\Eloquent\Collection;
 interface PaymentRepositoryInterface
 {
     /**
-     * Get paginated records.
+     * Listing
      */
     public function paginate(array $filters = []): LengthAwarePaginator;
 
-    /**
-     * Get trashed records.
-     */
-    public function trash(array $filters = []): LengthAwarePaginator;
+    public function trashedPaginate(array $filters = []): LengthAwarePaginator;
 
-    /**
-     * Get all records.
-     */
     public function all(): Collection;
 
     /**
-     * Find record.
+     * Find
      */
-    public function find(int $id): Payment;
+    public function find(int $id): ?Payment;
+
+    public function findOrFail(int $id): Payment;
+
+    public function getByPaymentNo(string $paymentNo): ?Payment;
 
     /**
-     * Find deleted record.
-     */
-    public function findWithTrashed(int $id): Payment;
-
-    /**
-     * Create record.
+     * CRUD
      */
     public function create(array $data): Payment;
 
-    /**
-     * Update record.
-     */
-    // public function update(
-    //     Payment $payment,
-    //     array $data
-    // ): Payment;
+    public function update(int $id, array $data): Payment;
 
-     public function update(
-        int $id,
-        array $data
-    ): Payment;
+    public function delete(int $id): bool;
 
-    /**
-     * Delete record.
-     */
-    public function delete(Payment $payment): bool;
-
-    /**
-     * Restore record.
-     */
     public function restore(int $id): bool;
 
-    /**
-     * Force delete record.
-     */
     public function forceDelete(int $id): bool;
 
     /**
-     * Total completed payment.
+     * Status
      */
-    public function getCompletedAmount(
-        string $module,
-        int $moduleId
-    ): float;
+    public function changeStatus(int $id, string $status): Payment;
 
     /**
-     * Module payment history.
+     * Exists
      */
-    public function getModulePayments(
-        string $module,
-        int $moduleId
+    public function exists(int $id): bool;
+
+    public function existsByPaymentNo(string $paymentNo): bool;
+
+    public function existsByTransactionNo(string $transactionNo): bool;
+
+    /**
+     * Paymentable
+     */
+    public function findByPaymentable(
+        string $paymentableType,
+        int $paymentableId
+    ): Collection;
+
+    /**
+     * Reports
+     */
+    public function totalPaid(
+        string $paymentableType,
+        int $paymentableId
+    ): float;
+
+    public function completedPayments(): Collection;
+
+    public function pendingPayments(): Collection;
+
+    public function failedPayments(): Collection;
+
+    public function refundedPayments(): Collection;
+
+    public function cancelledPayments(): Collection;
+
+    public function todayPayments(): Collection;
+
+    public function betweenDates(
+        string $fromDate,
+        string $toDate
     ): Collection;
 }

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -30,17 +29,9 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->string('module');
+            $table->string('reference_type');
 
-            // Sale
-            // Expense
-            // Income
-            // Refund
-            // Opening
-            // Closing
-
-            $table->unsignedBigInteger('module_id')
-                ->nullable();
+            $table->unsignedBigInteger('reference_id');
 
             /*
             |--------------------------------------------------------------------------

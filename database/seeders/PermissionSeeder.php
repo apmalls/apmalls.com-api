@@ -45,7 +45,7 @@ class PermissionSeeder extends Seeder
             'purchase-return',
             'purchase-return-item',
 
-            'sale-order',
+            'sale',
             'sale-order-item',
 
             'sale-return',
@@ -81,11 +81,14 @@ class PermissionSeeder extends Seeder
         ];
 
         $actions = [
-
+            'list',
             'view',
             'create',
-            'update',
+            'edit',
             'delete',
+            'restore',
+            'force-delete',
+            'change-status'
 
         ];
 

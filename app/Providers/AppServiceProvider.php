@@ -10,6 +10,8 @@ use App\Repositories\Contracts\PermissionRepositoryInterface;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Role\RoleRepository;
+use App\Services\Contracts\CashRegisterTransactionServiceInterface;
+use App\Services\POS\CashRegisterTransactionService;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -45,18 +47,50 @@ use App\Repositories\Customer\CustomerRepository;
 use App\Repositories\Contracts\CustomerAddressRepositoryInterface;
 use App\Repositories\Customer\CustomerAddressRepository;
 
-use App\Repositories\Contracts\SaleOrderRepositoryInterface;
-use App\Repositories\Sale\SaleOrderRepository;
+use App\Repositories\Contracts\SaleRepositoryInterface;
+use App\Repositories\Sale\SaleRepository;
 
 use App\Repositories\Contracts\SaleOrderItemRepositoryInterface;
 use App\Repositories\Sale\SaleOrderItemRepository;
 
+use App\Repositories\Contracts\SaleReturnRepositoryInterface;
+use App\Repositories\Sale\SaleReturnRepository;
 
+use App\Repositories\Contracts\PurchaseReturnRepositoryInterface;
+use App\Repositories\Purchase\PurchaseReturnRepository;
 
+use App\Repositories\Contracts\StockRepositoryInterface;
+use App\Repositories\Inventory\StockRepository;
 
+use App\Repositories\Contracts\StockMovementRepositoryInterface;
+use App\Repositories\Inventory\StockMovementRepository;
 
+use App\Repositories\Contracts\StockAdjustmentRepositoryInterface;
+use App\Repositories\Inventory\StockAdjustmentRepository;
 
+use App\Services\Contracts\PurchaseServiceInterface;
+use App\Services\Purchase\PurchaseService;
 
+use App\Services\Contracts\PurchaseReturnServiceInterface;
+use App\Services\Purchase\PurchaseReturnService;
+
+use App\Services\Contracts\SaleServiceInterface;
+use App\Services\Sale\SaleService;
+
+use App\Services\Contracts\SaleReturnServiceInterface;
+use App\Services\Sale\SaleReturnService;
+
+use App\Services\Contracts\PaymentServiceInterface;
+use App\Services\Payment\PaymentService;
+
+use App\Services\Contracts\StockServiceInterface;
+use App\Services\Inventory\StockService;
+
+use App\Services\Contracts\StockMovementServiceInterface;
+use App\Services\Inventory\StockMovementService;
+
+use App\Services\Contracts\StockAdjustmentServiceInterface;
+use App\Services\Inventory\StockAdjustmentService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,8 +108,6 @@ class AppServiceProvider extends ServiceProvider
             PaymentModeRepositoryInterface::class,
             PaymentModeRepository::class
         );
-
-
 
         $this->app->bind(
             PurchaseRepositoryInterface::class,
@@ -127,14 +159,42 @@ class AppServiceProvider extends ServiceProvider
             CustomerAddressRepository::class
         );
 
+        // Sale
         $this->app->bind(
-            SaleOrderRepositoryInterface::class,
-            SaleOrderRepository::class
+            SaleRepositoryInterface::class,
+            SaleRepository::class
         );
 
         $this->app->bind(
             SaleOrderItemRepositoryInterface::class,
             SaleOrderItemRepository::class
+        );
+
+        $this->app->bind(
+            SaleReturnRepositoryInterface::class,
+            SaleReturnRepository::class
+        );
+
+        // Purchase
+        $this->app->bind(
+            PurchaseReturnRepositoryInterface::class,
+            PurchaseReturnRepository::class
+        );
+
+        // Inventory
+        $this->app->bind(
+            StockRepositoryInterface::class,
+            StockRepository::class
+        );
+
+        $this->app->bind(
+            StockMovementRepositoryInterface::class,
+            StockMovementRepository::class
+        );
+
+        $this->app->bind(
+            StockAdjustmentRepositoryInterface::class,
+            StockAdjustmentRepository::class
         );
 
         $this->app->bind(
@@ -158,9 +218,51 @@ class AppServiceProvider extends ServiceProvider
             RoleRepository::class
         );
 
+        // Services
+        $this->app->bind(
+            PurchaseServiceInterface::class,
+            PurchaseService::class
+        );
 
+        $this->app->bind(
+            PurchaseReturnServiceInterface::class,
+            PurchaseReturnService::class
+        );
 
+        $this->app->bind(
+            SaleServiceInterface::class,
+            SaleService::class
+        );
 
+        $this->app->bind(
+            SaleReturnServiceInterface::class,
+            SaleReturnService::class
+        );
+
+        $this->app->bind(
+            PaymentServiceInterface::class,
+            PaymentService::class
+        );
+
+        $this->app->bind(
+            StockServiceInterface::class,
+            StockService::class
+        );
+
+        $this->app->bind(
+            StockMovementServiceInterface::class,
+            StockMovementService::class
+        );
+
+        $this->app->bind(
+            StockAdjustmentServiceInterface::class,
+            StockAdjustmentService::class
+        );
+
+        $this->app->bind(
+            CashRegisterTransactionServiceInterface::class,
+            CashRegisterTransactionService::class
+        );
     }
 
     /**

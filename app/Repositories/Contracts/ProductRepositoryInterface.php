@@ -83,6 +83,14 @@ interface ProductRepositoryInterface
      */
     public function dropdown(): Collection;
 
+    public function findByBarcode(
+        string $barcode
+    );
+
+    public function searchForPOS(
+        string $keyword
+    );
+
     /*
     |--------------------------------------------------------------------------
     | Website

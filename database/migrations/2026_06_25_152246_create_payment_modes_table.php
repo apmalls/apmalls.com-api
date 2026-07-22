@@ -14,15 +14,27 @@ return new class extends Migration {
 
             $table->id();
 
-            $table->string('name');              // Cash, UPI
+            $table->string('name', 100);
 
-            $table->string('code')->unique();    // CASH, UPI
+            $table->string('code', 50)->unique();
+
+            $table->text('description')->nullable();
+
+            $table->string('icon')->nullable();
+
+            $table->boolean('is_online')->default(false);
 
             $table->boolean('is_active')->default(true);
 
             $table->unsignedInteger('sort_order')->default(0);
 
             $table->timestamps();
+
+            $table->softDeletes();
+
+            $table->index('is_active');
+
+            $table->index('sort_order');
 
         });
     }

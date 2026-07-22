@@ -11,248 +11,197 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PaymentRepository implements PaymentRepositoryInterface
 {
-    /**
-     * Get paginated payments.
-     */
     public function paginate(array $filters = []): LengthAwarePaginator
     {
         return Payment::query()
+
             ->with([
-                'paymentMode',
-                'creator',
-                'updater',
+                'paymentMode:id,name',
+                'customer:id,name',
+                'supplier:id,name'
             ])
+
             ->when(
-                !empty($filters['search']),
-                function ($query) use ($filters) {
+                $filters['search'] ?? null,
+                function ($query, $search) {
 
-                    $query->where(function ($query) use ($filters) {
+                    $query->where(function ($q) use ($search) {
 
-                        $query->where(
-                            'payment_no',
-                            'ILIKE',
-                            '%' . trim($filters['search']) . '%'
-                        );
+                        $q->where('payment_no', 'ILIKE', "%{$search}%")
+                            ->orWhere('transaction_no', 'ILIKE', "%{$search}%")
+                            ->orWhere('reference_no', 'ILIKE', "%{$search}%");
 
                     });
 
                 }
             )
+
             ->when(
-                !empty($filters['module']),
-                fn($query) => $query->where(
-                    'module',
-                    $filters['module']
-                )
+                $filters['status'] ?? null,
+                fn($q, $status) => $q->where('status', $status)
             )
+
             ->when(
-                !empty($filters['status']),
-                fn($query) => $query->where(
-                    'status',
-                    $filters['status']
-                )
+                $filters['payment_mode_id'] ?? null,
+                fn($q, $mode) => $q->where('payment_mode_id', $mode)
             )
-            ->latest()
+
+            ->latest('id')
+
             ->paginate(
-                $filters['per_page'] ?? 10
+                $filters['per_page'] ?? config('constant.pagination_count')
             );
     }
 
-    /**
-     * Get all payments.
-     */
+    public function trashedPaginate(array $filters = []): LengthAwarePaginator
+    {
+        return Payment::onlyTrashed()
+
+            ->latest('id')
+
+            ->paginate(
+                $filters['per_page'] ?? config('constant.pagination_count')
+            );
+    }
+
     public function all(): Collection
     {
-        return Payment::with([
-            'paymentMode',
-            'creator',
-            'updater',
-        ])
-            ->latest()
-            ->get();
+        return Payment::latest('id')->get();
     }
 
-    /**
-     * Get trashed payments.
-     */
-    public function trash(
-        array $filters = []
-    ): LengthAwarePaginator {
-
-        return Payment::onlyTrashed()
-
-            ->with([
-                'paymentMode',
-                'creator',
-                'updater',
-            ])
-
-            ->when(
-                !empty($filters['search']),
-                function ($query) use ($filters) {
-
-                    $query->where(
-                        'payment_no',
-                        'ILIKE',
-                        '%' . trim($filters['search']) . '%'
-                    );
-
-                }
-            )
-
-            ->latest('deleted_at')
-
-            ->paginate(
-                $filters['per_page'] ?? 10
-            );
-
-    }
-
-    /**
-     * Find payment by id.
-     */
-    public function find(int $id): Payment
+    public function find(int $id): ?Payment
     {
-        return Payment::with([
-            'paymentMode',
-            'creator',
-            'updater',
-        ])
-            ->findOrFail($id);
+        return Payment::find($id);
     }
 
-    /**
-     * Find deleted payment.
-     */
-    public function findWithTrashed(
-        int $id
-    ): Payment {
-
-        return Payment::onlyTrashed()
-
-            ->with([
-                'paymentMode',
-                'creator',
-                'updater',
-            ])
-
-            ->findOrFail($id);
-
+    public function findOrFail(int $id): Payment
+    {
+        return Payment::findOrFail($id);
     }
 
-    /**
-     * Create payment.
-     */
+    public function getByPaymentNo(string $paymentNo): ?Payment
+    {
+        return Payment::where('payment_no', $paymentNo)->first();
+    }
+
     public function create(array $data): Payment
     {
         return Payment::create($data);
     }
 
-    /**
-     * Update payment.
-     */
-    // public function update(
-    //     Payment $payment,
-    //     array $data
-    // ): Payment {
-
-    //     $payment->update($data);
-
-    //     return $payment->refresh();
-    // }
-
-     public function update(
-        int $id,
-        array $data
-    ): Payment {
-
-        $payment = $this->find($id);
+    public function update(int $id, array $data): Payment
+    {
+        $payment = Payment::findOrFail($id);
 
         $payment->update($data);
 
         return $payment->refresh();
     }
 
-    /**
-     * Soft delete payment.
-     */
-    public function delete(
-        Payment $payment
-    ): bool {
-
-        return (bool) $payment->delete();
-
+    public function delete(int $id): bool
+    {
+        return (bool) Payment::findOrFail($id)->delete();
     }
 
-    /**
-     * Restore payment.
-     */
-    public function restore(
-        int $id
-    ): bool {
-
+    public function restore(int $id): bool
+    {
         return (bool) Payment::onlyTrashed()
             ->findOrFail($id)
             ->restore();
-
     }
 
-    /**
-     * Permanently delete payment.
-     */
-    public function forceDelete(
-        int $id
-    ): bool {
-
+    public function forceDelete(int $id): bool
+    {
         return (bool) Payment::onlyTrashed()
             ->findOrFail($id)
             ->forceDelete();
-
     }
 
-    /**
-     * Get completed payment amount.
-     */
-    public function getCompletedAmount(
-        string $module,
-        int $moduleId
-    ): float {
+    public function changeStatus(int $id, string $status): Payment
+    {
+        $payment = Payment::findOrFail($id);
 
-        return (float) Payment::query()
+        $payment->update([
+            'status' => $status,
+        ]);
 
-            ->where('module', $module)
-
-            ->where('module_id', $moduleId)
-
-            ->where('status', 'Completed')
-
-            ->sum('amount');
-
+        return $payment->refresh();
     }
 
-    /**
-     * Get payment history.
-     */
-    public function getModulePayments(
-        string $module,
-        int $moduleId
+    public function exists(int $id): bool
+    {
+        return Payment::whereKey($id)->exists();
+    }
+
+    public function existsByPaymentNo(string $paymentNo): bool
+    {
+        return Payment::where('payment_no', $paymentNo)->exists();
+    }
+
+    public function existsByTransactionNo(string $transactionNo): bool
+    {
+        return Payment::where('transaction_no', $transactionNo)->exists();
+    }
+
+    public function findByPaymentable(
+        string $paymentableType,
+        int $paymentableId
     ): Collection {
 
-        return Payment::query()
-
-            ->with([
-                'paymentMode',
-                'creator',
-                'updater',
-            ])
-
-            ->where('module', $module)
-
-            ->where('module_id', $moduleId)
-
-            ->latest()
-
+        return Payment::where('paymentable_type', $paymentableType)
+            ->where('paymentable_id', $paymentableId)
             ->get();
+    }
 
+    public function totalPaid(
+        string $paymentableType,
+        int $paymentableId
+    ): float {
+
+        return (float) Payment::where('paymentable_type', $paymentableType)
+            ->where('paymentable_id', $paymentableId)
+            ->where('status', Payment::STATUS_COMPLETED)
+            ->sum('amount');
+    }
+
+    public function completedPayments(): Collection
+    {
+        return Payment::completed()->get();
+    }
+
+    public function pendingPayments(): Collection
+    {
+        return Payment::pending()->get();
+    }
+
+    public function failedPayments(): Collection
+    {
+        return Payment::failed()->get();
+    }
+
+    public function refundedPayments(): Collection
+    {
+        return Payment::where('status', Payment::STATUS_REFUNDED)->get();
+    }
+
+    public function cancelledPayments(): Collection
+    {
+        return Payment::where('status', Payment::STATUS_CANCELLED)->get();
+    }
+
+    public function todayPayments(): Collection
+    {
+        return Payment::whereDate('payment_date', today())->get();
+    }
+
+    public function betweenDates(
+        string $fromDate,
+        string $toDate
+    ): Collection {
+
+        return Payment::whereBetween(
+            'payment_date',
+            [$fromDate, $toDate]
+        )->get();
     }
 }

@@ -316,6 +316,37 @@ class ProductRepository implements ProductRepositoryInterface
 
     }
 
+    public function findByBarcode(
+        string $barcode
+    ): Product {
+        return Product::where('barcode', $barcode)
+            ->firstOrFail();
+    }
+
+
+    public function searchForPOS(
+        string $keyword
+    ) {
+        return Product::query()
+
+            ->where(function ($query) use ($keyword) {
+
+                $query
+
+                    ->where('name', 'ILIKE', "%{$keyword}%")
+
+                    ->orWhere('sku', 'ILIKE', "%{$keyword}%")
+
+                    ->orWhere('barcode', 'ILIKE', "%{$keyword}%");
+
+            })
+
+            ->where('status', 1)
+
+            ->limit(20)
+
+            ->get();
+    }
     /*
     |--------------------------------------------------------------------------
     | Website

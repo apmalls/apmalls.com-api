@@ -4,6 +4,8 @@ namespace App\Http\Requests\Purchase;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Purchase\PurchaseOrder;
 
 class ChangePurchaseStatusRequest extends FormRequest
 {
@@ -28,7 +30,7 @@ class ChangePurchaseStatusRequest extends FormRequest
 
                 'required',
 
-                'in:Draft,Ordered,Received,Cancelled',
+                Rule::in(PurchaseOrder::statuses())
 
             ],
 

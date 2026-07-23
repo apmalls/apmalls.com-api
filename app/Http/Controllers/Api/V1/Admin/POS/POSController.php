@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\POS;
+namespace App\Http\Controllers\Api\V1\Admin\POS;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\POS\CashInRequest;

@@ -67,6 +67,16 @@ use App\Repositories\Inventory\StockMovementRepository;
 
 use App\Repositories\Contracts\StockAdjustmentRepositoryInterface;
 use App\Repositories\Inventory\StockAdjustmentRepository;
+use App\Repositories\Barcode\BarcodeTemplateRepository;
+use App\Repositories\Contracts\BarcodeTemplateRepositoryInterface;
+use App\Repositories\POS\CashRegisterSessionRepository;
+use App\Repositories\Contracts\CashRegisterSessionRepositoryInterface;
+use App\Repositories\POS\CashRegisterTransactionRepository;
+use App\Repositories\Contracts\CashRegisterTransactionRepositoryInterface;
+use App\Repositories\Setting\GeneralSettingRepository;
+use App\Repositories\Contracts\GeneralSettingRepositoryInterface;
+use App\Repositories\POS\PosHoldRepository;
+use App\Repositories\Contracts\PosHoldRepositoryInterface;
 
 use App\Services\Contracts\PurchaseServiceInterface;
 use App\Services\Purchase\PurchaseService;
@@ -82,6 +92,8 @@ use App\Services\Sale\SaleReturnService;
 
 use App\Services\Contracts\PaymentServiceInterface;
 use App\Services\Payment\PaymentService;
+use App\Services\Payment\PaymentModeService;
+use App\Services\Contracts\PaymentModeServiceInterface;
 
 use App\Services\Contracts\StockServiceInterface;
 use App\Services\Inventory\StockService;
@@ -91,6 +103,16 @@ use App\Services\Inventory\StockMovementService;
 
 use App\Services\Contracts\StockAdjustmentServiceInterface;
 use App\Services\Inventory\StockAdjustmentService;
+use App\Services\Barcode\BarcodeGeneratorService;
+use App\Services\Contracts\BarcodeGeneratorServiceInterface;
+use App\Services\Barcode\BarcodePrintService;
+use App\Services\Contracts\BarcodePrintServiceInterface;
+use App\Services\Barcode\BarcodeTemplateService;
+use App\Services\Contracts\BarcodeTemplateServiceInterface;
+use App\Services\Setting\GeneralSettingService;
+use App\Services\Contracts\GeneralSettingServiceInterface;
+use App\Services\POS\POSService;
+use App\Services\Contracts\POSServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -218,6 +240,31 @@ class AppServiceProvider extends ServiceProvider
             RoleRepository::class
         );
 
+        $this->app->bind(
+            BarcodeTemplateRepositoryInterface::class,
+            BarcodeTemplateRepository::class
+        );
+
+        $this->app->bind(
+            CashRegisterSessionRepositoryInterface::class,
+            CashRegisterSessionRepository::class
+        );
+
+        $this->app->bind(
+            CashRegisterTransactionRepositoryInterface::class,
+            CashRegisterTransactionRepository::class
+        );
+
+        $this->app->bind(
+            GeneralSettingRepositoryInterface::class,
+            GeneralSettingRepository::class
+        );
+
+        $this->app->bind(
+            PosHoldRepositoryInterface::class,
+            PosHoldRepository::class
+        );
+
         // Services
         $this->app->bind(
             PurchaseServiceInterface::class,
@@ -262,6 +309,36 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CashRegisterTransactionServiceInterface::class,
             CashRegisterTransactionService::class
+        );
+
+        $this->app->bind(
+            BarcodeGeneratorServiceInterface::class,
+            BarcodeGeneratorService::class
+        );
+
+        $this->app->bind(
+            BarcodePrintServiceInterface::class,
+            BarcodePrintService::class
+        );
+
+        $this->app->bind(
+            BarcodeTemplateServiceInterface::class,
+            BarcodeTemplateService::class
+        );
+
+        $this->app->bind(
+            GeneralSettingServiceInterface::class,
+            GeneralSettingService::class
+        );
+
+        $this->app->bind(
+            POSServiceInterface::class,
+            POSService::class
+        );
+
+        $this->app->bind(
+            PaymentModeServiceInterface::class,
+            PaymentModeService::class
         );
     }
 

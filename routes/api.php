@@ -2,7 +2,7 @@
 
 
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
-use App\Http\Controllers\API\POS\POSController;
+use App\Http\Controllers\Api\V1\Admin\POS\POSController;
 use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseReturnController;
 use App\Http\Controllers\Api\V1\Admin\Sale\SaleController;
 use App\Http\Controllers\Api\V1\Admin\Sale\SaleReturnController;
@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\V1\Admin\Inventory\StockMovementController;
 use App\Http\Controllers\Api\V1\Admin\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\Payment\PaymentModeController;
 use App\Http\Controllers\Api\V1\Admin\Permission\PermissionController;
-use App\Http\Controllers\Api\V1\Admin\PurchaseOrderController;
+use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseOrderController;
 use App\Http\Controllers\API\V1\Admin\Setting\GeneralSettingController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodeTemplateController;
@@ -48,11 +48,6 @@ use App\Http\Controllers\Api\V1\Website\WishlistController;
 use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentController;
 use Illuminate\Support\Facades\Route;
 
-
-// Test Route
-Route::get('/test', function () {
-    return response()->json(['message' => 'API is working!']);
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -176,17 +171,17 @@ Route::prefix('v1')->group(function () {
        |--------------------------------------------------------------------------
        */
         Route::prefix('categories')->controller(CategoryController::class)->group(function () {
-            Route::get('/', 'index');                    // Category List
-            Route::post('/', 'store');                   // Create Category
-            Route::get('/tree', 'tree');                 // Category Tree
-            Route::get('/trash', 'trash');               // Trashed Categories
-            Route::get('/{id}', 'show');                 // Category Details
-            Route::put('/{id}', 'update');               // Update Category
-            Route::delete('/{id}', 'destroy');           // Delete Category
-            Route::patch('/{id}/status', 'changeStatus'); // Change Status
-            Route::put('/{id}/restore', 'restore');      // Restore Category
-            Route::delete('/{id}/force-delete', 'forceDelete'); // Force Delete
-            Route::post('/bulk-delete', 'bulkDelete');   // Bulk Delete
+            Route::get('/', 'index')->middleware('permission:category.view');                    // Category List
+            Route::post('/', 'store')->middleware('permission:category.create');                   // Create Category
+            Route::get('/tree', 'tree')->middleware('permission:category.view');                 // Category Tree
+            Route::get('/trash', 'trash')->middleware('permission:category.view');               // Trashed Categories
+            Route::get('/{id}', 'show')->middleware('permission:category.view');                 // Category Details
+            Route::put('/{id}', 'update')->middleware('permission:category.update');               // Update Category
+            Route::delete('/{id}', 'destroy')->middleware('permission:category.delete');           // Delete Category
+            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:category.update'); // Change Status
+            Route::put('/{id}/restore', 'restore')->middleware('permission:category.restore');      // Restore Category
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:category.force-delete'); // Force Delete
+            Route::post('/bulk-delete', 'bulkDelete')->middleware('permission:category.delete');   // Bulk Delete
         });
 
 
@@ -391,7 +386,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{id}', 'show')->middleware('permission:purchase-order.view');
 
-            Route::put('/{id}', 'update')->middleware('permission:purchase-order.edit');
+            Route::put('/{id}', 'update')->middleware('permission:purchase-order.update');
 
             Route::delete('/{id}', 'destroy')->middleware('permission:purchase-order.delete');
 
@@ -425,9 +420,9 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/count', 'count')->middleware('permission:sale.view');
+            Route::get('/count', 'count')->middleware('permission:sale-order.view');
 
-            Route::get('/total-amount', 'totalAmount')->middleware('permission:sale.view');
+            Route::get('/total-amount', 'totalAmount')->middleware('permission:sale-order.view');
 
             /*
             |--------------------------------------------------------------------------
@@ -435,11 +430,11 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/trash', 'trash')->middleware('permission:sale.view');
+            Route::get('/trash', 'trash')->middleware('permission:sale-order.view');
 
-            Route::patch('/{id}/restore', 'restore')->middleware('permission:sale.restore');
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:sale-order.restore');
 
-            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:sale.force-delete');
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:sale-order.force-delete');
 
             /*
             |--------------------------------------------------------------------------
@@ -447,7 +442,7 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:sale.status');
+            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:sale-order.status');
 
             /*
             |--------------------------------------------------------------------------
@@ -455,15 +450,15 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/', 'index')->middleware('permission:sale.view');
+            Route::get('/', 'index')->middleware('permission:sale-order.view');
 
-            Route::post('/', 'store')->middleware('permission:sale.create');
+            Route::post('/', 'store')->middleware('permission:sale-order.create');
 
-            Route::get('/{id}', 'show')->middleware('permission:sale.view');
+            Route::get('/{id}', 'show')->middleware('permission:sale-order.view');
 
-            Route::put('/{id}', 'update')->middleware('permission:sale.edit');
+            Route::put('/{id}', 'update')->middleware('permission:sale-order.update');
 
-            Route::delete('/{id}', 'destroy')->middleware('permission:sale.delete');
+            Route::delete('/{id}', 'destroy')->middleware('permission:sale-order.delete');
         });
 
 
@@ -502,7 +497,7 @@ Route::prefix('v1')->group(function () {
                     ->middleware('permission:purchase-return-view');
 
                 Route::put('/{id}', 'update')
-                    ->middleware('permission:purchase-return-edit');
+                    ->middleware('permission:purchase-return-update');
 
                 Route::patch('/{id}/status', 'changeStatus')
                     ->middleware('permission:purchase-return-status');
@@ -556,8 +551,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', 'show')
                 ->middleware('permission:sale-return-view');
 
-            Route::put('/{id}', 'update')
-                ->middleware('permission:sale-return-edit');
+                Route::put('/{id}', 'update')
+                    ->middleware('permission:sale-return-update');
 
             Route::patch('/{id}/status', 'changeStatus')
                 ->middleware('permission:sale-return-status');
@@ -591,7 +586,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{id}', 'show')->middleware('permission:payment-mode-view');
 
-            Route::put('/{id}', 'update')->middleware('permission:payment-mode-edit');
+            Route::put('/{id}', 'update')->middleware('permission:payment-mode-update');
 
             Route::delete('/{id}', 'destroy')->middleware('permission:payment-mode-delete');
 
@@ -611,7 +606,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{id}', 'show')->middleware('permission:payment-view');
 
-            Route::put('/{id}', 'update')->middleware('permission:payment-edit');
+            Route::put('/{id}', 'update')->middleware('permission:payment-update');
 
             Route::delete('/{id}', 'destroy')->middleware('permission:payment-delete');
 

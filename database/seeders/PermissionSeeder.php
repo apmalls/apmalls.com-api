@@ -45,7 +45,7 @@ class PermissionSeeder extends Seeder
             'purchase-return',
             'purchase-return-item',
 
-            'sale',
+            'sale-order',
             'sale-order-item',
 
             'sale-return',
@@ -84,7 +84,7 @@ class PermissionSeeder extends Seeder
             'list',
             'view',
             'create',
-            'edit',
+            'update',
             'delete',
             'restore',
             'force-delete',

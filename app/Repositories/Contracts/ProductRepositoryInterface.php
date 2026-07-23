@@ -43,6 +43,19 @@ interface ProductRepositoryInterface
     ): Product;
 
     /**
+     * Find product by id.
+     */
+    public function findById(
+        int $id
+    ): Product;
+
+    /**
+     * Find multiple products by ids.
+     */
+    public function findMany(array $ids): Collection;
+
+    public function findManyByIds(array $ids): Collection;
+    /**
      * Create product.
      */
     public function create(

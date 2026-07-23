@@ -32,8 +32,16 @@ return new class extends Migration {
             $table->string('slug')->unique();
 
             $table->string('sku')->unique();
+            $table->string('barcode', 100)
+                ->unique()
+                ->nullable();
 
-            $table->string('barcode')->nullable()->unique();
+            $table->string('barcode_type', 30)
+                ->default('CODE128');
+
+            $table->boolean('is_barcode_auto')
+                ->default(true);
+
 
             $table->string('hsn_code')->nullable();
 

@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
 use App\Http\Controllers\API\POS\POSController;
 use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseReturnController;
 use App\Http\Controllers\Api\V1\Admin\Sale\SaleController;
@@ -12,7 +13,10 @@ use App\Http\Controllers\Api\V1\Admin\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Admin\Payment\PaymentModeController;
 use App\Http\Controllers\Api\V1\Admin\Permission\PermissionController;
 use App\Http\Controllers\Api\V1\Admin\PurchaseOrderController;
+use App\Http\Controllers\API\V1\Admin\Setting\GeneralSettingController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodeTemplateController;
+use App\Http\Controllers\Api\V1\Admin\Barcode\ProductBarcodeController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
@@ -681,6 +685,54 @@ Route::prefix('v1')->group(function () {
                 Route::get('hold/{id}', 'recall');
 
                 Route::patch('hold/{id}/cancel', 'cancel');
+            });
+
+        Route::prefix('general-settings')
+            ->controller(GeneralSettingController::class)
+            ->group(function () {
+
+                Route::get('/', 'show');
+
+                Route::put('/', 'update');
+
+            });
+
+        Route::prefix('barcode-templates')
+            ->controller(BarcodeTemplateController::class)
+            ->group(function () {
+
+                Route::get('/', 'index');
+
+                Route::get('/active', 'active');
+
+                Route::get('/{id}', 'show');
+
+                Route::post('/', 'store');
+
+                Route::put('/{id}', 'update');
+
+                Route::delete('/{id}', 'destroy');
+
+            });
+
+        Route::prefix('products')
+            ->controller(ProductBarcodeController::class)
+            ->group(function () {
+
+                Route::get('{id}/barcode', 'show');
+
+                Route::post('barcode/bulk', 'bulk');
+
+            });
+
+        Route::prefix('barcode')
+            ->controller(BarcodePrintController::class)
+            ->group(function () {
+
+                Route::post('preview', 'preview');
+
+                Route::post('pdf', 'pdf');
+
             });
 
     });

@@ -226,6 +226,17 @@ class ProductController extends Controller
                     ? $request->barcode
                     : $this->generateBarcode(),
 
+                // if (blank($data['barcode'])) {
+
+                //     $setting = $this->generalSettingRepository->get();
+
+                //     $data['barcode'] =
+                //         $setting->barcode_prefix .
+                //         $setting->barcode_start_number;
+
+                //     $setting->increment('barcode_start_number');
+                // }
+
                 'hsn_code' => $request->hsn_code,
 
                 'short_description' => $request->short_description,

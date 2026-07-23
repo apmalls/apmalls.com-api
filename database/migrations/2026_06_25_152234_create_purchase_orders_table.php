@@ -24,11 +24,11 @@ return new class extends Migration {
                 ->restrictOnDelete()
                 ->cascadeOnUpdate();
 
-            $table->foreignId('warehouse_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete()
-                ->cascadeOnUpdate();
+            // $table->foreignId('warehouse_id')
+            //     ->nullable()
+            //     ->constrained()
+            //     ->nullOnDelete()
+            //     ->cascadeOnUpdate();
 
             /*
             |--------------------------------------------------------------------------
@@ -120,7 +120,7 @@ return new class extends Migration {
 
             $table->index('supplier_id');
 
-            $table->index('warehouse_id');
+            // $table->index('warehouse_id');
 
             $table->index('purchase_no');
 

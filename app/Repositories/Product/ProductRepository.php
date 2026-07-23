@@ -227,6 +227,37 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
+     * Find Product By Id
+     */
+    public function findById(
+        int $id
+    ): Product {
+
+        return $this->baseQuery()
+
+            ->findOrFail($id);
+
+    }
+
+    public function findMany(array $ids): Collection
+    {
+        return Product::query()
+            ->whereIn('id', $ids)
+            ->get();
+    }
+
+    public function findManyByIds(array $ids): Collection
+    {
+        return Product::query()
+
+            ->whereIn('id', $ids)
+
+            ->get()
+
+            ->keyBy('id');
+    }
+
+    /**
      * Create Product
      */
     public function create(

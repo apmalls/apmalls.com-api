@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\POS;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\POS\ProductResource;
 use App\Http\Resources\Payment\PaymentModeResource;
 use App\Http\Resources\Sale\SaleResource;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class POSDashboardResource extends JsonResource
 {
@@ -13,7 +14,9 @@ class POSDashboardResource extends JsonResource
     {
         return [
 
-            'session' => $this['session'],
+            'session' => new CashRegisterSessionResource(
+                $this['session']
+            ),
 
             'today_sale' => $this['today_sale'],
 
@@ -31,6 +34,9 @@ class POSDashboardResource extends JsonResource
                 $this['payment_modes']
             ),
 
+            'quick_products' => ProductResource::collection(
+                $this['quick_products']
+            ),
         ];
     }
 }

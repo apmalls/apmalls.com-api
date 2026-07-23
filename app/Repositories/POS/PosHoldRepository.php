@@ -179,6 +179,15 @@ class PosHoldRepository implements PosHoldRepositoryInterface
             ->count();
     }
 
+    public function holdCount(): int
+    {
+        return PosHold::query()
+
+            ->where('status', PosHold::STATUS_HOLD)
+
+            ->count();
+    }
+
     public function totalAmount(
         array $filters = []
     ): float {

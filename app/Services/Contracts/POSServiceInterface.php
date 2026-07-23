@@ -104,8 +104,8 @@ interface POSServiceInterface
         string $barcode
     );
 
-    public function searchProducts(
-        array $filters = []
+    public function searchProduct(
+        string $keyword
     ): Collection;
 
     public function cashIn(
@@ -115,4 +115,18 @@ interface POSServiceInterface
     public function cashOut(
         array $data
     );
+
+    public function dashboard(): array;
+
+    public function recallHold(
+        int $id
+    ): PosHold;
+
+    public function cancelHold(
+        int $id
+    ): PosHold;
+
+    public function sessionSummary(
+        int $sessionId
+    ): array;
 }

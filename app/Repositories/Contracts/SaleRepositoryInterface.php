@@ -102,4 +102,8 @@ interface SaleRepositoryInterface
     public function totalAmount(
         array $filters = []
     ): float;
+
+    public function recent(
+        int $limit = 10
+    ): Collection;
 }

@@ -7,6 +7,7 @@ use App\Models\POS\CashRegister;
 use App\Models\POS\CashRegisterSession;
 use App\Models\POS\PosHold;
 use App\Models\Product\Product;
+use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\CashRegisterRepositoryInterface;
 use App\Repositories\Contracts\CashRegisterSessionRepositoryInterface;
 use App\Repositories\Contracts\PosHoldRepositoryInterface;
@@ -18,9 +19,14 @@ use App\Services\Contracts\POSServiceInterface;
 use App\Services\Contracts\SaleServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Repositories\Contracts\SaleRepositoryInterface;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Repositories\Contracts\PaymentModeRepositoryInterface;
+use App\Repositories\Contracts\CashRegisterTransactionRepositoryInterface;
 
 class POSService implements POSServiceInterface
 {
@@ -39,6 +45,14 @@ class POSService implements POSServiceInterface
         protected ProductRepositoryInterface $productRepository,
 
         protected PosHoldRepositoryInterface $posHoldRepository,
+
+        protected SaleRepositoryInterface $saleRepository,
+
+        protected PaymentModeRepositoryInterface $paymentModeRepository,
+
+        protected CustomerRepositoryInterface $customerRepository,
+
+        protected CashRegisterTransactionRepositoryInterface $cashRegisterTransactionRepository,
 
     ) {
     }
@@ -552,12 +566,12 @@ class POSService implements POSServiceInterface
 |--------------------------------------------------------------------------
 */
 
-    public function searchProducts(
-        array $keyword = []
+    public function searchProduct(
+        string $keyword
     ): Collection {
 
         return $this->productRepository
-            ->searchForPOS($keyword['keyword'] ?? '');
+            ->searchForPOS($keyword ?? '');
     }
 
     /*
@@ -720,6 +734,109 @@ class POSService implements POSServiceInterface
                 $session->opening_balance
                 + $cashIn
                 - $cashOut,
+
+        ];
+    }
+
+    public function dashboard(): array
+    {
+        $userId = auth()->id();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Current Session
+        |--------------------------------------------------------------------------
+        */
+
+        $session = $this->cashRegisterSessionRepository
+            ->current($userId);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Today's Sales
+        |--------------------------------------------------------------------------
+        */
+
+        $todaySale = SaleOrder::query()
+
+            ->whereDate('created_at', Carbon::today())
+
+            ->sum('grand_total');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Today's Orders
+        |--------------------------------------------------------------------------
+        */
+
+        $todayOrder = SaleOrder::query()
+
+            ->whereDate('created_at', Carbon::today())
+
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hold Count
+        |--------------------------------------------------------------------------
+        */
+
+        $holdCount = $this->posHoldRepository
+            ->holdCount();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Customer Count
+        |--------------------------------------------------------------------------
+        */
+
+        $customerCount = $this->customerRepository
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Sales
+        |--------------------------------------------------------------------------
+        */
+
+        $recentSales = $this->saleRepository
+            ->recent(10);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Modes
+        |--------------------------------------------------------------------------
+        */
+
+        $paymentModes = $this->paymentModeRepository
+            ->active();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Quick Products
+        |--------------------------------------------------------------------------
+        */
+
+        $quickProducts = $this->productRepository
+            ->quickProducts();
+
+        return [
+
+            'session' => $session,
+
+            'today_sale' => $todaySale,
+
+            'today_order' => $todayOrder,
+
+            'hold_count' => $holdCount,
+
+            'customer_count' => $customerCount,
+
+            'recent_sales' => $recentSales,
+
+            'payment_modes' => $paymentModes,
+
+            'quick_products' => $quickProducts,
 
         ];
     }

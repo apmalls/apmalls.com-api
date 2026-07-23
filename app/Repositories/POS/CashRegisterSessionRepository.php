@@ -79,6 +79,21 @@ class CashRegisterSessionRepository implements CashRegisterSessionRepositoryInte
         ])->findOrFail($id);
     }
 
+    public function current(
+        int $userId
+    ): ?CashRegisterSession {
+
+        return CashRegisterSession::query()
+
+            ->where('user_id', $userId)
+
+            ->where('status', CashRegisterSession::STATUS_OPEN)
+
+            ->latest()
+
+            ->first();
+    }
+
     public function findBySessionNo(
         string $sessionNo
     ): ?CashRegisterSession {
@@ -95,9 +110,9 @@ class CashRegisterSessionRepository implements CashRegisterSessionRepositoryInte
     ): ?CashRegisterSession {
 
         return CashRegisterSession::with([
-                'register',
-                'cashier',
-            ])
+            'register',
+            'cashier',
+        ])
             ->where('cash_register_id', $cashRegisterId)
             ->where(
                 'user_id',

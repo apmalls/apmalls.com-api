@@ -12,8 +12,9 @@ use App\Http\Requests\Admin\POS\StorePosHoldRequest;
 use App\Http\Requests\Admin\POS\UpdatePosHoldRequest;
 use App\Http\Resources\POS\CashRegisterSessionResource;
 use App\Http\Resources\POS\POSCheckoutResource;
+use App\Http\Resources\POS\POSDashboardResource;
 use App\Http\Resources\POS\PosHoldResource;
-use App\Http\Resources\Product\ProductCollection;
+use App\Http\Resources\POS\ProductResource;
 use App\Services\Contracts\POSServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -143,12 +144,12 @@ class POSController extends Controller
     public function search(Request $request): JsonResponse
     {
         $products = $this->service->searchProduct(
-            $request->get('keyword')
+            $request->input('keyword')
         );
 
         return response()->json([
             'success' => true,
-            'data' => new ProductCollection($products),
+            'data' => ProductResource::collection($products),
         ]);
     }
 
@@ -218,8 +219,17 @@ class POSController extends Controller
     public function dashboard(): JsonResponse
     {
         return response()->json([
+
             'success' => true,
-            'data' => $this->service->dashboard(),
+
+            'message' => 'POS dashboard fetched successfully.',
+
+            'data' => new POSDashboardResource(
+
+                $this->service->dashboard()
+
+            )
+
         ]);
     }
 }

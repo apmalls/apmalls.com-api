@@ -91,6 +91,10 @@ interface ProductRepositoryInterface
         string $keyword
     );
 
+    public function quickProducts(
+        int $limit = 20
+    );
+
     /*
     |--------------------------------------------------------------------------
     | Website

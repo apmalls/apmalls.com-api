@@ -41,6 +41,11 @@ interface CashRegisterSessionRepositoryInterface
         int $id
     ): CashRegisterSession;
 
+    public function current(
+        int $userId
+    ): ?CashRegisterSession;
+
+
     public function findBySessionNo(
         string $sessionNo
     ): ?CashRegisterSession;

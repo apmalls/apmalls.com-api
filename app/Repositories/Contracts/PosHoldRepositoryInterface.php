@@ -99,6 +99,8 @@ interface PosHoldRepositoryInterface
         array $filters = []
     ): int;
 
+    public function holdCount(): int;
+
     public function totalAmount(
         array $filters = []
     ): float;

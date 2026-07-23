@@ -48,6 +48,14 @@ class SaleRepository implements SaleRepositoryInterface
             ->get();
     }
 
+    public function recent(int $limit = 10): Collection
+    {
+        return SaleOrder::query()
+            ->latest()
+            ->limit($limit)
+            ->get();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Find

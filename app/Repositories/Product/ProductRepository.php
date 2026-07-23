@@ -320,6 +320,7 @@ class ProductRepository implements ProductRepositoryInterface
         string $barcode
     ): Product {
         return Product::where('barcode', $barcode)
+            ->where('status', 1)
             ->firstOrFail();
     }
 
@@ -345,6 +346,14 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->limit(20)
 
+            ->get();
+    }
+    public function quickProducts(int $limit = 20): Collection
+    {
+        return Product::query()
+            ->where('status', 1)
+            ->latest()
+            ->limit($limit)
             ->get();
     }
     /*

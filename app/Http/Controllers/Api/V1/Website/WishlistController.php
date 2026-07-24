@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
+use App\Http\Requests\Website\Wishlist\StoreWishlistRequest;
+use App\Http\Resources\Website\WishlistResource;
+use App\Services\Contracts\WishlistServiceInterface;
 use Throwable;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -12,150 +15,132 @@ use App\Http\Requests\Website\Wishlist\AddToWishlistRequest;
 
 class WishlistController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
     public function __construct(
-        protected WishlistService $wishlistService,
-    ) {
-    }
+        protected WishlistServiceInterface $wishlistService,
+    ) {}
 
     /**
-     * Customer Wishlist
+     * Customer wishlist.
      */
     public function index(): JsonResponse
     {
-        try {
+        $customerId = auth('customer')->id();
 
-            return response()->json([
+        $wishlists = $this->wishlistService->index(
+            $customerId
+        );
 
-                'success' => true,
-
-                'message' => 'Wishlist fetched successfully.',
-
-                'data' => $this->wishlistService->index(
-                    auth()->user()->customer->id
-                ),
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist fetched successfully.',
+            'data'    => WishlistResource::collection($wishlists),
+        ]);
     }
 
     /**
-     * Add Product To Wishlist
+     * Add product to wishlist.
      */
     public function store(
-        AddToWishlistRequest $request
+        StoreWishlistRequest $request
     ): JsonResponse {
 
-        try {
+        $customerId = auth('customer')->id();
 
+        if (
+            $this->wishlistService->exists(
+                $customerId,
+                $request->integer('product_id')
+            )
+        ) {
             return response()->json([
-
-                'success' => true,
-
-                'message' => 'Product added to wishlist successfully.',
-
-                'data' => $this->wishlistService->add(
-
-                    auth()->user()->customer->id,
-
-                    $request->validated()
-
-                ),
-
-            ], 201);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
+                'success' => false,
+                'message' => 'Product already exists in wishlist.',
+            ], 422);
         }
 
+        $wishlist = $this->wishlistService->create([
+            'customer_id' => $customerId,
+            'product_id'  => $request->integer('product_id'),
+            'remarks'     => $request->remarks,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to wishlist successfully.',
+            'data'    => new WishlistResource($wishlist),
+        ], 201);
     }
 
     /**
-     * Remove Wishlist Item
+     * Remove wishlist item.
      */
     public function destroy(
-        int $wishlist
+        int $productId
     ): JsonResponse {
 
-        try {
+        $customerId = auth('customer')->id();
 
-            $this->wishlistService
-                ->remove($wishlist);
+        $this->wishlistService->delete(
+            $customerId,
+            $productId
+        );
 
-            return response()->json([
-
-                'success' => true,
-
-                'message' => 'Wishlist item removed successfully.',
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Product removed from wishlist successfully.',
+        ]);
     }
 
     /**
-     * Clear Wishlist
+     * Clear customer wishlist.
      */
     public function clear(): JsonResponse
     {
-        try {
+        $customerId = auth('customer')->id();
 
-            $this->wishlistService
-                ->clear(
-                    auth()->user()->customer->id
-                );
+        $this->wishlistService->clear(
+            $customerId
+        );
 
-            return response()->json([
-
-                'success' => true,
-
-                'message' => 'Wishlist cleared successfully.',
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist cleared successfully.',
+        ]);
     }
 
     /**
-     * Wishlist Count
+     * Wishlist count.
      */
     public function count(): JsonResponse
     {
-        try {
+        $customerId = auth('customer')->id();
 
-            return response()->json([
+        return response()->json([
+            'success' => true,
+            'count'   => $this->wishlistService->count(
+                $customerId
+            ),
+        ]);
+    }
 
-                'success' => true,
+    /**
+     * Check wishlist status.
+     */
+    public function check(
+        int $productId
+    ): JsonResponse {
 
-                'message' => 'Wishlist count fetched successfully.',
+        $customerId = auth('customer')->id();
 
-                'data' => [
-
-                    'count' => $this->wishlistService
-                        ->count(auth()->user()->customer->id),
-
-                ],
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        return response()->json([
+            'success' => true,
+            'exists'  => $this->wishlistService->exists(
+                $customerId,
+                $productId
+            ),
+        ]);
     }
 }

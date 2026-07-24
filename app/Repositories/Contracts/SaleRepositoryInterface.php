@@ -106,4 +106,49 @@ interface SaleRepositoryInterface
     public function recent(
         int $limit = 10
     ): Collection;
+
+    /*
+|--------------------------------------------------------------------------
+| Website Checkout
+|--------------------------------------------------------------------------
+*/
+
+    public function createDraft(
+        array $data
+    ): SaleOrder;
+
+    public function updatePayment(
+        int $id,
+        array $data
+    ): SaleOrder;
+
+    public function updateTotals(
+        int $id,
+        array $data
+    ): SaleOrder;
+
+    public function customerOrders(
+        int $customerId,
+        int $perPage = 10
+    ): LengthAwarePaginator;
+
+    public function customerOrder(
+        int $customerId,
+        string $saleNo
+    ): ?SaleOrder;
+
+
+    /*
+|--------------------------------------------------------------------------
+| Draft Order
+|--------------------------------------------------------------------------
+*/
+
+    public function findDraftByCustomer(
+        int $customerId
+    ): ?SaleOrder;
+
+    public function deleteDraft(
+        int $id
+    ): bool;
 }

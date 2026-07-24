@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\Api\V1\Admin\Banner\WebsiteBannerController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
 use App\Http\Controllers\Api\V1\Admin\POS\POSController;
 use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseReturnController;
@@ -24,11 +25,11 @@ use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 
 
-use App\Http\Controllers\Api\V1\Product\BrandController;
-use App\Http\Controllers\Api\V1\Product\CategoryController;
-use App\Http\Controllers\Api\V1\Product\ProductController;
-use App\Http\Controllers\Api\V1\Product\ProductImageController;
-use App\Http\Controllers\Api\V1\Product\UnitController;
+use App\Http\Controllers\Api\V1\Admin\Product\BrandController;
+use App\Http\Controllers\Api\V1\Admin\Product\CategoryController;
+use App\Http\Controllers\Api\V1\Admin\Product\ProductController;
+use App\Http\Controllers\Api\V1\Admin\Product\ProductImageController;
+use App\Http\Controllers\Api\V1\Admin\Product\UnitController;
 
 
 use App\Http\Controllers\Api\V1\Role\RoleController;
@@ -36,7 +37,7 @@ use App\Http\Controllers\Api\V1\Role\RoleController;
 
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
-use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\Admin\User\UserController;
 
 use App\Http\Controllers\Api\V1\Website\CartController;
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
@@ -46,6 +47,7 @@ use App\Http\Controllers\Api\V1\Website\CustomerAddressController as WebsiteCust
 use App\Http\Controllers\Api\V1\Website\SaleOrderController as WebsiteSaleOrderController;
 use App\Http\Controllers\Api\V1\Website\WishlistController;
 use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentController;
+use App\Http\Controllers\Api\V1\Website\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -551,8 +553,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', 'show')
                 ->middleware('permission:sale-return-view');
 
-                Route::put('/{id}', 'update')
-                    ->middleware('permission:sale-return-update');
+            Route::put('/{id}', 'update')
+                ->middleware('permission:sale-return-update');
 
             Route::patch('/{id}/status', 'changeStatus')
                 ->middleware('permission:sale-return-status');
@@ -730,6 +732,30 @@ Route::prefix('v1')->group(function () {
 
             });
 
+        Route::prefix('website-banners')
+            ->controller(WebsiteBannerController::class)
+            ->group(function () {
+
+                Route::get('/', 'index');
+                Route::get('/active', 'active');
+                Route::get('/trash', 'trash');
+                Route::get('/{id}', 'show');
+
+                Route::post('/', 'store');
+
+                Route::put('/{id}', 'update');
+
+                Route::patch('/{id}/status', 'changeStatus');
+
+                Route::delete('/{id}', 'destroy');
+
+                Route::put('/{id}/restore', 'restore');
+
+                Route::delete('/{id}/force-delete', 'forceDelete');
+
+                Route::post('/bulk-delete', 'bulkDelete');
+            });
+
     });
 
 
@@ -739,348 +765,202 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('website')
-        ->group(function () {
+    Route::prefix('website')->group(function () {
+        Route::get('/home', [HomeController::class, 'index']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Categories
-            |--------------------------------------------------------------------------
-            */
+        Route::get(
+            'products',
+            [ProductController::class, 'index']
+        );
 
-            Route::controller(WebsiteCategoryController::class)
+        Route::get(
+            'products/{slug}',
+            [ProductController::class, 'show']
+        );
 
-                ->prefix('categories')
+        Route::get(
+            'products/search/{keyword}',
+            [WebsiteProductController::class, 'searchSuggestions']
+        );
 
-                ->group(function () {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Category Listing
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Featured Categories
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/featured',
-                        'featured'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Category Details
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}',
-                        'show'
-                    );
-
-                });
-
-            /*
-   |--------------------------------------------------------------------------
-   | Products
-   |--------------------------------------------------------------------------
-   */
-
-            Route::controller(WebsiteProductController::class)
-                ->prefix('products')
-                ->group(function () {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Listing
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Search
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/search',
-                        'search'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Featured Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/featured',
-                        'featured'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | New Arrival Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/new-arrivals',
-                        'newArrivals'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Best Seller Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/best-sellers',
-                        'bestSellers'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Details
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}',
-                        'show'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Related Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}/related',
-                        'related'
-                    );
-
-                });
-
-            /*
+        /*
     |--------------------------------------------------------------------------
-    | Home
+    | Categories
     |--------------------------------------------------------------------------
     */
 
-            Route::controller(HomeController::class)
-                ->group(function () {
+        Route::controller(CategoryController::class)
 
-                    Route::get(
-                        'home',
-                        'index'
-                    );
+            ->prefix('categories')
 
-                });
+            ->group(function () {
 
+                /**
+                 * Category Listing
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-            /*
-    |--------------------------------------------------------------------------
-    | Cart
-    |--------------------------------------------------------------------------
-    */
+                /**
+                 * Category Details
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
 
-            Route::controller(CartController::class)->middleware('auth:sanctum')
-                ->prefix('cart')
-                ->group(function () {
+            });
 
-                    /*
-       |--------------------------------------------------------------------------
-       | Cart
-       |--------------------------------------------------------------------------
-       */
+        /*
+|--------------------------------------------------------------------------
+| Website Brands
+|--------------------------------------------------------------------------
+*/
 
-                    Route::get(
-                        '/',
-                        'index'
-                    );
+        Route::prefix('brands')
+            ->controller(BrandController::class)
+            ->group(function (): void {
 
-                    Route::get(
-                        '/summary',
-                        'summary'
-                    );
+                /**
+                 * Brand Listing
+                 * GET /api/brands
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-                    Route::post(
-                        '/items',
-                        'store'
-                    );
+                /**
+                 * Brand Details
+                 * GET /api/brands/{slug}
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
 
-                    Route::put(
-                        '/items/{item}',
-                        'update'
-                    );
+            });
 
-                    Route::delete(
-                        '/items/{item}',
-                        'destroy'
-                    );
+        /*
+|--------------------------------------------------------------------------
+| Website Units
+|--------------------------------------------------------------------------
+*/
 
-                    Route::delete(
-                        '/clear',
-                        'clear'
-                    );
-                });
+        Route::prefix('units')
+            ->controller(UnitController::class)
+            ->group(function (): void {
 
+                /**
+                 * Unit Listing
+                 * GET /api/units
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-            Route::middleware('auth:sanctum')
-                ->prefix('wishlist')
-                ->controller(WishlistController::class)
-                ->group(function () {
+                /**
+                 * Unit Details
+                 * GET /api/units/{slug}
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Wishlist
-                    |--------------------------------------------------------------------------
-                    */
+            });
 
-                    Route::get(
-                        '/',
-                        'index'
-                    );
+        Route::middleware('auth:customer')->group(function () {
 
-                    Route::get(
-                        '/count',
-                        'count'
-                    );
+            Route::get(
+                'wishlist',
+                [WishlistController::class, 'index']
+            );
 
-                    Route::post(
-                        '/',
-                        'store'
-                    );
+            Route::post(
+                'wishlist',
+                [WishlistController::class, 'store']
+            );
 
-                    Route::delete(
-                        '/{wishlist}',
-                        'destroy'
-                    );
+            Route::delete(
+                'wishlist/{productId}',
+                [WishlistController::class, 'destroy']
+            );
 
-                    Route::delete(
-                        '/clear',
-                        'clear'
-                    );
+            Route::delete(
+                'wishlist',
+                [WishlistController::class, 'clear']
+            );
 
-                });
+            Route::get(
+                'wishlist/count',
+                [WishlistController::class, 'count']
+            );
 
-
-            Route::middleware('auth:sanctum')
-                ->prefix('customer-addresses')
-                ->controller(WebsiteCustomerAddressController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    Route::get(
-                        '/default',
-                        'default'
-                    );
-
-                    Route::post(
-                        '/',
-                        'store'
-                    );
-
-                    Route::put(
-                        '/{id}',
-                        'update'
-                    );
-
-                    Route::patch(
-                        '/{id}/default',
-                        'setDefault'
-                    );
-
-                    Route::delete(
-                        '/{id}',
-                        'destroy'
-                    );
-
-                });
-
-            Route::middleware('auth:sanctum')
-                ->prefix('orders')
-                ->controller(WebsiteSaleOrderController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    Route::get(
-                        '/{id}',
-                        'show'
-                    );
-
-                    Route::post(
-                        '/place-order',
-                        'placeOrder'
-                    );
-
-                    Route::patch(
-                        '/{id}/cancel',
-                        'cancel'
-                    );
-
-                    Route::get('/{id}/invoice', 'downloadInvoice');
-
-                });
-
-            Route::middleware('auth:sanctum')
-                ->prefix('payments')
-                ->controller(WebsitePaymentController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/modes',
-                        'paymentModes'
-                    );
-
-                    Route::post(
-                        '/{orderId}',
-                        'pay'
-                    );
-
-                    Route::post(
-                        '/razorpay/create-order',
-                        'createRazorpayOrder'
-                    );
-
-                    Route::post(
-                        '/razorpay/verify',
-                        'verifyRazorpayPayment'
-                    );
-
-                    Route::post(
-                        '/razorpay/webhook',
-                        'razorpayWebhook'
-                    );
-
-                });
+            Route::get(
+                'wishlist/check/{productId}',
+                [WishlistController::class, 'check']
+            );
 
         });
+
+        Route::middleware(['auth:customer'])
+            ->prefix('cart')
+            ->controller(CartController::class)
+            ->group(function () {
+
+                Route::get('/', 'index');
+
+                Route::post('/', 'store');
+
+                Route::patch('/{productId}', 'update');
+
+                Route::delete('/{productId}', 'destroy');
+
+                Route::delete('/', 'clear');
+
+                Route::get('/count', 'count');
+
+                Route::post('/apply-coupon', 'applyCoupon');
+
+                Route::delete('/remove-coupon', 'removeCoupon');
+
+            });
+
+        Route::middleware(['auth:customer'])
+            ->prefix('checkout')
+            ->controller(CheckoutController::class)
+            ->group(function () {
+
+                Route::post('/', 'checkout');
+
+                Route::get('/orders', 'orders');
+
+                Route::get('/orders/{saleNo}', 'orderDetails');
+
+                Route::post('/orders/{saleNo}/cancel', 'cancelOrder');
+
+            });
+
+        Route::middleware(['auth:customer'])
+            ->prefix('payment')
+            ->controller(WebsitePaymentController::class)
+            ->group(function () {
+
+                Route::post(
+                    '/verify',
+                    'verifyPayment'
+                );
+
+            });
+
+    });
+
+
+
 
 
 });

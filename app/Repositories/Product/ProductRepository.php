@@ -388,19 +388,19 @@ class ProductRepository implements ProductRepositoryInterface
             ->get();
     }
     /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Website
+|--------------------------------------------------------------------------
+*/
 
     /**
-     * Website Product Listing
+     * Website product listing.
      */
     public function websitePaginate(
         array $filters = []
     ): LengthAwarePaginator {
 
-        $query = Product::query()
+        return Product::query()
 
             ->with([
                 'category',
@@ -412,16 +412,154 @@ class ProductRepository implements ProductRepositoryInterface
             ->where(
                 'is_active',
                 true
-            );
+            )
 
-        $query = $this->applyFilters(
-            $query,
-            $filters
-        );
+            ->when(
 
-        return $query
+                !empty($filters['search']),
 
-            ->latest()
+                function ($query) use ($filters) {
+
+                    $query->where(function ($query) use ($filters) {
+
+                        $query
+
+                            ->where(
+                                'name',
+                                'ILIKE',
+                                '%' . trim($filters['search']) . '%'
+                            )
+
+                            ->orWhere(
+                                'sku',
+                                'ILIKE',
+                                '%' . trim($filters['search']) . '%'
+                            )
+
+                            ->orWhere(
+                                'barcode',
+                                'ILIKE',
+                                '%' . trim($filters['search']) . '%'
+                            );
+
+                    });
+
+                }
+
+            )
+
+            ->when(
+
+                !empty($filters['category_id']),
+
+                fn($query) =>
+
+                $query->where(
+                    'category_id',
+                    $filters['category_id']
+                )
+
+            )
+
+            ->when(
+
+                !empty($filters['brand_id']),
+
+                fn($query) =>
+
+                $query->where(
+                    'brand_id',
+                    $filters['brand_id']
+                )
+
+            )
+
+            ->when(
+
+                isset($filters['featured']),
+
+                fn($query) =>
+
+                $query->where(
+                    'featured',
+                    $filters['featured']
+                )
+
+            )
+
+            ->when(
+
+                isset($filters['new_arrival']),
+
+                fn($query) =>
+
+                $query->where(
+                    'new_arrival',
+                    $filters['new_arrival']
+                )
+
+            )
+
+            ->when(
+
+                isset($filters['best_seller']),
+
+                fn($query) =>
+
+                $query->where(
+                    'best_seller',
+                    $filters['best_seller']
+                )
+
+            )
+
+            ->when(
+
+                !empty($filters['min_price']),
+
+                fn($query) =>
+
+                $query->where(
+                    'selling_price',
+                    '>=',
+                    $filters['min_price']
+                )
+
+            )
+
+            ->when(
+
+                !empty($filters['max_price']),
+
+                fn($query) =>
+
+                $query->where(
+                    'selling_price',
+                    '<=',
+                    $filters['max_price']
+                )
+
+            )
+
+            ->tap(function ($query) use ($filters) {
+
+                match ($filters['sort'] ?? 'latest') {
+
+                    'oldest' => $query->oldest(),
+
+                    'price_low_to_high' => $query->orderBy('selling_price'),
+
+                    'price_high_to_low' => $query->orderByDesc('selling_price'),
+
+                    'name_asc' => $query->orderBy('name'),
+
+                    'name_desc' => $query->orderByDesc('name'),
+
+                    default => $query->latest(),
+
+                };
+
+            })
 
             ->paginate(
                 $filters['per_page'] ?? 20
@@ -430,7 +568,7 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Find Product By Slug
+     * Find product by slug.
      */
     public function findBySlug(
         string $slug
@@ -439,10 +577,19 @@ class ProductRepository implements ProductRepositoryInterface
         return Product::query()
 
             ->with([
+
                 'category',
+
                 'brand',
+
                 'unit',
+
                 'images',
+
+                'creator',
+
+                'updater',
+
             ])
 
             ->where(
@@ -460,30 +607,83 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Featured Products
+     * Related products.
      */
-    public function featured(
-        int $limit = 10
+    public function relatedProducts(
+        int $categoryId,
+        int $productId,
+        int $limit = 8
     ): Collection {
 
         return Product::query()
 
             ->with([
+
                 'category',
+
                 'brand',
+
+                'unit',
+
                 'images',
+
             ])
+
+            ->where(
+                'category_id',
+                $categoryId
+            )
+
+            ->where(
+                'id',
+                '!=',
+                $productId
+            )
 
             ->where(
                 'is_active',
                 true
             )
+
+            ->latest()
+
+            ->limit($limit)
+
+            ->get();
+
+    }
+
+    /**
+     * Featured products.
+     */
+    public function featuredProducts(
+        int $limit = 12
+    ): Collection {
+
+        return Product::query()
+
+            ->with([
+
+                'category',
+
+                'brand',
+
+                'unit',
+
+                'images',
+
+            ])
 
             ->where(
                 'featured',
                 true
             )
 
+            ->where(
+                'is_active',
+                true
+            )
+
             ->latest()
 
             ->limit($limit)
@@ -493,30 +693,36 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * New Arrival Products
+     * New arrival products.
      */
-    public function newArrivals(
-        int $limit = 10
+    public function newArrivalProducts(
+        int $limit = 12
     ): Collection {
 
         return Product::query()
 
             ->with([
-                'category',
-                'brand',
-                'images',
-            ])
 
-            ->where(
-                'is_active',
-                true
-            )
+                'category',
+
+                'brand',
+
+                'unit',
+
+                'images',
+
+            ])
 
             ->where(
                 'new_arrival',
                 true
             )
 
+            ->where(
+                'is_active',
+                true
+            )
+
             ->latest()
 
             ->limit($limit)
@@ -526,31 +732,39 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Best Seller Products
+     * Best seller products.
      */
-    public function bestSellers(
-        int $limit = 10
+    public function bestSellerProducts(
+        int $limit = 12
     ): Collection {
 
         return Product::query()
 
             ->with([
-                'category',
-                'brand',
-                'images',
-            ])
 
-            ->where(
-                'is_active',
-                true
-            )
+                'category',
+
+                'brand',
+
+                'unit',
+
+                'images',
+
+            ])
 
             ->where(
                 'best_seller',
                 true
             )
 
-            ->latest()
+            ->where(
+                'is_active',
+                true
+            )
+
+            ->orderByDesc(
+                'sale_count'
+            )
 
             ->limit($limit)
 
@@ -559,57 +773,58 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Related Products
+     * Product search suggestions.
      */
-    public function related(
-        string $slug,
+    public function searchSuggestions(
+        string $keyword,
         int $limit = 10
     ): Collection {
 
-        $product = $this->findBySlug($slug);
-
         return Product::query()
-
-            ->with([
-                'category',
-                'brand',
-                'images',
-            ])
 
             ->where(
                 'is_active',
                 true
             )
 
-            ->where(
-                'category_id',
-                $product->category_id
-            )
+            ->where(function ($query) use ($keyword) {
 
-            ->where(
-                'id',
-                '!=',
-                $product->id
-            )
+                $query
 
-            ->latest()
+                    ->where(
+                        'name',
+                        'ILIKE',
+                        '%' . trim($keyword) . '%'
+                    )
+
+                    ->orWhere(
+                        'sku',
+                        'ILIKE',
+                        '%' . trim($keyword) . '%'
+                    )
+
+                    ->orWhere(
+                        'barcode',
+                        'ILIKE',
+                        '%' . trim($keyword) . '%'
+                    );
+
+            })
+
+            ->orderBy(
+                'name'
+            )
 
             ->limit($limit)
 
-            ->get();
+            ->get([
+                'id',
+                'name',
+                'slug',
+                'thumbnail',
+                'selling_price',
+            ]);
 
     }
 
-    /**
-     * Search Products
-     */
-    public function search(
-        array $filters = []
-    ): LengthAwarePaginator {
-
-        return $this->websitePaginate(
-            $filters
-        );
-
-    }
 }

@@ -30,4 +30,16 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
             'invoiceTemplate'
         ]);
     }
+
+
+    public function getForUpdate(): GeneralSetting
+    {
+        return GeneralSetting::query()
+            ->lockForUpdate()
+            ->firstOrCreate([
+                'id' => 1,
+            ]);
+    }
+
+
 }

@@ -4,191 +4,212 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
-use Throwable;
+use App\Http\Requests\Website\Cart\ApplyCouponRequest;
+use App\Http\Requests\Website\Cart\StoreCartRequest;
+use App\Http\Requests\Website\Cart\UpdateCartItemRequest;
+use App\Http\Resources\Website\CartResource;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Services\Website\CartService;
-use App\Http\Requests\Website\Cart\AddToCartRequest;
-use App\Http\Requests\Website\Cart\UpdateCartItemRequest;
+
+use App\Services\Contracts\CartServiceInterface;
+
 
 class CartController extends Controller
 {
+    /**
+     * Create new controller instance.
+     */
     public function __construct(
-        protected CartService $cartService,
+        protected CartServiceInterface $cartService,
     ) {
     }
 
     /**
-     * Customer Cart
+     * Customer active cart.
      */
     public function index(): JsonResponse
     {
-        try {
+        $cart = $this->cartService->getActiveCart(
+            auth('customer')->id()
+        );
 
-            return response()->json([
+        return response()->json([
 
-                'success' => true,
+            'success' => true,
 
-                'message' => 'Cart fetched successfully.',
+            'message' => 'Cart fetched successfully.',
 
-                'data' => $this->cartService->index(
-                    auth()->user()->customer->id
-                ),
+            'data' => $cart
+                ? new CartResource($cart)
+                : null,
 
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        ]);
     }
 
     /**
-     * Add Item
+     * Add product to cart.
      */
     public function store(
-        AddToCartRequest $request
+        StoreCartRequest $request
     ): JsonResponse {
 
-        try {
+        $cart = $this->cartService->addItem(
 
-            return response()->json([
+            auth('customer')->id(),
 
-                'success' => true,
+            $request->integer('product_id'),
 
-                'message' => 'Product added to cart successfully.',
+            $request->integer('quantity')
 
-                'data' => $this->cartService->add(
+        );
 
-                    auth()->user()->customer->id,
+        return response()->json([
 
-                    $request->validated()
+            'success' => true,
 
-                ),
+            'message' => 'Product added successfully.',
 
-            ], 201);
+            'data' => new CartResource($cart),
 
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        ]);
 
     }
 
     /**
-     * Update Cart Item
+     * Update cart quantity.
      */
     public function update(
         UpdateCartItemRequest $request,
-        int $item
+        int $productId
     ): JsonResponse {
 
-        try {
+        $cart = $this->cartService->updateQuantity(
 
-            return response()->json([
+            auth('customer')->id(),
 
-                'success' => true,
+            $productId,
 
-                'message' => 'Cart updated successfully.',
+            $request->integer('quantity')
 
-                'data' => $this->cartService->updateItem(
+        );
 
-                    $item,
+        return response()->json([
 
-                    $request->validated()
+            'success' => true,
 
-                ),
+            'message' => 'Cart updated successfully.',
 
-            ]);
+            'data' => new CartResource($cart),
 
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        ]);
 
     }
 
     /**
-     * Remove Cart Item
+     * Remove cart item.
      */
     public function destroy(
-        int $item
+        int $productId
     ): JsonResponse {
 
-        try {
+        $cart = $this->cartService->removeItem(
 
-            return response()->json([
+            auth('customer')->id(),
 
-                'success' => true,
+            $productId
 
-                'message' => 'Cart item removed successfully.',
+        );
 
-                'data' => $this->cartService->removeItem(
-                    $item
-                ),
+        return response()->json([
 
-            ]);
+            'success' => true,
 
-        } catch (Throwable $exception) {
+            'message' => 'Item removed successfully.',
 
-            return $this->handleException($exception);
+            'data' => new CartResource($cart),
 
-        }
+        ]);
 
     }
 
     /**
-     * Clear Cart
+     * Clear customer cart.
      */
     public function clear(): JsonResponse
     {
-        try {
+        $this->cartService->clear(
+            auth('customer')->id()
+        );
 
-            $this->cartService->clear(
-                auth()->user()->customer->id
-            );
+        return response()->json([
 
-            return response()->json([
+            'success' => true,
 
-                'success' => true,
+            'message' => 'Cart cleared successfully.',
 
-                'message' => 'Cart cleared successfully.',
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
+        ]);
     }
 
     /**
-     * Cart Summary
+     * Cart item count.
      */
-    public function summary(): JsonResponse
+    public function count(): JsonResponse
     {
-        try {
+        return response()->json([
 
-            return response()->json([
+            'success' => true,
 
-                'success' => true,
+            'count' => $this->cartService->count(
+                auth('customer')->id()
+            ),
 
-                'message' => 'Cart summary fetched successfully.',
+        ]);
+    }
 
-                'data' => $this->cartService->summary(
-                    auth()->user()->customer->id
-                ),
+    /**
+     * Apply coupon.
+     */
+    public function applyCoupon(
+        ApplyCouponRequest $request
+    ): JsonResponse {
 
-            ]);
+        $cart = $this->cartService->applyCoupon(
 
-        } catch (Throwable $exception) {
+            auth('customer')->id(),
 
-            return $this->handleException($exception);
+            $request->string('coupon_code')->toString()
 
-        }
+        );
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' => 'Coupon applied successfully.',
+
+            'data' => new CartResource($cart),
+
+        ]);
+
+    }
+
+    /**
+     * Remove coupon.
+     */
+    public function removeCoupon(): JsonResponse
+    {
+        $cart = $this->cartService->removeCoupon(
+            auth('customer')->id()
+        );
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' => 'Coupon removed successfully.',
+
+            'data' => new CartResource($cart),
+
+        ]);
     }
 }

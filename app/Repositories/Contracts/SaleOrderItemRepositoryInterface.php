@@ -22,4 +22,8 @@ interface SaleOrderItemRepositoryInterface
     public function findOrFail(int $id): SaleOrderItem;
 
     public function getBySaleOrder(int $saleOrderId): Collection;
+
+    public function countBySaleOrder(
+        int $saleOrderId
+    ): int;
 }

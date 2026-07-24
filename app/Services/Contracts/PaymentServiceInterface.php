@@ -116,6 +116,7 @@ interface PaymentServiceInterface
     ): Payment;
 
     public function webhook(
-        array $payload
+        array $payload,
+        string $signature
     ): bool;
 }

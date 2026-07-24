@@ -87,4 +87,8 @@ interface PaymentRepositoryInterface
         string $fromDate,
         string $toDate
     ): Collection;
+
+    public function findByReferenceNo(
+        string $referenceNo
+    ): ?Payment;
 }

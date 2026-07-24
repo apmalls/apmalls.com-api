@@ -2,16 +2,37 @@
 
 namespace App\Providers;
 
+use App\Repositories\Banner\WebsiteBannerRepository;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Contracts\Website\HomeRepositoryInterface;
+use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Role\RoleRepository;
+use App\Repositories\User\UserRepository;
+use App\Repositories\Website\HomeRepository;
+use App\Services\Banner\WebsiteBannerService;
+use App\Services\Brand\BrandService;
+use App\Services\Checkout\CheckoutService;
+use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CashRegisterTransactionServiceInterface;
+use App\Services\Contracts\CheckoutServiceInterface;
+use App\Services\Contracts\RazorpayServiceInterface;
+use App\Services\Contracts\Website\HomeServiceInterface;
+use App\Services\Contracts\WebsiteBannerServiceInterface;
+use App\Services\Contracts\WishlistServiceInterface;
+use App\Services\Payment\RazorpayService;
 use App\Services\POS\CashRegisterTransactionService;
+use App\Services\Website\CartService;
+use App\Services\Coupon\CouponService;
+use App\Services\Contracts\CouponServiceInterface;
+use App\Services\Website\HomeService;
+use App\Services\Website\WishlistService;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -32,6 +53,8 @@ use App\Repositories\Product\ProductRepository;
 use App\Repositories\Contracts\BrandRepositoryInterface;
 use App\Repositories\Product\BrandRepository;
 
+use App\Repositories\Contracts\CouponRepositoryInterface;
+use App\Repositories\Coupon\CouponRepository;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Cart\CartRepository;
 
@@ -78,6 +101,8 @@ use App\Repositories\Contracts\GeneralSettingRepositoryInterface;
 use App\Repositories\POS\PosHoldRepository;
 use App\Repositories\Contracts\PosHoldRepositoryInterface;
 
+
+
 use App\Services\Contracts\PurchaseServiceInterface;
 use App\Services\Purchase\PurchaseService;
 
@@ -113,6 +138,27 @@ use App\Services\Setting\GeneralSettingService;
 use App\Services\Contracts\GeneralSettingServiceInterface;
 use App\Services\POS\POSService;
 use App\Services\Contracts\POSServiceInterface;
+
+use App\Services\User\UserService;
+use App\Services\Contracts\UserServiceInterface;
+
+use App\Services\Category\CategoryService;
+use App\Services\Contracts\CategoryServiceInterface;
+
+
+use App\Services\Contracts\BrandServiceInterface;
+
+use App\Services\Unit\UnitService;
+use App\Services\Contracts\UnitServiceInterface;
+
+use App\Services\Product\ProductService;
+use App\Services\Contracts\ProductServiceInterface;
+use App\Repositories\Product\UnitRepository;
+use App\Repositories\Contracts\UnitRepositoryInterface;
+use App\Services\Product\ProductImageService;
+use App\Services\Contracts\ProductImageServiceInterface;
+use App\Repositories\Product\ProductImageRepository;
+use App\Repositories\Contracts\ProductImageRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -265,10 +311,57 @@ class AppServiceProvider extends ServiceProvider
             PosHoldRepository::class
         );
 
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            UserRepository::class
+        );
+
+        $this->app->bind(
+            UnitRepositoryInterface::class,
+            UnitRepository::class
+        );
+
         // Services
         $this->app->bind(
             PurchaseServiceInterface::class,
             PurchaseService::class
+        );
+
+        $this->app->bind(
+            UserServiceInterface::class,
+            UserService::class
+        );
+
+
+
+        $this->app->bind(
+            CategoryServiceInterface::class,
+            CategoryService::class
+        );
+
+        $this->app->bind(
+            BrandServiceInterface::class,
+            BrandService::class
+        );
+
+        $this->app->bind(
+            UnitServiceInterface::class,
+            UnitService::class
+        );
+
+        $this->app->bind(
+            ProductServiceInterface::class,
+            ProductService::class
+        );
+
+        $this->app->bind(
+            ProductImageServiceInterface::class,
+            ProductImageService::class
+        );
+
+        $this->app->bind(
+            ProductImageRepositoryInterface::class,
+            ProductImageRepository::class
         );
 
         $this->app->bind(
@@ -339,6 +432,69 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PaymentModeServiceInterface::class,
             PaymentModeService::class
+        );
+
+        $this->app->bind(
+            WebsiteBannerRepositoryInterface::class,
+            WebsiteBannerRepository::class
+        );
+
+        $this->app->bind(
+            WebsiteBannerServiceInterface::class,
+            WebsiteBannerService::class
+        );
+
+        $this->app->bind(
+            WishlistServiceInterface::class,
+            WishlistService::class
+        );
+
+        $this->app->bind(
+            HomeServiceInterface::class,
+            HomeService::class
+        );
+
+        $this->app->bind(
+            HomeRepositoryInterface::class,
+            HomeRepository::class
+        );
+
+        $this->app->bind(
+            CouponRepositoryInterface::class,
+            CouponRepository::class
+        );
+
+        $this->app->bind(
+            CouponServiceInterface::class,
+            CouponService::class
+        );
+
+        $this->app->bind(
+            CartServiceInterface::class,
+            CartService::class
+        );
+
+        $this->app->bind(
+            CartRepositoryInterface::class,
+            CartRepository::class
+        );
+
+        $this->app->bind(
+            CartItemRepositoryInterface::class,
+            CartItemRepository::class
+        );
+
+        $this->app->bind(
+
+            RazorpayServiceInterface::class,
+
+            RazorpayService::class
+
+        );
+
+        $this->app->bind(
+            CheckoutServiceInterface::class,
+            CheckoutService::class
         );
     }
 

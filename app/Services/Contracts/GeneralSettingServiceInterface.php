@@ -13,4 +13,6 @@ interface GeneralSettingServiceInterface
     public function update(
         array $data
     ): GeneralSetting;
+
+
 }

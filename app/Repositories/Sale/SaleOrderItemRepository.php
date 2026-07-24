@@ -56,10 +56,23 @@ class SaleOrderItemRepository implements SaleOrderItemRepositoryInterface
             'sale_order_id',
             $saleOrderId
         )
-        ->with([
-            'product',
-            'unit'
-        ])
-        ->get();
+            ->with([
+                'product',
+                'unit'
+            ])
+            ->get();
+    }
+
+    public function countBySaleOrder(
+        int $saleOrderId
+    ): int {
+
+        return SaleOrderItem::where(
+
+            'sale_order_id',
+            $saleOrderId
+
+        )->count();
+
     }
 }

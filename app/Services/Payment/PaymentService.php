@@ -12,7 +12,9 @@ use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
 use App\Repositories\Contracts\PurchaseRepositoryInterface;
 use App\Repositories\Contracts\SaleRepositoryInterface;
+
 use App\Services\Contracts\PaymentServiceInterface;
+use App\Services\Contracts\RazorpayServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +26,7 @@ class PaymentService implements PaymentServiceInterface
         protected PaymentRepositoryInterface $paymentRepository,
         protected SaleRepositoryInterface $saleRepository,
         protected PurchaseRepositoryInterface $purchaseRepository,
+        protected RazorpayServiceInterface $razorpayService
     ) {
     }
 
@@ -405,19 +408,229 @@ class PaymentService implements PaymentServiceInterface
     public function createGatewayOrder(
         int $paymentId
     ): array {
-        throw new \BadMethodCallException('Not implemented yet.');
+
+        return DB::transaction(function () use ($paymentId) {
+
+            $payment = $this->find($paymentId);
+
+            if (
+
+                $payment->status !== Payment::STATUS_PENDING
+
+            ) {
+
+                throw new InvalidArgumentException(
+
+                    'Only pending payment can create gateway order.'
+
+                );
+
+            }
+
+            $gatewayOrder = $this->razorpayService
+                ->createOrder([
+
+                    'receipt' => $payment->payment_no,
+
+                    'amount' => $payment->amount,
+
+                    'currency' => 'INR',
+
+                    'notes' => [
+
+                        'payment_id' => $payment->id,
+
+                        'payment_no' => $payment->payment_no,
+
+                    ],
+
+                ]);
+
+            $this->paymentRepository->update(
+
+                $payment->id,
+
+                [
+
+                    'reference_no' => $gatewayOrder['id'],
+
+                    'gateway' => 'razorpay',
+
+                ]
+
+            );
+
+            return $gatewayOrder;
+
+        });
+
     }
 
     public function verifyGatewayPayment(
         array $payload
     ): Payment {
-        throw new \BadMethodCallException('Not implemented yet.');
+
+        return DB::transaction(function () use ($payload) {
+
+            if (
+
+                !$this->razorpayService
+                    ->verifySignature($payload)
+
+            ) {
+
+                throw new InvalidArgumentException(
+
+                    'Invalid Razorpay signature.'
+
+                );
+
+            }
+
+            $payment = Payment::where(
+
+                'reference_no',
+
+                $payload['razorpay_order_id']
+
+            )->firstOrFail();
+
+            $gatewayPayment = $this->razorpayService
+                ->fetchPayment(
+
+                    $payload['razorpay_payment_id']
+
+                );
+
+            $payment = $this->paymentRepository
+                ->update(
+
+                    $payment->id,
+
+                    [
+
+                        'transaction_no'
+                        => $gatewayPayment['id'],
+
+                        'status'
+                        => Payment::STATUS_COMPLETED,
+
+                        'paid_amount'
+                        => $gatewayPayment['amount'] / 100,
+
+                    ]
+
+                );
+
+            if (
+
+                $payment->paymentable_type ===
+                SaleOrder::class
+
+            ) {
+
+                $this->updateSalePaymentSummary(
+
+                    $payment->paymentable_id
+
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Checkout Success
+                |--------------------------------------------------------------------------
+                */
+
+                $payment = $this->paymentRepository
+                    ->findByReferenceNo(
+                        $payload['razorpay_order_id']
+                    );
+
+                if (!$payment) {
+
+                    throw new InvalidArgumentException(
+                        'Payment not found.'
+                    );
+
+                }
+
+            }
+
+            if (
+
+                $payment->paymentable_type ===
+                PurchaseOrder::class
+
+            ) {
+
+                $this->updatePurchasePaymentSummary(
+
+                    $payment->paymentable_id
+
+                );
+
+            }
+
+            return $payment;
+
+        });
+
     }
 
     public function webhook(
-        array $payload
+        array $payload,
+        string $signature
     ): bool {
-        throw new \BadMethodCallException('Not implemented yet.');
+
+        $verified = $this->razorpayService
+            ->verifyWebhook(
+                json_encode($payload),
+                $signature
+            );
+
+        if (!$verified) {
+            return false;
+        }
+
+        $event = $payload['event'] ?? null;
+
+        switch ($event) {
+
+            case 'payment.captured':
+
+                $entity = $payload['payload']['payment']['entity'];
+
+                $this->verifyGatewayPayment([
+
+                    'razorpay_order_id' =>
+                        $entity['order_id'],
+
+                    'razorpay_payment_id' =>
+                        $entity['id'],
+
+                    'razorpay_signature' =>
+                        $signature,
+
+                ]);
+
+                break;
+
+            case 'payment.failed':
+
+                // TODO:
+                // Handle failed payment
+
+                break;
+
+            case 'refund.processed':
+
+                // TODO:
+                // Handle refund
+
+                break;
+        }
+
+        return true;
     }
 
 

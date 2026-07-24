@@ -76,7 +76,7 @@ class PermissionSeeder extends Seeder
 
             'payment-gateway-transaction',
 
-            'report',
+            'report','website-banner'
 
         ];
 

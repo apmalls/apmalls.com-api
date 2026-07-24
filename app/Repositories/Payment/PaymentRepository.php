@@ -204,4 +204,15 @@ class PaymentRepository implements PaymentRepositoryInterface
             [$fromDate, $toDate]
         )->get();
     }
+
+    public function findByReferenceNo(
+        string $referenceNo
+    ): ?Payment {
+
+        return Payment::where(
+            'reference_no',
+            $referenceNo
+        )->first();
+
+    }
 }

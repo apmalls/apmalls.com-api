@@ -4,21 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
-use Throwable;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Services\Website\BrandService;
+use App\Http\Resources\Brand\BrandResource;
+use App\Http\Resources\Product\ProductResource;
+use App\Services\Contracts\BrandServiceInterface;
 use App\Http\Requests\Website\Brand\BrandListRequest;
 
 class BrandController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
     public function __construct(
-        protected BrandService $brandService,
-    ) {
-    }
+        protected BrandServiceInterface $brandService
+    ) {}
 
     /**
-     * Brand Listing
+     * Brand listing.
      */
     public function index(
         BrandListRequest $request
@@ -26,28 +30,48 @@ class BrandController extends Controller
 
         try {
 
+            $brands = $this->brandService->websitePaginate(
+                $request->filters()
+            );
+
             return response()->json([
 
                 'success' => true,
 
                 'message' => 'Brands fetched successfully.',
 
-                'data' => $this->brandService->paginate(
-                    $request->filters()
-                ),
+                'data' => BrandResource::collection($brands),
+
+                'pagination' => [
+
+                    'current_page' => $brands->currentPage(),
+
+                    'last_page' => $brands->lastPage(),
+
+                    'per_page' => $brands->perPage(),
+
+                    'total' => $brands->total(),
+
+                ],
 
             ]);
 
-        } catch (Throwable $exception) {
+        } catch (Exception $e) {
 
-            return $this->handleException($exception);
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage(),
+
+            ], 500);
 
         }
 
     }
 
     /**
-     * Brand Details
+     * Brand details.
      */
     public function show(
         string $slug
@@ -55,44 +79,35 @@ class BrandController extends Controller
 
         try {
 
+            $brand = $this->brandService->findBySlug($slug);
+
             return response()->json([
 
                 'success' => true,
 
                 'message' => 'Brand fetched successfully.',
 
-                'data' => $this->brandService->show($slug),
+                'data' => [
+
+                    'brand' => new BrandResource($brand),
+
+                    'products' => ProductResource::collection(
+                        $brand->products
+                    ),
+
+                ],
 
             ]);
 
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
-
-    }
-
-    /**
-     * Active Brands
-     */
-    public function all(): JsonResponse
-    {
-        try {
+        } catch (Exception $e) {
 
             return response()->json([
 
-                'success' => true,
+                'success' => false,
 
-                'message' => 'Brands fetched successfully.',
+                'message' => $e->getMessage(),
 
-                'data' => $this->brandService->all(),
-
-            ]);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
+            ], 500);
 
         }
 

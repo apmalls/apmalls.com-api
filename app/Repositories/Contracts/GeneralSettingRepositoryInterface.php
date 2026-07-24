@@ -11,4 +11,6 @@ interface GeneralSettingRepositoryInterface
     public function update(
         array $data
     ): GeneralSetting;
+
+    public function getForUpdate(): GeneralSetting;
 }

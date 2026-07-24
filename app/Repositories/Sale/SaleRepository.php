@@ -273,4 +273,139 @@ class SaleRepository implements SaleRepositoryInterface
 
             ->latest();
     }
+
+    public function createDraft(
+        array $data
+    ): SaleOrder {
+        return SaleOrder::create($data);
+    }
+
+
+    public function updatePayment(
+        int $id,
+        array $data
+    ): SaleOrder {
+
+        $sale = $this->findOrFail($id);
+
+        $sale->update([
+
+            'paid_amount' => $data['paid_amount'],
+
+            'due_amount' => $data['due_amount'],
+
+            'refund_amount' => $data['refund_amount'] ?? 0,
+
+            'payment_status' => $data['payment_status'],
+
+        ]);
+
+        return $sale->fresh();
+    }
+
+    public function updateTotals(
+        int $id,
+        array $data
+    ): SaleOrder {
+
+        $sale = $this->findOrFail($id);
+
+        $sale->update([
+
+            'sub_total' => $data['sub_total'],
+
+            'discount_amount' => $data['discount_amount'],
+
+            'tax_amount' => $data['tax_amount'],
+
+            'shipping_amount' => $data['shipping_amount'],
+
+            'other_amount' => $data['other_amount'] ?? 0,
+
+            'round_off' => $data['round_off'] ?? 0,
+
+            'grand_total' => $data['grand_total'],
+
+        ]);
+
+        return $sale->fresh();
+    }
+
+    public function customerOrders(
+        int $customerId,
+        int $perPage = 10
+    ): LengthAwarePaginator {
+
+        return SaleOrder::where(
+
+            'customer_id',
+            $customerId
+
+        )
+
+            ->with([
+                'items.product',
+                'payments',
+            ])
+
+            ->latest()
+
+            ->paginate($perPage);
+    }
+
+    public function customerOrder(
+        int $customerId,
+        string $saleNo
+    ): ?SaleOrder {
+
+        return SaleOrder::where(
+
+            'customer_id',
+            $customerId
+
+        )
+
+            ->where(
+
+                'sale_no',
+                $saleNo
+
+            )
+
+            ->with([
+
+                'items.product',
+
+                'items.unit',
+
+                'payments',
+
+                'billingAddress',
+
+                'shippingAddress',
+
+            ])
+
+            ->first();
+    }
+
+    public function findDraftByCustomer(
+        int $customerId
+    ): ?SaleOrder {
+        return SaleOrder::with([
+            'items',
+        ])
+            ->where('customer_id', $customerId)
+            ->where('status', SaleOrder::STATUS_DRAFT)
+            ->latest()
+            ->first();
+    }
+
+    public function deleteDraft(
+        int $id
+    ): bool {
+        return $this->findOrFail($id)
+            ->delete();
+    }
+
 }

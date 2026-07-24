@@ -39,7 +39,7 @@ return new class extends Migration {
             |--------------------------------------------------------------------------
             */
 
-            $table->text('remarks')
+            $table->string('remarks', 500)
                 ->nullable();
 
             $table->timestamps();
@@ -54,6 +54,10 @@ return new class extends Migration {
                 'customer_id',
                 'product_id',
             ]);
+
+            $table->index('customer_id');
+
+            $table->index('product_id');
         });
     }
 

@@ -84,10 +84,10 @@ interface CategoryRepositoryInterface
     public function dropdown(): Collection;
 
     /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Website
+|--------------------------------------------------------------------------
+*/
 
     /**
      * Website category listing.
@@ -97,14 +97,17 @@ interface CategoryRepositoryInterface
     ): LengthAwarePaginator;
 
     /**
-     * Featured categories.
-     */
-    public function featured(): Collection;
-
-    /**
      * Find category by slug.
      */
     public function findBySlug(
         string $slug
     ): Category;
+
+    /**
+     * Featured categories.
+     */
+    public function featured(
+        int $limit = 10
+    ): Collection;
+
 }

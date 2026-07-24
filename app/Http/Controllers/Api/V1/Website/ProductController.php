@@ -4,27 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
-use Throwable;
+use App\Http\Requests\Website\Product\ProductListRequest;
+use App\Http\Resources\Product\ProductResource;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Services\Website\ProductService;
-use App\Http\Requests\Website\Product\ProductListRequest;
+
+use App\Services\Contracts\ProductServiceInterface;
 
 class ProductController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
     public function __construct(
-        protected ProductService $productService,
-    ) {
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Listing
-    |--------------------------------------------------------------------------
-    */
+        protected ProductServiceInterface $productService
+    ) {}
 
     /**
-     * Display product listing.
+     * Product listing.
      */
     public function index(
         ProductListRequest $request
@@ -32,10 +30,9 @@ class ProductController extends Controller
 
         try {
 
-            $products = $this->productService
-                ->paginate(
-                    $request->filters()
-                );
+            $products = $this->productService->websitePaginate(
+                $request->filters()
+            );
 
             return response()->json([
 
@@ -43,26 +40,38 @@ class ProductController extends Controller
 
                 'message' => 'Products fetched successfully.',
 
-                'data' => $products,
+                'data' => ProductResource::collection($products),
 
-            ], 200);
+                'pagination' => [
 
-        } catch (Throwable $exception) {
+                    'current_page' => $products->currentPage(),
 
-            return $this->handleException($exception);
+                    'last_page' => $products->lastPage(),
+
+                    'per_page' => $products->perPage(),
+
+                    'total' => $products->total(),
+
+                ],
+
+            ]);
+
+        } catch (Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage(),
+
+            ], 500);
 
         }
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Product Details
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Display product details.
+     * Product details.
      */
     public function show(
         string $slug
@@ -70,8 +79,12 @@ class ProductController extends Controller
 
         try {
 
-            $product = $this->productService
-                ->show($slug);
+            $product = $this->productService->findBySlug($slug);
+
+            $relatedProducts = $this->productService->relatedProducts(
+                $product->category_id,
+                $product->id
+            );
 
             return response()->json([
 
@@ -79,189 +92,62 @@ class ProductController extends Controller
 
                 'message' => 'Product fetched successfully.',
 
-                'data' => $product,
+                'data' => [
 
-            ], 200);
+                    'product' => new ProductResource($product),
 
-        } catch (Throwable $exception) {
+                    'related_products' => ProductResource::collection(
+                        $relatedProducts
+                    ),
 
-            return $this->handleException($exception);
+                ],
 
-        }
+            ]);
 
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Featured Products
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Display featured products.
-     */
-    public function featured(): JsonResponse
-    {
-        try {
-
-            $products = $this->productService
-                ->featured();
+        } catch (Exception $e) {
 
             return response()->json([
 
-                'success' => true,
+                'success' => false,
 
-                'message' => 'Featured products fetched successfully.',
+                'message' => $e->getMessage(),
 
-                'data' => $products,
-
-            ], 200);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
+            ], 500);
 
         }
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | New Arrival Products
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Display new arrival products.
+     * Product search suggestions.
      */
-    public function newArrivals(): JsonResponse
-    {
-        try {
-
-            $products = $this->productService
-                ->newArrivals();
-
-            return response()->json([
-
-                'success' => true,
-
-                'message' => 'New arrival products fetched successfully.',
-
-                'data' => $products,
-
-            ], 200);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Best Seller Products
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Display best seller products.
-     */
-    public function bestSellers(): JsonResponse
-    {
-        try {
-
-            $products = $this->productService
-                ->bestSellers();
-
-            return response()->json([
-
-                'success' => true,
-
-                'message' => 'Best seller products fetched successfully.',
-
-                'data' => $products,
-
-            ], 200);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Related Products
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Display related products.
-     */
-    public function related(
-        string $slug
+    public function searchSuggestions(
+        string $keyword
     ): JsonResponse {
 
         try {
 
-            $products = $this->productService
-                ->related($slug);
+            $products = $this->productService->searchSuggestions($keyword);
 
             return response()->json([
 
                 'success' => true,
 
-                'message' => 'Related products fetched successfully.',
+                'message' => 'Suggestions fetched successfully.',
 
                 'data' => $products,
 
-            ], 200);
+            ]);
 
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
-
-        }
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Search
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Search products.
-     */
-    public function search(
-        ProductListRequest $request
-    ): JsonResponse {
-
-        try {
-
-            $products = $this->productService
-                ->search(
-                    $request->filters()
-                );
+        } catch (Exception $e) {
 
             return response()->json([
 
-                'success' => true,
+                'success' => false,
 
-                'message' => 'Products fetched successfully.',
+                'message' => $e->getMessage(),
 
-                'data' => $products,
-
-            ], 200);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
+            ], 500);
 
         }
 

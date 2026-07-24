@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Website\Category;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class CategoryListRequest extends FormRequest
 {
@@ -16,18 +18,19 @@ class CategoryListRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Get the validation rules.
      *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
+
             /*
-              |--------------------------------------------------------------------------
-              | Search
-              |--------------------------------------------------------------------------
-              */
+            |--------------------------------------------------------------------------
+            | Search
+            |--------------------------------------------------------------------------
+            */
 
             'search' => [
                 'nullable',
@@ -52,11 +55,13 @@ class CategoryListRequest extends FormRequest
     }
 
     /**
-     * Custom Messages
+     * Custom validation messages.
      */
     public function messages(): array
     {
         return [
+
+            'search.max' => 'Search may not be greater than 255 characters.',
 
             'per_page.integer' => 'Per page must be an integer.',
 
@@ -68,15 +73,20 @@ class CategoryListRequest extends FormRequest
     }
 
     /**
-     * Validated Filters
+     * Validated filters.
      */
     public function filters(): array
     {
         return [
 
-            'search' => trim((string) $this->input('search')),
+            'search' => trim(
+                (string) $this->input('search')
+            ),
 
-            'per_page' => (int) ($this->input('per_page', 20)),
+            'per_page' => (int) $this->input(
+                'per_page',
+                20
+            ),
 
         ];
     }

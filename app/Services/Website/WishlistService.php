@@ -4,105 +4,126 @@ declare(strict_types=1);
 
 namespace App\Services\Website;
 
+
 use App\Models\Wishlist\Wishlist;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
-use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Services\Contracts\WishlistServiceInterface;
 use App\Repositories\Contracts\WishlistRepositoryInterface;
 
-class WishlistService
+class WishlistService implements WishlistServiceInterface
 {
+    /**
+     * Create a new service instance.
+     */
     public function __construct(
         protected WishlistRepositoryInterface $wishlistRepository,
-        protected ProductRepositoryInterface $productRepository,
-    ) {
-    }
+    ) {}
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Customer Wishlist
+     * Customer wishlist.
      */
     public function index(
         int $customerId
-    ): Collection {
-
-        return $this->wishlistRepository
-            ->index($customerId);
-
+    ): Collection
+    {
+        return $this->wishlistRepository->index(
+            $customerId
+        );
     }
 
     /**
-     * Add Product To Wishlist
+     * Find wishlist item.
      */
-    public function add(
+    public function find(
+        int $id
+    ): Wishlist
+    {
+        return $this->wishlistRepository->find(
+            $id
+        );
+    }
+
+    /**
+     * Find product in wishlist.
+     */
+    public function findByProduct(
         int $customerId,
-        array $data
-    ): Wishlist {
-
-        return DB::transaction(function () use ($customerId, $data) {
-
-            $product = $this->productRepository
-                ->find($data['product_id']);
-
-            $wishlist = $this->wishlistRepository
-                ->findByProduct(
-                    $customerId,
-                    $product->id
-                );
-
-            if ($wishlist) {
-
-                return $wishlist;
-
-            }
-
-            return $this->wishlistRepository
-                ->create([
-
-                    'customer_id' => $customerId,
-
-                    'product_id' => $product->id,
-
-                    'remarks' => $data['remarks'] ?? null,
-
-                ]);
-
-        });
-
+        int $productId
+    ): ?Wishlist
+    {
+        return $this->wishlistRepository->findByProduct(
+            $customerId,
+            $productId
+        );
     }
 
     /**
-     * Remove Wishlist Item
+     * Check product exists in wishlist.
      */
-    public function remove(
-        int $wishlistId
-    ): bool {
-
-        return $this->wishlistRepository
-            ->delete($wishlistId);
-
+    public function exists(
+        int $customerId,
+        int $productId
+    ): bool
+    {
+        return $this->wishlistRepository->exists(
+            $customerId,
+            $productId
+        );
     }
 
     /**
-     * Clear Wishlist
+     * Add product to wishlist.
+     */
+    public function create(
+        array $data
+    ): Wishlist
+    {
+        return $this->wishlistRepository->create(
+            $data
+        );
+    }
+
+    /**
+     * Remove wishlist item.
+     */
+    public function delete(
+        int $customerId,
+        int $productId
+    ): bool
+    {
+        return $this->wishlistRepository->delete(
+            $customerId,
+            $productId
+        );
+    }
+
+    /**
+     * Clear customer wishlist.
      */
     public function clear(
         int $customerId
-    ): bool {
-
-        return $this->wishlistRepository
-            ->clear($customerId);
-
+    ): bool
+    {
+        return $this->wishlistRepository->clear(
+            $customerId
+        );
     }
 
     /**
-     * Wishlist Count
+     * Wishlist items count.
      */
     public function count(
         int $customerId
-    ): int {
-
-        return $this->wishlistRepository
-            ->count($customerId);
-
+    ): int
+    {
+        return $this->wishlistRepository->count(
+            $customerId
+        );
     }
 }

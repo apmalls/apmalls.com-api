@@ -61,6 +61,27 @@ class ProductListRequest extends FormRequest
 
             /*
             |--------------------------------------------------------------------------
+            | Product Type
+            |--------------------------------------------------------------------------
+            */
+
+            'featured' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'new_arrival' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'best_seller' => [
+                'nullable',
+                'boolean',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
             | Price
             |--------------------------------------------------------------------------
             */
@@ -85,7 +106,7 @@ class ProductListRequest extends FormRequest
 
             'sort' => [
                 'nullable',
-                'in:latest,oldest,price_low_to_high,price_high_to_low,name_asc,name_desc',
+                'in:latest,oldest,price_low_to_high,price_high_to_low,name_asc,name_desc,popular',
             ],
 
             /*
@@ -135,11 +156,17 @@ class ProductListRequest extends FormRequest
 
             'brand_id' => $this->input('brand_id'),
 
+            'featured' => $this->boolean('featured'),
+
+            'new_arrival' => $this->boolean('new_arrival'),
+
+            'best_seller' => $this->boolean('best_seller'),
+
             'min_price' => $this->input('min_price'),
 
             'max_price' => $this->input('max_price'),
 
-            'sort' => $this->input('sort'),
+            'sort' => $this->input('sort', 'latest'),
 
             'per_page' => (int) $this->input('per_page', 20),
 

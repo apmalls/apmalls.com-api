@@ -22,10 +22,12 @@ use App\Services\Checkout\CheckoutService;
 use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CashRegisterTransactionServiceInterface;
 use App\Services\Contracts\CheckoutServiceInterface;
+use App\Services\Contracts\GoogleAuthServiceInterface;
 use App\Services\Contracts\RazorpayServiceInterface;
 use App\Services\Contracts\Website\HomeServiceInterface;
 use App\Services\Contracts\WebsiteBannerServiceInterface;
 use App\Services\Contracts\WishlistServiceInterface;
+use App\Services\Google\GoogleAuthService;
 use App\Services\Payment\RazorpayService;
 use App\Services\POS\CashRegisterTransactionService;
 use App\Services\Website\CartService;
@@ -495,6 +497,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CheckoutServiceInterface::class,
             CheckoutService::class
+        );
+
+        $this->app->bind(
+            GoogleAuthServiceInterface::class,
+            GoogleAuthService::class
         );
     }
 

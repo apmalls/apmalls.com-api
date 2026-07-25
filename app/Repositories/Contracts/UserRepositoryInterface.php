@@ -64,4 +64,18 @@ interface UserRepositoryInterface
      * Change user status.
      */
     public function changeStatus(int $id, bool $isActive): User;
+
+    /**
+     * Find user by email.
+     */
+    public function findByEmail(
+        string $email
+    ): ?User;
+
+    /**
+     * Find user by Google ID.
+     */
+    public function findByGoogleId(
+        string $googleId
+    ): ?User;
 }

@@ -112,4 +112,26 @@ class UserRepository implements UserRepositoryInterface
 
         return $user;
     }
+
+    public function findByEmail(
+        string $email
+    ): ?User {
+
+        return User::query()
+
+            ->where('email', $email)
+
+            ->first();
+    }
+
+    public function findByGoogleId(
+        string $googleId
+    ): ?User {
+
+        return User::query()
+
+            ->where('google_id', $googleId)
+
+            ->first();
+    }
 }

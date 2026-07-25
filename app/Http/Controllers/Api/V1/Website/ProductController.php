@@ -19,7 +19,8 @@ class ProductController extends Controller
      */
     public function __construct(
         protected ProductServiceInterface $productService
-    ) {}
+    ) {
+    }
 
     /**
      * Product listing.
@@ -136,6 +137,48 @@ class ProductController extends Controller
                 'message' => 'Suggestions fetched successfully.',
 
                 'data' => $products,
+
+            ]);
+
+        } catch (Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage(),
+
+            ], 500);
+
+        }
+
+    }
+
+    /**
+     * Related products.
+     */
+    public function relatedProducts(
+        string $slug
+    ): JsonResponse {
+
+        try {
+
+            $product = $this->productService->findBySlug($slug);
+
+            $relatedProducts = $this->productService->relatedProducts(
+                $product->category_id,
+                $product->id
+            );
+
+            return response()->json([
+
+                'success' => true,
+
+                'message' => 'Related products fetched successfully.',
+
+                'data' => ProductResource::collection(
+                    $relatedProducts
+                ),
 
             ]);
 

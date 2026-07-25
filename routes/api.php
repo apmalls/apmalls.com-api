@@ -18,6 +18,7 @@ use App\Http\Controllers\API\V1\Admin\Setting\GeneralSettingController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodeTemplateController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\ProductBarcodeController;
+use App\Http\Controllers\Api\V1\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
@@ -115,6 +116,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    });
+
+    Route::prefix('auth')->group(function () {
+
+        Route::get('/google', [GoogleAuthController::class,'redirect']);
+
+        Route::get('/google/callback', [GoogleAuthController::class,'callback']);
 
     });
 
@@ -781,6 +790,11 @@ Route::prefix('v1')->group(function () {
         Route::get(
             'products/search/{keyword}',
             [WebsiteProductController::class, 'searchSuggestions']
+        );
+
+        Route::get(
+            'products/{slug}/related',
+            [WebsiteProductController::class, 'relatedProducts']
         );
 
         /*

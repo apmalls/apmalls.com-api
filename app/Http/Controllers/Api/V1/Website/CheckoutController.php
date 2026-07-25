@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
+use App\Http\Requests\Website\Checkout\CheckoutRequest;
 use App\Services\Contracts\PaymentServiceInterface;
 use Throwable;
 use Illuminate\Http\JsonResponse;

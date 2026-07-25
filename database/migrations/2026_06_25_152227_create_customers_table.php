@@ -44,7 +44,7 @@ return new class extends Migration
 
             $table->string('last_name')->nullable();
 
-            $table->string('mobile', 20)->unique();
+            $table->string('mobile', 20)->nullable()->unique();
 
             $table->string('alternate_mobile', 20)->nullable();
 

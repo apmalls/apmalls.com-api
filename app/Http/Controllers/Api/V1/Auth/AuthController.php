@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer\Customer;
+use App\Repositories\Contracts\CustomerAddressRepositoryInterface;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
 use App\Services\Contracts\OtpServiceInterface;
 use Illuminate\Http\Request;
 
@@ -32,6 +34,12 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+
+    public function __construct(
+        protected CustomerRepositoryInterface $customerRepository,
+        protected CustomerAddressRepositoryInterface $customerAddressRepository
+    ) {
+    }
 
 
 
@@ -294,11 +302,25 @@ class AuthController extends Controller
     public function profile(): JsonResponse
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::user()->load('roles');
+
+        /**
+         * Customer Details
+         */
+        if ($user->hasRole('customer')) {
+
+            $user->load([
+                'customer.addresses',
+            ]);
+
+        }
 
         return response()->json([
+
             'success' => true,
+
             'data' => $user,
+
         ]);
     }
 
@@ -306,6 +328,48 @@ class AuthController extends Controller
     /**
      * Update Profile
      */
+    // public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    // {
+    //     /** @var User $user */
+    //     $user = Auth::user();
+
+    //     $this->beginTransaction();
+
+    //     try {
+
+    //         $data = $request->validated();
+
+    //         /**
+    //          * Upload Profile Image
+    //          */
+    //         if ($request->hasFile('profile_photo')) {
+
+    //             $data['profile_photo'] = $this->replaceFile(
+    //                 $request->file('profile_photo'),
+    //                 $user->profile_photo,
+    //                 'profile'
+    //             );
+    //         }
+
+    //         $user->update($data);
+
+    //         $this->commit();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Profile updated successfully.',
+    //             'data' => $user->fresh(),
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         $this->rollback();
+
+    //         return $this->handleException($e);
+    //     }
+    // }
+
+
     public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
         /** @var User $user */
@@ -318,7 +382,7 @@ class AuthController extends Controller
             $data = $request->validated();
 
             /**
-             * Upload Profile Image
+             * Upload Profile Photo
              */
             if ($request->hasFile('profile_photo')) {
 
@@ -329,21 +393,176 @@ class AuthController extends Controller
                 );
             }
 
-            $user->update($data);
+            /**
+             * User Update
+             */
+            $user->update([
+
+                'first_name' => $request->first_name,
+
+                'last_name' => $request->last_name,
+
+                'username' => $request->username,
+
+                'email' => $request->email,
+
+                'mobile' => $request->mobile,
+
+                'profile_photo' => $data['profile_photo'] ?? $user->profile_photo,
+
+            ]);
+
+            /**
+             * Customer Update/Create
+             */
+            if ($user->hasRole('customer')) {
+
+                $customer = $this->customerRepository->findByUser(
+                    $user->id
+                );
+
+                $customerData = [
+
+                    'user_id' => $user->id,
+
+                    'first_name' => $request->first_name,
+
+                    'last_name' => $request->last_name,
+
+                    'mobile' => $request->mobile,
+
+                    'alternate_mobile' => $request->alternate_mobile,
+
+                    'email' => $request->email,
+
+                    'customer_type' => $request->customer_type,
+
+                    'company_name' => $request->company_name,
+
+                    'gst_number' => $request->gst_number,
+
+                    'date_of_birth' => $request->date_of_birth,
+
+                    'anniversary_date' => $request->anniversary_date,
+
+                    'notes' => $request->notes,
+
+                    'updated_by' => $user->id,
+
+                ];
+
+                if ($customer) {
+
+                    $customer = $this->customerRepository->update(
+                        $customer->id,
+                        $customerData
+                    );
+
+                } else {
+
+                    $customerData['customer_code'] = 'CUS-' . str_pad(
+                        (string) ($this->customerRepository->count() + 1),
+                        6,
+                        '0',
+                        STR_PAD_LEFT
+                    );
+
+                    $customerData['created_by'] = $user->id;
+
+                    $customer = $this->customerRepository->create(
+                        $customerData
+                    );
+                }
+
+                /**
+                 * Customer Address
+                 */
+                if ($request->filled('address_line_1')) {
+
+                    $addressData = [
+
+                        'customer_id' => $customer->id,
+
+                        'address_type' => $request->address_type,
+
+                        'contact_person' => $request->contact_person,
+
+                        'mobile' => $request->address_mobile,
+
+                        'alternate_mobile' => $request->address_alternate_mobile,
+
+                        'email' => $request->address_email,
+
+                        'address_line_1' => $request->address_line_1,
+
+                        'address_line_2' => $request->address_line_2,
+
+                        'landmark' => $request->landmark,
+
+                        'city' => $request->city,
+
+                        'state' => $request->state,
+
+                        'country' => $request->country,
+
+                        'postal_code' => $request->postal_code,
+
+                        'is_default' => $request->boolean('is_default'),
+
+                        'updated_by' => $user->id,
+
+                    ];
+
+                    if ($request->boolean('is_default')) {
+
+                        $this->customerAddressRepository
+                            ->clearDefault($customer->id);
+                    }
+
+                    if ($request->filled('address_id')) {
+
+                        $address = $this->customerAddressRepository
+                            ->findByCustomer(
+                                $customer->id,
+                                $request->address_id
+                            );
+
+                        $this->customerAddressRepository->update(
+                            $address->id,
+                            $addressData
+                        );
+
+                    } else {
+
+                        $addressData['created_by'] = $user->id;
+
+                        $this->customerAddressRepository->create(
+                            $addressData
+                        );
+                    }
+                }
+            }
 
             $this->commit();
 
             return response()->json([
+
                 'success' => true,
+
                 'message' => 'Profile updated successfully.',
-                'data' => $user->fresh(),
+
+                'data' => $user->load([
+                    'roles',
+                    'customer.addresses'
+                ]),
+
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $exception) {
 
             $this->rollback();
 
-            return $this->handleException($e);
+            return $this->handleException($exception);
         }
     }
 

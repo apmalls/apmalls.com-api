@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer\Customer;
+use App\Services\Contracts\OtpServiceInterface;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Auth\LoginRequest;
@@ -31,6 +32,7 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+
 
 
     /**
@@ -275,7 +277,7 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $user->currentAccessToken()->delete();
@@ -291,7 +293,7 @@ class AuthController extends Controller
      */
     public function profile(): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         return response()->json([
@@ -306,7 +308,7 @@ class AuthController extends Controller
      */
     public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $this->beginTransaction();
@@ -350,7 +352,7 @@ class AuthController extends Controller
      */
     public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
@@ -522,6 +524,7 @@ class AuthController extends Controller
             'message' => 'Password reset successfully.',
         ]);
     }
+
 
 
 

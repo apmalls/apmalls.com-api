@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodeTemplateController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\ProductBarcodeController;
 use App\Http\Controllers\Api\V1\Auth\GoogleAuthController;
+use App\Http\Controllers\Api\V1\Auth\OtpAuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
@@ -117,13 +118,23 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+        Route::post(
+            'send-otp',
+            [OtpAuthController::class, 'sendOtp']
+        );
+
+        Route::post(
+            'verify-otp',
+            [OtpAuthController::class, 'verifyOtp']
+        );
+
     });
 
     Route::prefix('auth')->group(function () {
 
-        Route::get('/google', [GoogleAuthController::class,'redirect']);
+        Route::get('/google', [GoogleAuthController::class, 'redirect']);
 
-        Route::get('/google/callback', [GoogleAuthController::class,'callback']);
+        Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
 
     });
 

@@ -382,7 +382,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function quickProducts(int $limit = 20): Collection
     {
         return Product::query()
-            ->where('status', 1)
+            ->where('is_active', 1)
             ->latest()
             ->limit($limit)
             ->get();

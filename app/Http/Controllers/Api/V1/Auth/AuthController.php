@@ -307,7 +307,7 @@ class AuthController extends Controller
         /**
          * Customer Details
          */
-        if ($user->hasRole('customer')) {
+        if ($user->hasRole('Customer')) {
 
             $user->load([
                 'customer.addresses',

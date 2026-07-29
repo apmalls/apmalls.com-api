@@ -4,10 +4,12 @@ namespace App\Models\Sale;
 
 use App\Models\Customer\Customer;
 use App\Models\Customer\CustomerAddress;
+use App\Models\Delivery\DeliveryAssignment;
 use App\Models\Payment\Payment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SaleOrder extends Model
@@ -35,6 +37,22 @@ class SaleOrder extends Model
     public const PAYMENT_PARTIAL = 'partial';
     public const PAYMENT_COMPLETED = 'completed';
     public const PAYMENT_REFUNDED = 'refunded';
+
+    # Delivery status
+
+    public const DELIVERY_PENDING = 'pending';
+
+    public const DELIVERY_ASSIGNED = 'assigned';
+
+    public const DELIVERY_ACCEPTED = 'accepted';
+
+    public const DELIVERY_PICKED = 'picked';
+
+    public const DELIVERY_OUT_FOR_DELIVERY = 'out_for_delivery';
+
+    public const DELIVERY_DELIVERED = 'delivered';
+
+    public const DELIVERY_CANCELLED = 'cancelled';
 
     /*
     |--------------------------------------------------------------------------
@@ -282,5 +300,10 @@ class SaleOrder extends Model
     public function isCompletedPayment(): bool
     {
         return $this->payment_status === self::PAYMENT_COMPLETED;
+    }
+
+    public function deliveryAssignment(): HasOne
+    {
+        return $this->hasOne(DeliveryAssignment::class);
     }
 }

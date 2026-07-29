@@ -435,7 +435,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user48@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user2@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -475,7 +475,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user48@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"email\": \"user3@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -515,7 +515,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user14@example.com\"\n}",
+                                            "raw": "{\n    \"email\": \"user15@example.com\"\n}",
                                             "options": []
                                         }
                                     }
@@ -555,7 +555,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user48@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user83@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -811,7 +811,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user1@example.com\",\n    \"mobile\": \"sample_text\",\n    \"profile_photo\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"notes\": \"sample_text\",\n    \"address_id\": 4,\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"address_mobile\": \"sample_text\",\n    \"address_alternate_mobile\": \"sample_text\",\n    \"address_email\": \"user72@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user18@example.com\",\n    \"mobile\": \"sample_text\",\n    \"profile_photo\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"notes\": \"sample_text\",\n    \"address_id\": 4,\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"address_mobile\": \"sample_text\",\n    \"address_alternate_mobile\": \"sample_text\",\n    \"address_email\": \"user82@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -926,7 +926,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user83@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user31@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -995,7 +995,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user22@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user75@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -1252,7 +1252,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 0,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 6,\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -1717,7 +1717,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"logo\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"logo\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -2074,7 +2074,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2179,7 +2179,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2252,7 +2252,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_active\": 1\n}",
+                                                    "raw": "{\n    \"is_active\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -2400,7 +2400,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 38,\n    \"selling_price\": 24,\n    \"mrp\": 72,\n    \"tax_percent\": 27,\n    \"discount_percent\": 33,\n    \"stock\": 2,\n    \"minimum_stock\": 5,\n    \"featured\": 0,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 89,\n    \"selling_price\": 67,\n    \"mrp\": 99,\n    \"tax_percent\": 27,\n    \"discount_percent\": 53,\n    \"stock\": 7,\n    \"minimum_stock\": 0,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2505,7 +2505,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 23,\n    \"selling_price\": 80,\n    \"mrp\": 68,\n    \"tax_percent\": 26,\n    \"discount_percent\": 22,\n    \"stock\": 1,\n    \"minimum_stock\": 2,\n    \"featured\": 1,\n    \"new_arrival\": 1,\n    \"best_seller\": 1,\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 61,\n    \"selling_price\": 91,\n    \"mrp\": 3,\n    \"tax_percent\": 51,\n    \"discount_percent\": 54,\n    \"stock\": 9,\n    \"minimum_stock\": 8,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2992,7 +2992,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user12@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 80,\n    \"credit_limit\": 88,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user84@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 56,\n    \"credit_limit\": 95,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3097,7 +3097,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user33@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 12,\n    \"credit_limit\": 93,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user17@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 93,\n    \"credit_limit\": 57,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -3322,7 +3322,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user66@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user95@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3432,7 +3432,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user40@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user86@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3659,7 +3659,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user57@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 38,\n    \"credit_limit\": 44,\n    \"reward_points\": 10,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user91@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 31,\n    \"credit_limit\": 3,\n    \"reward_points\": 9,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3764,7 +3764,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user97@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 38,\n    \"credit_limit\": 29,\n    \"reward_points\": 7,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user47@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 21,\n    \"credit_limit\": 86,\n    \"reward_points\": 1,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3989,7 +3989,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user8@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user39@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -4099,7 +4099,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user67@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user7@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -4174,7 +4174,7 @@
                                                         },
                                                         "body": {
                                                             "mode": "raw",
-                                                            "raw": "{\n    \"is_default\": 0\n}",
+                                                            "raw": "{\n    \"is_default\": 1\n}",
                                                             "options": []
                                                         }
                                                     }
@@ -4470,7 +4470,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"supplier_id\": 0,\n    \"warehouse_id\": 7,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 27,\n    \"discount_amount\": 85,\n    \"tax_amount\": 81,\n    \"shipping_amount\": 22,\n    \"other_amount\": 100,\n    \"round_off\": 54,\n    \"grand_total\": 79,\n    \"paid_amount\": 43,\n    \"due_amount\": 72,\n    \"refund_amount\": 77,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 40,\n            \"free_quantity\": 43,\n            \"unit_cost\": 28,\n            \"tax_percent\": 3,\n            \"tax_amount\": 29,\n            \"discount_percent\": 52,\n            \"discount_amount\": 74,\n            \"line_total\": 19\n        }\n    ]\n}",
+                                            "raw": "{\n    \"supplier_id\": 8,\n    \"warehouse_id\": 5,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 51,\n    \"discount_amount\": 8,\n    \"tax_amount\": 42,\n    \"shipping_amount\": 63,\n    \"other_amount\": 98,\n    \"round_off\": 82,\n    \"grand_total\": 62,\n    \"paid_amount\": 16,\n    \"due_amount\": 58,\n    \"refund_amount\": 37,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 18,\n            \"free_quantity\": 75,\n            \"unit_cost\": 96,\n            \"tax_percent\": 9,\n            \"tax_amount\": 84,\n            \"discount_percent\": 82,\n            \"discount_amount\": 9,\n            \"line_total\": 2\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -4539,7 +4539,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"supplier_id\": 3,\n    \"warehouse_id\": 4,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 91,\n    \"discount_amount\": 15,\n    \"tax_amount\": 55,\n    \"shipping_amount\": 8,\n    \"other_amount\": 95,\n    \"round_off\": 77,\n    \"grand_total\": 13,\n    \"paid_amount\": 37,\n    \"due_amount\": 97,\n    \"refund_amount\": 86,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 46,\n            \"free_quantity\": 26,\n            \"unit_cost\": 58,\n            \"tax_percent\": 53,\n            \"tax_amount\": 57,\n            \"discount_percent\": 6,\n            \"discount_amount\": 39,\n            \"line_total\": 94\n        }\n    ]\n}",
+                                            "raw": "{\n    \"supplier_id\": 10,\n    \"warehouse_id\": 1,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 46,\n    \"discount_amount\": 33,\n    \"tax_amount\": 6,\n    \"shipping_amount\": 36,\n    \"other_amount\": 49,\n    \"round_off\": 95,\n    \"grand_total\": 72,\n    \"paid_amount\": 28,\n    \"due_amount\": 6,\n    \"refund_amount\": 5,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 96,\n            \"free_quantity\": 17,\n            \"unit_cost\": 62,\n            \"tax_percent\": 56,\n            \"tax_amount\": 3,\n            \"discount_percent\": 32,\n            \"discount_amount\": 6,\n            \"line_total\": 27\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -4982,7 +4982,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"customer_id\": 7,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 0,\n    \"shipping_address_id\": 8,\n    \"sub_total\": 78,\n    \"discount_amount\": 67,\n    \"tax_amount\": 90,\n    \"shipping_amount\": 71,\n    \"other_amount\": 4,\n    \"round_off\": 62,\n    \"grand_total\": 91,\n    \"paid_amount\": 66,\n    \"due_amount\": 5,\n    \"refund_amount\": 10,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 8,\n            \"unit_id\": 8,\n            \"purchase_price\": 100,\n            \"selling_price\": 79,\n            \"quantity\": 8,\n            \"tax_percent\": 59,\n            \"tax_amount\": 56,\n            \"discount_percent\": 90,\n            \"discount_amount\": 93,\n            \"line_total\": 94\n        }\n    ]\n}",
+                                            "raw": "{\n    \"customer_id\": 4,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 9,\n    \"shipping_address_id\": 8,\n    \"sub_total\": 27,\n    \"discount_amount\": 91,\n    \"tax_amount\": 78,\n    \"shipping_amount\": 99,\n    \"other_amount\": 37,\n    \"round_off\": 76,\n    \"grand_total\": 73,\n    \"paid_amount\": 56,\n    \"due_amount\": 23,\n    \"refund_amount\": 59,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 0,\n            \"unit_id\": 6,\n            \"purchase_price\": 98,\n            \"selling_price\": 42,\n            \"quantity\": 9,\n            \"tax_percent\": 32,\n            \"tax_amount\": 29,\n            \"discount_percent\": 27,\n            \"discount_amount\": 41,\n            \"line_total\": 97\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -5051,7 +5051,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"customer_id\": 7,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 1,\n    \"shipping_address_id\": 7,\n    \"sub_total\": 83,\n    \"discount_amount\": 5,\n    \"tax_amount\": 96,\n    \"shipping_amount\": 47,\n    \"other_amount\": 30,\n    \"round_off\": 58,\n    \"grand_total\": 33,\n    \"paid_amount\": 92,\n    \"due_amount\": 75,\n    \"refund_amount\": 45,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 9,\n            \"unit_id\": 0,\n            \"purchase_price\": 20,\n            \"selling_price\": 79,\n            \"quantity\": 4,\n            \"tax_percent\": 11,\n            \"tax_amount\": 18,\n            \"discount_percent\": 4,\n            \"discount_amount\": 31,\n            \"line_total\": 26\n        }\n    ]\n}",
+                                            "raw": "{\n    \"customer_id\": 8,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 5,\n    \"shipping_address_id\": 9,\n    \"sub_total\": 64,\n    \"discount_amount\": 94,\n    \"tax_amount\": 79,\n    \"shipping_amount\": 20,\n    \"other_amount\": 14,\n    \"round_off\": 70,\n    \"grand_total\": 94,\n    \"paid_amount\": 2,\n    \"due_amount\": 92,\n    \"refund_amount\": 58,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 3,\n            \"unit_id\": 3,\n            \"purchase_price\": 91,\n            \"selling_price\": 99,\n            \"quantity\": 1,\n            \"tax_percent\": 3,\n            \"tax_amount\": 85,\n            \"discount_percent\": 13,\n            \"discount_amount\": 42,\n            \"line_total\": 59\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -6021,7 +6021,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 0,\n    \"is_active\": 0,\n    \"sort_order\": 5\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 1,\n    \"is_active\": 0,\n    \"sort_order\": 2\n}",
                                             "options": []
                                         }
                                     }
@@ -6090,7 +6090,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 1,\n    \"is_active\": 1,\n    \"sort_order\": 3\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 0,\n    \"is_active\": 1,\n    \"sort_order\": 6\n}",
                                             "options": []
                                         }
                                     }
@@ -6268,7 +6268,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"paymentable_type\": \"sample_text\",\n    \"paymentable_id\": 8,\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 98,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"paymentable_type\": \"sample_text\",\n    \"paymentable_id\": 4,\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 7,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -6373,7 +6373,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 61,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 53,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -6737,7 +6737,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"product_id\": \"sample_text\",\n    \"physical_stock\": 0,\n    \"reason\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"product_id\": \"sample_text\",\n    \"physical_stock\": 4,\n    \"reason\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6808,7 +6808,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"physical_stock\": 0,\n    \"reason\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"physical_stock\": 2,\n    \"reason\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6923,7 +6923,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_id\": 8,\n    \"opening_balance\": 23,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_id\": 8,\n    \"opening_balance\": 19,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6966,7 +6966,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"closing_balance\": 69,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"closing_balance\": 20,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7007,7 +7007,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"paid_amount\": 55,\n    \"hold_id\": \"sample_text\",\n    \"items\": [],\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"paid_amount\": 64,\n    \"hold_id\": \"sample_text\",\n    \"items\": [],\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7048,7 +7048,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": 2,\n    \"payment_mode_id\": 7,\n    \"amount\": 68,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": 9,\n    \"payment_mode_id\": 5,\n    \"amount\": 75,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7089,7 +7089,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": 1,\n    \"payment_mode_id\": 10,\n    \"amount\": 15,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": 5,\n    \"payment_mode_id\": 9,\n    \"amount\": 11,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7242,7 +7242,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 13,\n    \"discount\": 37,\n    \"tax\": 63,\n    \"grand_total\": 92,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 46,\n            \"price\": 78,\n            \"discount\": 15,\n            \"tax\": 50,\n            \"total\": 14\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 50,\n    \"discount\": 93,\n    \"tax\": 7,\n    \"grand_total\": 46,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 68,\n            \"price\": 69,\n            \"discount\": 21,\n            \"tax\": 78,\n            \"total\": 9\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7280,7 +7280,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 91,\n    \"discount\": 63,\n    \"tax\": 57,\n    \"grand_total\": 54,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 2,\n            \"price\": 16,\n            \"discount\": 47,\n            \"tax\": 96,\n            \"total\": 87\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 48,\n    \"discount\": 85,\n    \"tax\": 32,\n    \"grand_total\": 76,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 48,\n            \"price\": 57,\n            \"discount\": 2,\n            \"tax\": 83,\n            \"total\": 100\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7562,7 +7562,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 6,\n    \"height\": 6,\n    \"font_size\": 1,\n    \"show_name\": 1,\n    \"show_price\": 1,\n    \"show_sku\": 0,\n    \"show_barcode\": 1,\n    \"show_qr\": 0,\n    \"status\": 1\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 3,\n    \"height\": 3,\n    \"font_size\": 6,\n    \"show_name\": 1,\n    \"show_price\": 1,\n    \"show_sku\": 1,\n    \"show_barcode\": 1,\n    \"show_qr\": 0,\n    \"status\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -7599,7 +7599,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 5,\n    \"height\": 1,\n    \"font_size\": 4,\n    \"show_name\": 1,\n    \"show_price\": 0,\n    \"show_sku\": 1,\n    \"show_barcode\": 0,\n    \"show_qr\": 1,\n    \"status\": 0\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 3,\n    \"height\": 8,\n    \"font_size\": 10,\n    \"show_name\": 0,\n    \"show_price\": 1,\n    \"show_sku\": 1,\n    \"show_barcode\": 1,\n    \"show_qr\": 1,\n    \"status\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -7675,7 +7675,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 26\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 68\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7716,7 +7716,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 60\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 74\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7892,7 +7892,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 0,\n    \"sort_order\": 9,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 0,\n    \"sort_order\": 2,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -7929,7 +7929,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 1,\n    \"sort_order\": 6,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 1,\n    \"sort_order\": 10,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -8111,6 +8111,545 @@
                                                         "website-banners",
                                                         "bulk-delete"
                                                     ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "delivery-boys",
+                            "item": [
+                                {
+                                    "name": "[GET] api/v1/admin/delivery-boys",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-boys",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-boys"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[POST] api/v1/admin/delivery-boys",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-boys",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-boys"
+                                            ]
+                                        },
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"email\": \"user59@example.com\",\n    \"password\": \"sample_text\",\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 0,\n    \"is_active\": 1\n}",
+                                            "options": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[GET] api/v1/admin/delivery-boys/{id}",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-boys/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-boys",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[PUT] api/v1/admin/delivery-boys/{id}",
+                                    "request": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-boys/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-boys",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        },
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 1,\n    \"is_active\": 0\n}",
+                                            "options": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[DELETE] api/v1/admin/delivery-boys/{id}",
+                                    "request": {
+                                        "method": "DELETE",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-boys/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-boys",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "delivery-assignments",
+                            "item": [
+                                {
+                                    "name": "[GET] api/v1/admin/delivery-assignments",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-assignments",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-assignments"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "assign",
+                                    "item": [
+                                        {
+                                            "name": "[POST] api/v1/admin/delivery-assignments/assign",
+                                            "request": {
+                                                "method": "POST",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/assign",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        "assign"
+                                                    ]
+                                                },
+                                                "body": {
+                                                    "mode": "raw",
+                                                    "raw": "{\n    \"sale_order_id\": \"sample_text\",\n    \"delivery_boy_id\": \"sample_text\",\n    \"assigned_by\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                                    "options": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "[GET] api/v1/admin/delivery-assignments/{id}",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-assignments",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[DELETE] api/v1/admin/delivery-assignments/{id}",
+                                    "request": {
+                                        "method": "DELETE",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "admin",
+                                                "delivery-assignments",
+                                                ":id"
+                                            ],
+                                            "variable": []
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "accept",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/admin/delivery-assignments/{id}/accept",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id/accept",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        ":id",
+                                                        "accept"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "reject",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/admin/delivery-assignments/{id}/reject",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id/reject",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        ":id",
+                                                        "reject"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "pickup",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/admin/delivery-assignments/{id}/pickup",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id/pickup",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        ":id",
+                                                        "pickup"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "out-for-delivery",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/admin/delivery-assignments/{id}/out-for-delivery",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id/out-for-delivery",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        ":id",
+                                                        "out-for-delivery"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "delivered",
+                                    "item": [
+                                        {
+                                            "name": "[PATCH] api/v1/admin/delivery-assignments/{id}/delivered",
+                                            "request": {
+                                                "method": "PATCH",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/:id/delivered",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        ":id",
+                                                        "delivered"
+                                                    ],
+                                                    "variable": []
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "history",
+                                    "item": [
+                                        {
+                                            "name": "[GET] api/v1/admin/delivery-assignments/history/{saleOrderId}",
+                                            "request": {
+                                                "method": "GET",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/delivery-assignments/history/:saleOrderId",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "delivery-assignments",
+                                                        "history",
+                                                        ":saleOrderId"
+                                                    ],
+                                                    "variable": []
                                                 }
                                             }
                                         }
@@ -8565,7 +9104,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"product_id\": 10,\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"product_id\": 1,\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -8771,7 +9310,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"product_id\": 3,\n    \"quantity\": 8\n}",
+                                            "raw": "{\n    \"product_id\": 5,\n    \"quantity\": 3\n}",
                                             "options": []
                                         }
                                     }
@@ -8808,7 +9347,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"quantity\": 1\n}",
+                                            "raw": "{\n    \"quantity\": 10\n}",
                                             "options": []
                                         }
                                     }
@@ -9023,7 +9562,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"billing_address_id\": 2,\n    \"shipping_address_id\": 4,\n    \"payment_mode_id\": 10,\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"billing_address_id\": 3,\n    \"shipping_address_id\": 8,\n    \"payment_mode_id\": 9,\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }

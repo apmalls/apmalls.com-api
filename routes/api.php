@@ -3,6 +3,8 @@
 
 use App\Http\Controllers\Api\V1\Admin\Banner\WebsiteBannerController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
+use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryAssignmentController;
+use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryBoyController;
 use App\Http\Controllers\Api\V1\Admin\POS\POSController;
 use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseReturnController;
 use App\Http\Controllers\Api\V1\Admin\Sale\SaleController;
@@ -775,6 +777,101 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('/bulk-delete', 'bulkDelete');
             });
+
+        /*
+|--------------------------------------------------------------------------
+| Delivery Boys
+|--------------------------------------------------------------------------
+*/
+
+        Route::prefix('delivery-boys')->group(function () {
+
+            Route::get(
+                '/',
+                [DeliveryBoyController::class, 'index']
+            )->middleware('permission:delivery-boy-list');
+
+            Route::post(
+                '/',
+                [DeliveryBoyController::class, 'store']
+            )->middleware('permission:delivery-boy-create');
+
+            Route::get(
+                '/{id}',
+                [DeliveryBoyController::class, 'show']
+            )->middleware('permission:delivery-boy-view');
+
+            Route::put(
+                '/{id}',
+                [DeliveryBoyController::class, 'update']
+            )->middleware('permission:delivery-boy-edit');
+
+            Route::delete(
+                '/{id}',
+                [DeliveryBoyController::class, 'destroy']
+            )->middleware('permission:delivery-boy-delete');
+
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery Assignments
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('delivery-assignments')->group(function () {
+
+            Route::get(
+                '/',
+                [DeliveryAssignmentController::class, 'index']
+            )->middleware('permission:delivery-assignment-list');
+
+            Route::post(
+                '/assign',
+                [DeliveryAssignmentController::class, 'assign']
+            )->middleware('permission:delivery-assignment-create');
+
+            Route::get(
+                '/{id}',
+                [DeliveryAssignmentController::class, 'show']
+            )->middleware('permission:delivery-assignment-view');
+
+            Route::delete(
+                '/{id}',
+                [DeliveryAssignmentController::class, 'destroy']
+            )->middleware('permission:delivery-assignment-delete');
+
+            Route::patch(
+                '/{id}/accept',
+                [DeliveryAssignmentController::class, 'accept']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/reject',
+                [DeliveryAssignmentController::class, 'reject']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/pickup',
+                [DeliveryAssignmentController::class, 'pickup']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/out-for-delivery',
+                [DeliveryAssignmentController::class, 'outForDelivery']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/delivered',
+                [DeliveryAssignmentController::class, 'delivered']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::get(
+                '/history/{saleOrderId}',
+                [DeliveryAssignmentController::class, 'history']
+            )->middleware('permission:delivery-assignment-view');
+
+        });
 
     });
 

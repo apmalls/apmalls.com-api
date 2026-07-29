@@ -408,4 +408,25 @@ class SaleRepository implements SaleRepositoryInterface
             ->delete();
     }
 
+    public function updateDeliveryStatus(
+        int $saleOrderId,
+        string $status,
+        ?string $deliveredAt = null
+    ): bool {
+
+        $data = [
+            'delivery_status' => $status,
+        ];
+
+        if ($deliveredAt) {
+
+            $data['delivered_at'] = $deliveredAt;
+
+        }
+
+        return SaleOrder::whereKey($saleOrderId)
+            ->update($data);
+
+    }
+
 }

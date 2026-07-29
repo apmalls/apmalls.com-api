@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Banner\WebsiteBannerRepository;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
+use App\Repositories\Contracts\DeliveryAssignmentRepositoryInterface;
+use App\Repositories\Contracts\DeliveryBoyRepositoryInterface;
 use App\Repositories\Contracts\OtpVerificationRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
@@ -12,6 +14,8 @@ use App\Repositories\Contracts\Website\HomeRepositoryInterface;
 use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
+use App\Repositories\Delivery\DeliveryAssignmentRepository;
+use App\Repositories\Delivery\DeliveryBoyRepository;
 use App\Repositories\OTP\OtpVerificationRepository;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use App\Repositories\Permission\PermissionRepository;
@@ -24,12 +28,16 @@ use App\Services\Checkout\CheckoutService;
 use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CashRegisterTransactionServiceInterface;
 use App\Services\Contracts\CheckoutServiceInterface;
+use App\Services\Contracts\DeliveryBoyServiceInterface;
+use App\Services\Contracts\DeliveryAssignmentServiceInterface;
 use App\Services\Contracts\GoogleAuthServiceInterface;
 use App\Services\Contracts\OtpServiceInterface;
 use App\Services\Contracts\RazorpayServiceInterface;
 use App\Services\Contracts\Website\HomeServiceInterface;
 use App\Services\Contracts\WebsiteBannerServiceInterface;
 use App\Services\Contracts\WishlistServiceInterface;
+use App\Services\Delivery\DeliveryAssignmentService;
+use App\Services\Delivery\DeliveryBoyService;
 use App\Services\Google\GoogleAuthService;
 use App\Services\OTP\OtpService;
 use App\Services\Payment\RazorpayService;
@@ -522,6 +530,38 @@ class AppServiceProvider extends ServiceProvider
 
             OtpService::class
 
+        );
+
+        /*
+   |--------------------------------------------------------------------------
+   | Delivery Boy
+   |--------------------------------------------------------------------------
+   */
+
+        $this->app->bind(
+            DeliveryBoyRepositoryInterface::class,
+            DeliveryBoyRepository::class
+        );
+
+        $this->app->bind(
+            DeliveryBoyServiceInterface::class,
+            DeliveryBoyService::class
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery Assignment
+        |--------------------------------------------------------------------------
+        */
+
+        $this->app->bind(
+            DeliveryAssignmentRepositoryInterface::class,
+            DeliveryAssignmentRepository::class
+        );
+
+        $this->app->bind(
+            DeliveryAssignmentServiceInterface::class,
+            DeliveryAssignmentService::class
         );
     }
 

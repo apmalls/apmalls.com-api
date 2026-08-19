@@ -42,6 +42,15 @@ class DefaultUsersSeeder extends Seeder
             ],
 
             [
+                'role'       => 'Cashier',
+                'first_name' => 'Cashier',
+                'last_name'  => 'User',
+                'username'   => 'cashier',
+                'email'      => 'cashier@apmalls.com',
+                'mobile'     => '9999999996',
+            ],
+
+            [
                 'role'       => 'Delivery Boy',
                 'first_name' => 'Delivery',
                 'last_name'  => 'Boy',

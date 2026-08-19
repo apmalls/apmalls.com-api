@@ -17,6 +17,7 @@ class RoleSeeder extends Seeder
             'Super Admin',
             'Admin',
             'Store Manager',
+            'Cashier',
             'Delivery Boy',
             'Customer',
         ];

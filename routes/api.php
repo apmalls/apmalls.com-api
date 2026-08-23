@@ -34,8 +34,7 @@ use App\Http\Controllers\Api\V1\Admin\Product\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\Product\ProductController;
 use App\Http\Controllers\Api\V1\Admin\Product\ProductImageController;
 use App\Http\Controllers\Api\V1\Admin\Product\UnitController;
-
-
+use App\Http\Controllers\Api\V1\Admin\SystemMaintenance\SystemMaintenanceController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 
 
@@ -129,7 +128,6 @@ Route::prefix('v1')->group(function () {
             'verify-otp',
             [OtpAuthController::class, 'verifyOtp']
         );
-
     });
 
     Route::prefix('auth')->group(function () {
@@ -137,7 +135,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/google', [GoogleAuthController::class, 'redirect']);
 
         Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
-
     });
 
     /*
@@ -156,10 +153,19 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile', [AuthController::class, 'updateProfile']);
 
             Route::put('/change-password', [AuthController::class, 'changePassword']);
-
         });
 
     Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+
+        Route::middleware([
+            'role:Super Admin'
+        ])->group(function () {
+
+            Route::post(
+                'system/refresh',
+                [SystemMaintenanceController::class, 'refresh']
+            );
+        });
 
         /*
     |--------------------------------------------------------------------------
@@ -243,7 +249,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/restore', 'restore');
 
             Route::delete('/{id}/force-delete', 'forceDelete');
-
         });
 
 
@@ -267,7 +272,7 @@ Route::prefix('v1')->group(function () {
 
             Route::delete('/{id}', 'destroy');           // Soft Delete
 
-            Route::patch('/{id}/status', 'changeStatus');// Change Status
+            Route::patch('/{id}/status', 'changeStatus'); // Change Status
 
             Route::put('/{id}/restore', 'restore');      // Restore Product
 
@@ -290,9 +295,7 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/images/{image}', 'destroy');
 
                 Route::patch('/images/{image}/sort-order', 'updateSortOrder');
-
             });
-
         });
 
         Route::prefix('suppliers')->controller(SupplierController::class)->group(function () {
@@ -334,7 +337,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('addresses/{id}/restore', 'restore');
 
                 Route::delete('addresses/{id}/force-delete', 'forceDelete');
-
             });
         });
 
@@ -377,7 +379,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('addresses/{id}/restore', 'restore');
 
                 Route::delete('addresses/{id}/force-delete', 'forceDelete');
-
             });
         });
 
@@ -431,7 +432,6 @@ Route::prefix('v1')->group(function () {
             */
 
             Route::patch('/status/{id}', 'changeStatus')->middleware('permission:purchase-order.status');
-
         });
 
 
@@ -617,7 +617,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:payment-mode-restore');
 
             Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:payment-mode-force-delete');
-
         });
 
         Route::prefix('payments')->controller(PaymentController::class)->group(function () {
@@ -639,7 +638,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:payment-force-delete');
 
             Route::patch('/{id}/change-status', 'changeStatus')->middleware('permission:payment-change-status');
-
         });
 
         Route::prefix('inventory')
@@ -713,7 +711,6 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'show');
 
                 Route::put('/', 'update');
-
             });
 
         Route::prefix('barcode-templates')
@@ -731,7 +728,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}', 'update');
 
                 Route::delete('/{id}', 'destroy');
-
             });
 
         Route::prefix('products')
@@ -741,7 +737,6 @@ Route::prefix('v1')->group(function () {
                 Route::get('{id}/barcode', 'show');
 
                 Route::post('barcode/bulk', 'bulk');
-
             });
 
         Route::prefix('barcode')
@@ -751,7 +746,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('preview', 'preview');
 
                 Route::post('pdf', 'pdf');
-
             });
 
         Route::prefix('website-banners')
@@ -810,7 +804,6 @@ Route::prefix('v1')->group(function () {
                 '/{id}',
                 [DeliveryBoyController::class, 'destroy']
             )->middleware('permission:delivery-boy-delete');
-
         });
 
         /*
@@ -870,9 +863,7 @@ Route::prefix('v1')->group(function () {
                 '/history/{saleOrderId}',
                 [DeliveryAssignmentController::class, 'history']
             )->middleware('permission:delivery-assignment-view');
-
         });
-
     });
 
 
@@ -932,7 +923,6 @@ Route::prefix('v1')->group(function () {
                     '/{slug}',
                     'show'
                 );
-
             });
 
         /*
@@ -962,7 +952,6 @@ Route::prefix('v1')->group(function () {
                     '/{slug}',
                     'show'
                 );
-
             });
 
         /*
@@ -992,10 +981,9 @@ Route::prefix('v1')->group(function () {
                     '/{slug}',
                     'show'
                 );
-
             });
 
-        Route::middleware('auth:customer')->group(function () {
+        Route::middleware(['auth:sanctum', 'role:Customer'])->group(function () {
 
             Route::get(
                 'wishlist',
@@ -1026,10 +1014,9 @@ Route::prefix('v1')->group(function () {
                 'wishlist/check/{productId}',
                 [WishlistController::class, 'check']
             );
-
         });
 
-        Route::middleware(['auth:customer'])
+        Route::middleware(['auth:sanctum', 'role:Customer'])
             ->prefix('cart')
             ->controller(CartController::class)
             ->group(function () {
@@ -1049,10 +1036,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('/apply-coupon', 'applyCoupon');
 
                 Route::delete('/remove-coupon', 'removeCoupon');
-
             });
 
-        Route::middleware(['auth:customer'])
+        Route::middleware(['auth:sanctum', 'role:Customer'])
             ->prefix('checkout')
             ->controller(CheckoutController::class)
             ->group(function () {
@@ -1064,10 +1050,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/orders/{saleNo}', 'orderDetails');
 
                 Route::post('/orders/{saleNo}/cancel', 'cancelOrder');
-
             });
 
-        Route::middleware(['auth:customer'])
+        Route::middleware(['auth:sanctum', 'role:Customer'])
             ->prefix('payment')
             ->controller(WebsitePaymentController::class)
             ->group(function () {
@@ -1076,13 +1061,6 @@ Route::prefix('v1')->group(function () {
                     '/verify',
                     'verifyPayment'
                 );
-
             });
-
     });
-
-
-
-
-
 });

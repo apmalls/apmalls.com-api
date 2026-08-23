@@ -435,7 +435,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user2@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user77@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -475,7 +475,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user3@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"email\": \"user9@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -515,7 +515,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user15@example.com\"\n}",
+                                            "raw": "{\n    \"email\": \"user69@example.com\"\n}",
                                             "options": []
                                         }
                                     }
@@ -555,7 +555,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user83@example.com\",\n    \"password\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"token\": \"sample_text\",\n    \"email\": \"user1@example.com\",\n    \"password\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -811,7 +811,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user18@example.com\",\n    \"mobile\": \"sample_text\",\n    \"profile_photo\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"notes\": \"sample_text\",\n    \"address_id\": 4,\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"address_mobile\": \"sample_text\",\n    \"address_alternate_mobile\": \"sample_text\",\n    \"address_email\": \"user82@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user63@example.com\",\n    \"mobile\": \"sample_text\",\n    \"profile_photo\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"notes\": \"sample_text\",\n    \"address_id\": 10,\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"address_mobile\": \"sample_text\",\n    \"address_alternate_mobile\": \"sample_text\",\n    \"address_email\": \"user81@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -863,6 +863,47 @@
                 {
                     "name": "admin",
                     "item": [
+                        {
+                            "name": "system",
+                            "item": [
+                                {
+                                    "name": "refresh",
+                                    "item": [
+                                        {
+                                            "name": "[POST] api/v1/admin/system/refresh",
+                                            "request": {
+                                                "method": "POST",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json",
+                                                        "type": "text"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/admin/system/refresh",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "admin",
+                                                        "system",
+                                                        "refresh"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
                         {
                             "name": "users",
                             "item": [
@@ -926,7 +967,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user31@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user16@example.com\",\n    \"mobile\": \"sample_text\",\n    \"password\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -995,7 +1036,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user75@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"username\": \"sample_text\",\n    \"email\": \"user62@example.com\",\n    \"mobile\": \"sample_text\",\n    \"role\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -1068,7 +1109,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_active\": 0\n}",
+                                                    "raw": "{\n    \"is_active\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -1252,7 +1293,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 6,\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 8,\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -1393,7 +1434,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 3,\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"parent_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"image\": \"sample_text\",\n    \"sort_order\": 1,\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -1786,7 +1827,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"logo\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"logo\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2179,7 +2220,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"short_name\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -2252,7 +2293,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_active\": 0\n}",
+                                                    "raw": "{\n    \"is_active\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -2400,7 +2441,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 89,\n    \"selling_price\": 67,\n    \"mrp\": 99,\n    \"tax_percent\": 27,\n    \"discount_percent\": 53,\n    \"stock\": 7,\n    \"minimum_stock\": 0,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 47,\n    \"selling_price\": 41,\n    \"mrp\": 36,\n    \"tax_percent\": 90,\n    \"discount_percent\": 100,\n    \"stock\": 6,\n    \"minimum_stock\": 10,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 0,\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2505,7 +2546,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 61,\n    \"selling_price\": 91,\n    \"mrp\": 3,\n    \"tax_percent\": 51,\n    \"discount_percent\": 54,\n    \"stock\": 9,\n    \"minimum_stock\": 8,\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 13,\n    \"selling_price\": 52,\n    \"mrp\": 52,\n    \"tax_percent\": 54,\n    \"discount_percent\": 8,\n    \"stock\": 6,\n    \"minimum_stock\": 3,\n    \"featured\": 0,\n    \"new_arrival\": 1,\n    \"best_seller\": 0,\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -2992,7 +3033,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user84@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 56,\n    \"credit_limit\": 95,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user90@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 68,\n    \"credit_limit\": 59,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -3097,7 +3138,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user17@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 93,\n    \"credit_limit\": 57,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"company_name\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user41@example.com\",\n    \"gst_number\": \"sample_text\",\n    \"pan_number\": \"sample_text\",\n    \"bank_name\": \"sample_text\",\n    \"account_holder_name\": \"sample_text\",\n    \"account_number\": \"sample_text\",\n    \"ifsc_code\": \"sample_text\",\n    \"opening_balance\": 27,\n    \"credit_limit\": 26,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3170,7 +3211,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_active\": 1\n}",
+                                                    "raw": "{\n    \"is_active\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3322,7 +3363,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user95@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user78@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3432,7 +3473,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user86@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user11@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3507,7 +3548,7 @@
                                                         },
                                                         "body": {
                                                             "mode": "raw",
-                                                            "raw": "{\n    \"is_default\": 1\n}",
+                                                            "raw": "{\n    \"is_default\": 0\n}",
                                                             "options": []
                                                         }
                                                     }
@@ -3659,7 +3700,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user91@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 31,\n    \"credit_limit\": 3,\n    \"reward_points\": 9,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user55@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 92,\n    \"credit_limit\": 78,\n    \"reward_points\": 7,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -3764,7 +3805,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user47@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 21,\n    \"credit_limit\": 86,\n    \"reward_points\": 1,\n    \"notes\": \"sample_text\",\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"user_id\": \"sample_text\",\n    \"customer_type\": \"sample_text\",\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user60@example.com\",\n    \"company_name\": \"sample_text\",\n    \"gst_number\": \"sample_text\",\n    \"date_of_birth\": \"sample_text\",\n    \"anniversary_date\": \"sample_text\",\n    \"opening_balance\": 40,\n    \"credit_limit\": 78,\n    \"reward_points\": 3,\n    \"notes\": \"sample_text\",\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -3837,7 +3878,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"is_active\": 0\n}",
+                                                    "raw": "{\n    \"is_active\": 1\n}",
                                                     "options": []
                                                 }
                                             }
@@ -3989,7 +4030,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user39@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user15@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -4099,7 +4140,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user7@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 1\n}",
+                                                    "raw": "{\n    \"address_type\": \"sample_text\",\n    \"contact_person\": \"sample_text\",\n    \"mobile\": \"sample_text\",\n    \"alternate_mobile\": \"sample_text\",\n    \"email\": \"user74@example.com\",\n    \"address_line_1\": \"sample_text\",\n    \"address_line_2\": \"sample_text\",\n    \"landmark\": \"sample_text\",\n    \"city\": \"sample_text\",\n    \"state\": \"sample_text\",\n    \"country\": \"sample_text\",\n    \"postal_code\": \"sample_text\",\n    \"is_default\": 0\n}",
                                                     "options": []
                                                 }
                                             }
@@ -4470,7 +4511,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"supplier_id\": 8,\n    \"warehouse_id\": 5,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 51,\n    \"discount_amount\": 8,\n    \"tax_amount\": 42,\n    \"shipping_amount\": 63,\n    \"other_amount\": 98,\n    \"round_off\": 82,\n    \"grand_total\": 62,\n    \"paid_amount\": 16,\n    \"due_amount\": 58,\n    \"refund_amount\": 37,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 18,\n            \"free_quantity\": 75,\n            \"unit_cost\": 96,\n            \"tax_percent\": 9,\n            \"tax_amount\": 84,\n            \"discount_percent\": 82,\n            \"discount_amount\": 9,\n            \"line_total\": 2\n        }\n    ]\n}",
+                                            "raw": "{\n    \"supplier_id\": 2,\n    \"warehouse_id\": 4,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 73,\n    \"discount_amount\": 88,\n    \"tax_amount\": 64,\n    \"shipping_amount\": 87,\n    \"other_amount\": 74,\n    \"round_off\": 16,\n    \"grand_total\": 59,\n    \"paid_amount\": 29,\n    \"due_amount\": 25,\n    \"refund_amount\": 32,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 49,\n            \"free_quantity\": 50,\n            \"unit_cost\": 76,\n            \"tax_percent\": 43,\n            \"tax_amount\": 32,\n            \"discount_percent\": 35,\n            \"discount_amount\": 9,\n            \"line_total\": 47\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -4539,7 +4580,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"supplier_id\": 10,\n    \"warehouse_id\": 1,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 46,\n    \"discount_amount\": 33,\n    \"tax_amount\": 6,\n    \"shipping_amount\": 36,\n    \"other_amount\": 49,\n    \"round_off\": 95,\n    \"grand_total\": 72,\n    \"paid_amount\": 28,\n    \"due_amount\": 6,\n    \"refund_amount\": 5,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 96,\n            \"free_quantity\": 17,\n            \"unit_cost\": 62,\n            \"tax_percent\": 56,\n            \"tax_amount\": 3,\n            \"discount_percent\": 32,\n            \"discount_amount\": 6,\n            \"line_total\": 27\n        }\n    ]\n}",
+                                            "raw": "{\n    \"supplier_id\": 5,\n    \"warehouse_id\": 7,\n    \"purchase_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"purchase_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"sub_total\": 33,\n    \"discount_amount\": 94,\n    \"tax_amount\": 30,\n    \"shipping_amount\": 24,\n    \"other_amount\": 74,\n    \"round_off\": 12,\n    \"grand_total\": 95,\n    \"paid_amount\": 12,\n    \"due_amount\": 66,\n    \"refund_amount\": 87,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"unit_id\": \"sample_text\",\n            \"quantity\": 30,\n            \"free_quantity\": 29,\n            \"unit_cost\": 7,\n            \"tax_percent\": 1,\n            \"tax_amount\": 24,\n            \"discount_percent\": 60,\n            \"discount_amount\": 67,\n            \"line_total\": 41\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -4982,7 +5023,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"customer_id\": 4,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 9,\n    \"shipping_address_id\": 8,\n    \"sub_total\": 27,\n    \"discount_amount\": 91,\n    \"tax_amount\": 78,\n    \"shipping_amount\": 99,\n    \"other_amount\": 37,\n    \"round_off\": 76,\n    \"grand_total\": 73,\n    \"paid_amount\": 56,\n    \"due_amount\": 23,\n    \"refund_amount\": 59,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 0,\n            \"unit_id\": 6,\n            \"purchase_price\": 98,\n            \"selling_price\": 42,\n            \"quantity\": 9,\n            \"tax_percent\": 32,\n            \"tax_amount\": 29,\n            \"discount_percent\": 27,\n            \"discount_amount\": 41,\n            \"line_total\": 97\n        }\n    ]\n}",
+                                            "raw": "{\n    \"customer_id\": 10,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 5,\n    \"shipping_address_id\": 9,\n    \"sub_total\": 50,\n    \"discount_amount\": 60,\n    \"tax_amount\": 18,\n    \"shipping_amount\": 50,\n    \"other_amount\": 95,\n    \"round_off\": 9,\n    \"grand_total\": 15,\n    \"paid_amount\": 32,\n    \"due_amount\": 32,\n    \"refund_amount\": 65,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 7,\n            \"unit_id\": 1,\n            \"purchase_price\": 82,\n            \"selling_price\": 78,\n            \"quantity\": 3,\n            \"tax_percent\": 80,\n            \"tax_amount\": 92,\n            \"discount_percent\": 38,\n            \"discount_amount\": 45,\n            \"line_total\": 89\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -5051,7 +5092,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"customer_id\": 8,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 5,\n    \"shipping_address_id\": 9,\n    \"sub_total\": 64,\n    \"discount_amount\": 94,\n    \"tax_amount\": 79,\n    \"shipping_amount\": 20,\n    \"other_amount\": 14,\n    \"round_off\": 70,\n    \"grand_total\": 94,\n    \"paid_amount\": 2,\n    \"due_amount\": 92,\n    \"refund_amount\": 58,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 3,\n            \"unit_id\": 3,\n            \"purchase_price\": 91,\n            \"selling_price\": 99,\n            \"quantity\": 1,\n            \"tax_percent\": 3,\n            \"tax_amount\": 85,\n            \"discount_percent\": 13,\n            \"discount_amount\": 42,\n            \"line_total\": 59\n        }\n    ]\n}",
+                                            "raw": "{\n    \"customer_id\": 0,\n    \"sale_no\": \"sample_text\",\n    \"invoice_no\": \"sample_text\",\n    \"sale_date\": \"sample_text\",\n    \"invoice_date\": \"sample_text\",\n    \"billing_address_id\": 6,\n    \"shipping_address_id\": 7,\n    \"sub_total\": 30,\n    \"discount_amount\": 89,\n    \"tax_amount\": 71,\n    \"shipping_amount\": 94,\n    \"other_amount\": 86,\n    \"round_off\": 65,\n    \"grand_total\": 63,\n    \"paid_amount\": 9,\n    \"due_amount\": 58,\n    \"refund_amount\": 74,\n    \"payment_status\": \"sample_text\",\n    \"status\": \"sample_text\",\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": 0,\n            \"unit_id\": 1,\n            \"purchase_price\": 96,\n            \"selling_price\": 66,\n            \"quantity\": 1,\n            \"tax_percent\": 83,\n            \"tax_amount\": 16,\n            \"discount_percent\": 69,\n            \"discount_amount\": 41,\n            \"line_total\": 10\n        }\n    ]\n}",
                                             "options": []
                                         }
                                     }
@@ -6021,7 +6062,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 1,\n    \"is_active\": 0,\n    \"sort_order\": 2\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 1,\n    \"is_active\": 1,\n    \"sort_order\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -6090,7 +6131,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 0,\n    \"is_active\": 1,\n    \"sort_order\": 6\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"code\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"icon\": \"sample_text\",\n    \"is_online\": 1,\n    \"is_active\": 1,\n    \"sort_order\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -6268,7 +6309,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"paymentable_type\": \"sample_text\",\n    \"paymentable_id\": 4,\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 7,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"paymentable_type\": \"sample_text\",\n    \"paymentable_id\": 2,\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 60,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -6373,7 +6414,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 53,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"payment_date\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"supplier_id\": \"sample_text\",\n    \"amount\": 60,\n    \"transaction_no\": \"sample_text\",\n    \"reference_no\": \"sample_text\",\n    \"gateway\": \"sample_text\",\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -6737,7 +6778,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"product_id\": \"sample_text\",\n    \"physical_stock\": 4,\n    \"reason\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"product_id\": \"sample_text\",\n    \"physical_stock\": 5,\n    \"reason\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6808,7 +6849,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"physical_stock\": 2,\n    \"reason\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"physical_stock\": 0,\n    \"reason\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6923,7 +6964,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_id\": 8,\n    \"opening_balance\": 19,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_id\": 7,\n    \"opening_balance\": 58,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -6966,7 +7007,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"closing_balance\": 20,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"closing_balance\": 78,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7007,7 +7048,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"paid_amount\": 64,\n    \"hold_id\": \"sample_text\",\n    \"items\": [],\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"payment_mode_id\": \"sample_text\",\n    \"paid_amount\": 95,\n    \"hold_id\": \"sample_text\",\n    \"items\": [],\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7048,7 +7089,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": 9,\n    \"payment_mode_id\": 5,\n    \"amount\": 75,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": 5,\n    \"payment_mode_id\": 10,\n    \"amount\": 1,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7089,7 +7130,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": 5,\n    \"payment_mode_id\": 9,\n    \"amount\": 11,\n    \"remarks\": \"sample_text\"\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": 5,\n    \"payment_mode_id\": 9,\n    \"amount\": 19,\n    \"remarks\": \"sample_text\"\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7242,7 +7283,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 50,\n    \"discount\": 93,\n    \"tax\": 7,\n    \"grand_total\": 46,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 68,\n            \"price\": 69,\n            \"discount\": 21,\n            \"tax\": 78,\n            \"total\": 9\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 97,\n    \"discount\": 56,\n    \"tax\": 88,\n    \"grand_total\": 51,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 42,\n            \"price\": 9,\n            \"discount\": 15,\n            \"tax\": 37,\n            \"total\": 85\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7280,7 +7321,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 48,\n    \"discount\": 85,\n    \"tax\": 32,\n    \"grand_total\": 76,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 48,\n            \"price\": 57,\n            \"discount\": 2,\n            \"tax\": 83,\n            \"total\": 100\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"cash_register_session_id\": \"sample_text\",\n    \"customer_id\": \"sample_text\",\n    \"sub_total\": 7,\n    \"discount\": 83,\n    \"tax\": 43,\n    \"grand_total\": 52,\n    \"remarks\": \"sample_text\",\n    \"items\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 62,\n            \"price\": 100,\n            \"discount\": 80,\n            \"tax\": 89,\n            \"total\": 3\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7562,7 +7603,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 3,\n    \"height\": 3,\n    \"font_size\": 6,\n    \"show_name\": 1,\n    \"show_price\": 1,\n    \"show_sku\": 1,\n    \"show_barcode\": 1,\n    \"show_qr\": 0,\n    \"status\": 0\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 5,\n    \"height\": 9,\n    \"font_size\": 6,\n    \"show_name\": 0,\n    \"show_price\": 1,\n    \"show_sku\": 1,\n    \"show_barcode\": 1,\n    \"show_qr\": 1,\n    \"status\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -7599,7 +7640,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 3,\n    \"height\": 8,\n    \"font_size\": 10,\n    \"show_name\": 0,\n    \"show_price\": 1,\n    \"show_sku\": 1,\n    \"show_barcode\": 1,\n    \"show_qr\": 1,\n    \"status\": 1\n}",
+                                            "raw": "{\n    \"name\": \"sample_text\",\n    \"paper_size\": \"sample_text\",\n    \"width\": 4,\n    \"height\": 2,\n    \"font_size\": 9,\n    \"show_name\": 0,\n    \"show_price\": 0,\n    \"show_sku\": 0,\n    \"show_barcode\": 1,\n    \"show_qr\": 1,\n    \"status\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -7675,7 +7716,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 68\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 23\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7716,7 +7757,7 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 74\n        }\n    ]\n}",
+                                                    "raw": "{\n    \"barcode_template_id\": \"sample_text\",\n    \"products\": [\n        {\n            \"product_id\": \"sample_text\",\n            \"quantity\": 27\n        }\n    ]\n}",
                                                     "options": []
                                                 }
                                             }
@@ -7892,7 +7933,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 0,\n    \"sort_order\": 2,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 0,\n    \"sort_order\": 5,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -7929,7 +7970,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 1,\n    \"sort_order\": 10,\n    \"status\": 0,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"title\": \"sample_text\",\n    \"sub_title\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"desktop_image\": \"sample_text\",\n    \"mobile_image\": \"sample_text\",\n    \"type\": \"sample_text\",\n    \"video_url\": \"sample_text\",\n    \"position\": \"sample_text\",\n    \"button_text\": \"sample_text\",\n    \"button_url\": \"sample_text\",\n    \"open_new_tab\": 1,\n    \"sort_order\": 4,\n    \"status\": 1,\n    \"start_date\": \"sample_text\",\n    \"end_date\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -8181,7 +8222,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"email\": \"user59@example.com\",\n    \"password\": \"sample_text\",\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 0,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"first_name\": \"sample_text\",\n    \"last_name\": \"sample_text\",\n    \"email\": \"user4@example.com\",\n    \"password\": \"sample_text\",\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 1,\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -8250,7 +8291,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 1,\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"employee_code\": \"sample_text\",\n    \"phone\": \"sample_text\",\n    \"alternate_phone\": \"sample_text\",\n    \"vehicle_type\": \"sample_text\",\n    \"vehicle_number\": \"sample_text\",\n    \"license_number\": \"sample_text\",\n    \"aadhaar_no\": \"sample_text\",\n    \"pan_no\": \"sample_text\",\n    \"photo\": \"sample_text\",\n    \"address\": \"sample_text\",\n    \"is_available\": 0,\n    \"is_active\": 0\n}",
                                             "options": []
                                         }
                                     }
@@ -9104,7 +9145,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"product_id\": 1,\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"product_id\": 6,\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }
@@ -9310,7 +9351,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"product_id\": 5,\n    \"quantity\": 3\n}",
+                                            "raw": "{\n    \"product_id\": 1,\n    \"quantity\": 3\n}",
                                             "options": []
                                         }
                                     }
@@ -9347,7 +9388,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"quantity\": 10\n}",
+                                            "raw": "{\n    \"quantity\": 1\n}",
                                             "options": []
                                         }
                                     }
@@ -9562,7 +9603,7 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"billing_address_id\": 3,\n    \"shipping_address_id\": 8,\n    \"payment_mode_id\": 9,\n    \"remarks\": \"sample_text\"\n}",
+                                            "raw": "{\n    \"billing_address_id\": 9,\n    \"shipping_address_id\": 8,\n    \"payment_mode_id\": 7,\n    \"remarks\": \"sample_text\"\n}",
                                             "options": []
                                         }
                                     }

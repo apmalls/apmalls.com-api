@@ -12,7 +12,8 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 use App\Services\Contracts\CartServiceInterface;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CartController extends Controller
 {
@@ -21,8 +22,7 @@ class CartController extends Controller
      */
     public function __construct(
         protected CartServiceInterface $cartService,
-    ) {
-    }
+    ) {}
 
     /**
      * Customer active cart.
@@ -30,7 +30,7 @@ class CartController extends Controller
     public function index(): JsonResponse
     {
         $cart = $this->cartService->getActiveCart(
-            auth('customer')->id()
+            $this->customerId()
         );
 
         return response()->json([
@@ -55,7 +55,7 @@ class CartController extends Controller
 
         $cart = $this->cartService->addItem(
 
-            auth('customer')->id(),
+            $this->customerId(),
 
             $request->integer('product_id'),
 
@@ -72,7 +72,6 @@ class CartController extends Controller
             'data' => new CartResource($cart),
 
         ]);
-
     }
 
     /**
@@ -85,7 +84,7 @@ class CartController extends Controller
 
         $cart = $this->cartService->updateQuantity(
 
-            auth('customer')->id(),
+            $this->customerId(),
 
             $productId,
 
@@ -102,7 +101,6 @@ class CartController extends Controller
             'data' => new CartResource($cart),
 
         ]);
-
     }
 
     /**
@@ -114,7 +112,7 @@ class CartController extends Controller
 
         $cart = $this->cartService->removeItem(
 
-            auth('customer')->id(),
+            $this->customerId(),
 
             $productId
 
@@ -129,7 +127,6 @@ class CartController extends Controller
             'data' => new CartResource($cart),
 
         ]);
-
     }
 
     /**
@@ -138,7 +135,7 @@ class CartController extends Controller
     public function clear(): JsonResponse
     {
         $this->cartService->clear(
-            auth('customer')->id()
+            $this->customerId()
         );
 
         return response()->json([
@@ -160,7 +157,7 @@ class CartController extends Controller
             'success' => true,
 
             'count' => $this->cartService->count(
-                auth('customer')->id()
+                $this->customerId()
             ),
 
         ]);
@@ -175,7 +172,7 @@ class CartController extends Controller
 
         $cart = $this->cartService->applyCoupon(
 
-            auth('customer')->id(),
+            $this->customerId(),
 
             $request->string('coupon_code')->toString()
 
@@ -190,7 +187,6 @@ class CartController extends Controller
             'data' => new CartResource($cart),
 
         ]);
-
     }
 
     /**
@@ -199,7 +195,7 @@ class CartController extends Controller
     public function removeCoupon(): JsonResponse
     {
         $cart = $this->cartService->removeCoupon(
-            auth('customer')->id()
+            $this->customerId()
         );
 
         return response()->json([
@@ -211,5 +207,21 @@ class CartController extends Controller
             'data' => new CartResource($cart),
 
         ]);
+    }
+
+
+    /**
+     * Get authenticated customer id.
+     */
+    private function customerId(): int
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->customer) {
+            abort(404, 'Customer profile not found.');
+        }
+
+        return $user->customer->id;
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Website\WishlistService;
 use App\Http\Requests\Website\Wishlist\AddToWishlistRequest;
+use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
 {
@@ -27,7 +28,10 @@ class WishlistController extends Controller
      */
     public function index(): JsonResponse
     {
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
+
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
 
         $wishlists = $this->wishlistService->index(
             $customerId
@@ -47,7 +51,10 @@ class WishlistController extends Controller
         StoreWishlistRequest $request
     ): JsonResponse {
 
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
+
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
 
         if (
             $this->wishlistService->exists(
@@ -81,7 +88,10 @@ class WishlistController extends Controller
         int $productId
     ): JsonResponse {
 
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
+
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
 
         $this->wishlistService->delete(
             $customerId,
@@ -99,7 +109,10 @@ class WishlistController extends Controller
      */
     public function clear(): JsonResponse
     {
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
+
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
 
         $this->wishlistService->clear(
             $customerId
@@ -116,7 +129,10 @@ class WishlistController extends Controller
      */
     public function count(): JsonResponse
     {
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
+
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
 
         return response()->json([
             'success' => true,
@@ -133,8 +149,10 @@ class WishlistController extends Controller
         int $productId
     ): JsonResponse {
 
-        $customerId = auth('customer')->id();
+        $user = Auth::user();
 
+        /** @var \App\Models\User $user */
+        $customerId = $user->customer->id;
         return response()->json([
             'success' => true,
             'exists'  => $this->wishlistService->exists(

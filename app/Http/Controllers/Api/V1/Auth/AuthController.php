@@ -415,7 +415,7 @@ class AuthController extends Controller
             /**
              * Customer Update/Create
              */
-            if ($user->hasRole('customer')) {
+            if ($user->hasRole('Customer')) {
 
                 $customer = $this->customerRepository->findByUser(
                     $user->id

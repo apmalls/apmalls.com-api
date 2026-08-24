@@ -65,4 +65,9 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $customer->refresh();
 
     }
+
+    public function count(): int
+    {
+        return Customer::query()->count();
+    }
 }

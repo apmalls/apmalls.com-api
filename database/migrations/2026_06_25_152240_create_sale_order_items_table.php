@@ -15,30 +15,42 @@ return new class extends Migration {
             $table->id();
 
             $table->foreignId('sale_order_id')
-                ->constrained('sale_orders')
+                ->constrained()
                 ->cascadeOnDelete();
 
             $table->foreignId('product_id')
                 ->constrained('products')
                 ->restrictOnDelete();
 
-            $table->decimal('purchase_price', 12, 2)->default(0);
-
-            $table->decimal('selling_price', 12, 2);
+            $table->foreignId('unit_id')
+                ->constrained('units')
+                ->restrictOnDelete();
 
             $table->integer('quantity');
 
-            $table->decimal('tax_percent', 5, 2)->default(0);
+            $table->integer('returned_quantity')
+                ->default(0);
 
-            $table->decimal('tax_amount', 12, 2)->default(0);
+            $table->decimal('purchase_price', 12, 2);
 
-            $table->decimal('discount_percent', 5, 2)->default(0);
+            $table->decimal('selling_price', 12, 2);
 
-            $table->decimal('discount_amount', 12, 2)->default(0);
+            $table->decimal('tax_percent', 5, 2)
+                ->default(0);
+
+            $table->decimal('tax_amount', 12, 2)
+                ->default(0);
+
+            $table->decimal('discount_percent', 5, 2)
+                ->default(0);
+
+            $table->decimal('discount_amount', 12, 2)
+                ->default(0);
 
             $table->decimal('line_total', 12, 2);
 
             $table->timestamps();
+
         });
     }
 

@@ -65,6 +65,7 @@ class Product extends Model
         'thumbnail_url',
     ];
 
+
     public function getThumbnailUrlAttribute(): ?string
     {
         return $this->fileUrl($this->thumbnail);

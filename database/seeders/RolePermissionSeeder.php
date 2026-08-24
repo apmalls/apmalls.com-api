@@ -75,8 +75,8 @@ class RolePermissionSeeder extends Seeder
         $deliveryBoy->syncPermissions([
             'dashboard.view',
 
-            'delivery.view',
-            'delivery.complete',
+            'delivery-boy.view',
+            'delivery-boy.complete',
 
             'sale-order.view',
         ]);

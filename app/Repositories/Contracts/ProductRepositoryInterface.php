@@ -43,6 +43,19 @@ interface ProductRepositoryInterface
     ): Product;
 
     /**
+     * Find product by id.
+     */
+    public function findById(
+        int $id
+    ): Product;
+
+    /**
+     * Find multiple products by ids.
+     */
+    public function findMany(array $ids): Collection;
+
+    public function findManyByIds(array $ids): Collection;
+    /**
      * Create product.
      */
     public function create(
@@ -83,59 +96,79 @@ interface ProductRepositoryInterface
      */
     public function dropdown(): Collection;
 
+    public function findByBarcode(
+        string $barcode
+    );
+
+    public function searchForPOS(
+        string $keyword
+    );
+
+    public function quickProducts(
+        int $limit = 20
+    );
+
     /*
     |--------------------------------------------------------------------------
     | Website
     |--------------------------------------------------------------------------
     */
 
+    /*
+|--------------------------------------------------------------------------
+| Website
+|--------------------------------------------------------------------------
+*/
+
     /**
-     * Website product listing.
+     * Product listing
      */
     public function websitePaginate(
         array $filters = []
     ): LengthAwarePaginator;
 
     /**
-     * Find product by slug.
+     * Product details
      */
     public function findBySlug(
         string $slug
     ): Product;
 
     /**
-     * Featured products.
+     * Related products
      */
-    public function featured(
-        int $limit = 10
+    public function relatedProducts(
+        int $categoryId,
+        int $productId,
+        int $limit = 8
     ): Collection;
 
     /**
-     * New arrival products.
+     * Featured products
      */
-    public function newArrivals(
-        int $limit = 10
+    public function featuredProducts(
+        int $limit = 12
     ): Collection;
 
     /**
-     * Best seller products.
+     * New arrivals
      */
-    public function bestSellers(
-        int $limit = 10
+    public function newArrivalProducts(
+        int $limit = 12
     ): Collection;
 
     /**
-     * Related products.
+     * Best sellers
      */
-    public function related(
-        string $slug,
-        int $limit = 10
+    public function bestSellerProducts(
+        int $limit = 12
     ): Collection;
 
     /**
-     * Search products.
+     * Search suggestions
      */
-    public function search(
-        array $filters = []
-    ): LengthAwarePaginator;
+    public function searchSuggestions(
+        string $keyword,
+        int $limit = 10
+    ): Collection;
 }

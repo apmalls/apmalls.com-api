@@ -30,4 +30,6 @@ interface RoleRepositoryInterface
      * Remove the specified role.
      */
     public function destroy(int $id);
+
+
 }

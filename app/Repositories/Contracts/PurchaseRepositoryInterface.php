@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Repositories\Contracts;
 
 use App\Models\Purchase\PurchaseOrder;
@@ -10,28 +8,80 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface PurchaseRepositoryInterface
 {
-    public function paginate(array $filters = []): LengthAwarePaginator;
+    /*
+    |--------------------------------------------------------------------------
+    | Common Listing (Admin + Website)
+    |--------------------------------------------------------------------------
+    */
 
-    public function all(): Collection;
+    public function paginate(
+        int $perPage = 15,
+        array $filters = []
+    ): LengthAwarePaginator;
 
-    public function find(int $id): PurchaseOrder;
+    public function all(array $filters = []): Collection;
+
+    public function trashedPaginate(
+        int $perPage = 15
+    ): LengthAwarePaginator;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find
+    |--------------------------------------------------------------------------
+    */
+
+    public function find(int $id): ?PurchaseOrder;
+
+    public function findOrFail(int $id): PurchaseOrder;
+
+    public function findByPurchaseNo(string $purchaseNo): ?PurchaseOrder;
+
+    /*
+    |--------------------------------------------------------------------------
+    | CRUD
+    |--------------------------------------------------------------------------
+    */
 
     public function create(array $data): PurchaseOrder;
 
     public function update(
-        PurchaseOrder $purchase,
+        int $id,
         array $data
     ): PurchaseOrder;
 
-    public function delete(
-        PurchaseOrder $purchase
-    ): bool;
+    public function delete(int $id): bool;
 
-    public function restore(
-        int $id
-    ): bool;
+    public function restore(int $id): bool;
 
-    public function forceDelete(
-        int $id
-    ): bool;
+    public function forceDelete(int $id): bool;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    public function changeStatus(
+        int $id,
+        string $status
+    ): PurchaseOrder;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard / Reports
+    |--------------------------------------------------------------------------
+    */
+
+    public function count(array $filters = []): int;
+
+    public function totalAmount(array $filters = []): float;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website + Admin Filter Support
+    |--------------------------------------------------------------------------
+    */
+
+    public function filter(array $filters = []): Collection;
 }

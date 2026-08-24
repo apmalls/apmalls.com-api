@@ -20,46 +20,78 @@ return new class extends Migration {
             |--------------------------------------------------------------------------
             */
 
-            $table->string('payment_no')->unique();
+            $table->string('payment_no', 50)->unique();
 
             $table->date('payment_date');
 
             /*
             |--------------------------------------------------------------------------
-            | Module
+            | Polymorphic Relation
             |--------------------------------------------------------------------------
             */
 
-            $table->string('module');
-
-            // purchase
-            // sale
-            // purchase_return
-            // sale_return
-
-            $table->unsignedBigInteger('module_id');
+            $table->morphs('paymentable');
 
             /*
             |--------------------------------------------------------------------------
-            | Payment
+            | Party
+            |--------------------------------------------------------------------------
+            */
+
+            $table->foreignId('customer_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignId('supplier_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Payment Mode
             |--------------------------------------------------------------------------
             */
 
             $table->foreignId('payment_mode_id')
                 ->constrained()
-                ->restrictOnDelete();
-
-            $table->decimal('amount', 12, 2);
+                ->restrictOnDelete()
+                ->cascadeOnUpdate();
 
             /*
             |--------------------------------------------------------------------------
-            | Bank Details
+            | Amount
             |--------------------------------------------------------------------------
             */
 
-            $table->string('transaction_no')->nullable();
+            $table->decimal('amount', 15, 2);
 
-            $table->string('reference_no')->nullable();
+            $table->decimal('paid_amount', 15, 2)->default(0);
+
+            $table->decimal('refunded_amount', 15, 2)->default(0);
+
+            $table->decimal('charges', 15, 2)->default(0);
+
+            /*
+            |--------------------------------------------------------------------------
+            | References
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('transaction_no', 150)->nullable();
+
+            $table->string('reference_no', 150)->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Gateway
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('gateway', 50)->nullable();
 
             /*
             |--------------------------------------------------------------------------
@@ -68,11 +100,24 @@ return new class extends Migration {
             */
 
             $table->enum('status', [
-                'Pending',
-                'Completed',
-                'Cancelled',
-                'Failed'
-            ])->default('Completed');
+
+                'pending',
+
+                'completed',
+
+                'failed',
+
+                'cancelled',
+
+                'refunded',
+
+            ])->default('completed');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remarks
+            |--------------------------------------------------------------------------
+            */
 
             $table->text('remarks')->nullable();
 
@@ -85,16 +130,34 @@ return new class extends Migration {
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users')
-                ->nullOnDelete();
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
 
             $table->foreignId('updated_by')
                 ->nullable()
                 ->constrained('users')
-                ->nullOnDelete();
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
 
             $table->softDeletes();
 
             $table->timestamps();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Indexes
+            |--------------------------------------------------------------------------
+            */
+
+            $table->index('payment_date');
+
+            $table->index('customer_id');
+
+            $table->index('supplier_id');
+
+            $table->index('payment_mode_id');
+
+            $table->index('status');
 
         });
     }

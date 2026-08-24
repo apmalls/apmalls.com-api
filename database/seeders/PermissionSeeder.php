@@ -54,7 +54,7 @@ class PermissionSeeder extends Seeder
             'payment-mode',
             'payment',
 
-            'delivery',
+            'delivery-boy','delivery-assignment',
 
             'company-setting',
             'invoice-setting',
@@ -76,16 +76,19 @@ class PermissionSeeder extends Seeder
 
             'payment-gateway-transaction',
 
-            'report',
+            'report','website-banner'
 
         ];
 
         $actions = [
-
+            'list',
             'view',
             'create',
             'update',
             'delete',
+            'restore',
+            'force-delete',
+            'change-status'
 
         ];
 
@@ -122,7 +125,7 @@ class PermissionSeeder extends Seeder
 
             // Delivery
             'delivery.assign',
-            'delivery.complete',
+            'delivery-boy.complete',
 
             // Payment
             'payment.refund',

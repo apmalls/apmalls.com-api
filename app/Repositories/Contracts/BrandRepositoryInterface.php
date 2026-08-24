@@ -89,6 +89,12 @@ interface BrandRepositoryInterface
     |--------------------------------------------------------------------------
     */
 
+    /*
+ |--------------------------------------------------------------------------
+ | Website
+ |--------------------------------------------------------------------------
+ */
+
     /**
      * Website brand listing.
      */
@@ -106,5 +112,7 @@ interface BrandRepositoryInterface
     /**
      * Featured brands.
      */
-    public function featured(): Collection;
+    public function featured(
+        int $limit = 10
+    ): Collection;
 }

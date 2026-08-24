@@ -6,386 +6,633 @@ namespace App\Services\Payment;
 
 use App\Helpers\NumberHelper;
 use App\Models\Payment\Payment;
+
 use App\Models\Purchase\PurchaseOrder;
 use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\PaymentRepositoryInterface;
+use App\Repositories\Contracts\PurchaseRepositoryInterface;
+use App\Repositories\Contracts\SaleRepositoryInterface;
+
+use App\Services\Contracts\PaymentServiceInterface;
+use App\Services\Contracts\RazorpayServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
-class PaymentService
+class PaymentService implements PaymentServiceInterface
 {
     public function __construct(
         protected PaymentRepositoryInterface $paymentRepository,
-
+        protected SaleRepositoryInterface $saleRepository,
+        protected PurchaseRepositoryInterface $purchaseRepository,
+        protected RazorpayServiceInterface $razorpayService
     ) {
     }
 
-    /**
-     * Payment Listing
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Listing
+    |--------------------------------------------------------------------------
+    */
+
     public function paginate(array $filters = []): LengthAwarePaginator
     {
         return $this->paymentRepository->paginate($filters);
     }
 
-    /**
-     * Trashed Payments Listing
-     */
-    public function trash(
-        array $filters = []
-    ): LengthAwarePaginator {
-
-        return $this->paymentRepository->trash($filters);
-
+    public function trashedPaginate(array $filters = []): LengthAwarePaginator
+    {
+        return $this->paymentRepository->trashedPaginate($filters);
     }
 
-    /**
-     * Find Payment
-     */
+    public function all(): Collection
+    {
+        return $this->paymentRepository->all();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find
+    |--------------------------------------------------------------------------
+    */
+
     public function find(int $id): Payment
     {
-        return $this->paymentRepository->find($id);
+        return $this->paymentRepository->findOrFail($id);
     }
 
-    /**
-     * Store Payment
-     */
-    public function store(array $data): Payment
+    /*
+    |--------------------------------------------------------------------------
+    | Create
+    |--------------------------------------------------------------------------
+    */
+
+    public function create(array $data): Payment
     {
         return DB::transaction(function () use ($data) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Get Purchase / Sale
-            |--------------------------------------------------------------------------
-            */
-
-            $module = $this->getModule(
-
-                $data['module'],
-
-                $data['module_id']
-
+            $data['payment_no'] ??= NumberHelper::generate(
+                Payment::class,
+                'payment_no',
+                'PAY'
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Validate
-            |--------------------------------------------------------------------------
-            */
-
-            $this->validatePayment(
-
-                $module,
-
-                $data['amount']
-
-            );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Create Payment
-            |--------------------------------------------------------------------------
-            */
-
-            $payment = $this->paymentRepository->create([
-
-                'payment_no' => $this->generatePaymentNumber(),
-
-                'module' => $data['module'],
-
-                'module_id' => $data['module_id'],
-
-                'payment_mode_id' => $data['payment_mode_id'],
-
-                'payment_date' => $data['payment_date'],
-
-                'amount' => $data['amount'],
-
-                'transaction_no' => $data['transaction_no'] ?? null,
-
-                'reference_no' => $data['reference_no'] ?? null,
-
-                'remarks' => $data['remarks'] ?? null,
-
-                'status' => 'Completed',
-
-                'created_by' => auth()->id(),
-
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Update Purchase / Sale Amount
-            |--------------------------------------------------------------------------
-            */
-
-            $this->updateModuleAmounts($module);
-
-            return $payment->load('paymentMode');
+            return $this->paymentRepository->create($data);
 
         });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Private Methods
+    | Update
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get Module
-     */
-    private function getModule(
-        string $module,
-        int $moduleId
-    ) {
-        return match ($module) {
-
-            'purchase' => PurchaseOrder::findOrFail($moduleId),
-
-            'sale' => SaleOrder::findOrFail($moduleId),
-
-            default => throw new InvalidArgumentException(
-                'Invalid payment module.'
-            ),
-
-        };
-    }
-
-    /**
-     * Validate Payment
-     */
-    private function validatePayment(
-        $module,
-        float $amount
-    ): void {
-
-        if ($amount <= 0) {
-
-            throw new InvalidArgumentException(
-                'Payment amount must be greater than zero.'
-            );
-
-        }
-
-        if ($module->status !== 'Completed') {
-
-            throw new InvalidArgumentException(
-                'Payment can be accepted only for completed documents.'
-            );
-
-        }
-
-        if ($amount > $module->due_amount) {
-
-            throw new InvalidArgumentException(
-                'Payment amount exceeds due amount.'
-            );
-
-        }
-    }
-
-    /**
-     * Update Paid & Due Amount
-     */
-    private function updateModuleAmounts($module): void
-    {
-        $paidAmount = $module
-            ->payments()
-            ->where('status', 'Completed')
-            ->sum('amount');
-
-        $module->update([
-
-            'paid_amount' => $paidAmount,
-
-            'due_amount' => $module->grand_total - $paidAmount,
-
-        ]);
-    }
-
-    /**
-     * Generate Payment Number
-     */
-    private function generatePaymentNumber(): string
-    {
-        return NumberHelper::generate(
-
-            Payment::class,
-
-            'payment_no',
-
-            'PAY'
-
-        );
-    }
-
-
-    /**
-     * Update Payment
-     */
     public function update(int $id, array $data): Payment
     {
         return DB::transaction(function () use ($id, $data) {
 
-            $payment = $this->paymentRepository->find($id);
+            $payment = $this->find($id);
 
-            if ($payment->status === 'Completed') {
-                throw new InvalidArgumentException(
-                    'Completed payment cannot be updated.'
-                );
+            if ($payment->isRefunded()) {
+                throw new \Exception('Refunded payment cannot be updated.');
             }
 
-            $module = $this->getModule(
-                $payment->module,
-                $payment->module_id
-            );
+            return $this->paymentRepository->update($id, $data);
 
-            $this->validatePayment(
-                $module,
-                $data['amount']
-            );
-
-            $payment = $this->paymentRepository->update(
-                $payment,
-                [
-                    'payment_mode_id' => $data['payment_mode_id'],
-                    'payment_date' => $data['payment_date'],
-                    'amount' => $data['amount'],
-                    'transaction_no' => $data['transaction_no'] ?? null,
-                    'reference_no' => $data['reference_no'] ?? null,
-                    'remarks' => $data['remarks'] ?? null,
-                    'updated_by' => auth()->id(),
-                ]
-            );
-
-            $this->updateModuleAmounts($module);
-
-            return $payment->load('paymentMode');
         });
     }
 
-    /**
-     * Change Payment Status
-     */
-    public function changeStatus(
-        int $id,
-        string $status
-    ): Payment {
+    /*
+    |--------------------------------------------------------------------------
+    | Delete
+    |--------------------------------------------------------------------------
+    */
 
-        return DB::transaction(function () use ($id, $status) {
-
-            $payment = $this->paymentRepository->find($id);
-
-            $payment = $this->paymentRepository->update(
-                $payment,
-                [
-                    'status' => $status,
-                    'updated_by' => auth()->id(),
-                ]
-            );
-
-            $module = $this->getModule(
-                $payment->module,
-                $payment->module_id
-            );
-
-            $this->updateModuleAmounts($module);
-
-            return $payment->refresh();
-        });
-    }
-
-    /**
-     * Soft Delete Payment
-     */
     public function delete(int $id): bool
     {
         return DB::transaction(function () use ($id) {
 
-            $payment = $this->paymentRepository->find($id);
+            $payment = $this->find($id);
 
-            if ($payment->status === 'Completed') {
-                throw new InvalidArgumentException(
-                    'Completed payment cannot be deleted.'
-                );
+            if ($payment->isCompleted()) {
+                throw new \Exception('Completed payment cannot be deleted.');
             }
 
-            return $this->paymentRepository->delete($payment);
+            return $this->paymentRepository->delete($id);
+
         });
     }
 
-    /**
-     * Restore Payment
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Restore
+    |--------------------------------------------------------------------------
+    */
+
     public function restore(int $id): bool
     {
-        return DB::transaction(function () use ($id) {
+        return $this->paymentRepository->restore($id);
+    }
 
-            return $this->paymentRepository->restore($id);
+    /*
+    |--------------------------------------------------------------------------
+    | Force Delete
+    |--------------------------------------------------------------------------
+    */
+
+    public function forceDelete(int $id): bool
+    {
+        return $this->paymentRepository->forceDelete($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    public function changeStatus(int $id, string $status): Payment
+    {
+        return DB::transaction(function () use ($id, $status) {
+
+            return $this->paymentRepository
+                ->changeStatus($id, $status);
 
         });
     }
 
-    /**
-     * Permanently Delete Payment
-     */
-    public function forceDelete(int $id): bool
+    /*
+    |--------------------------------------------------------------------------
+    | Pay
+    |--------------------------------------------------------------------------
+    */
+
+    public function pay(array $data): Payment
+    {
+        return $this->create($data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refund
+    |--------------------------------------------------------------------------
+    */
+
+    public function refund(int $id, array $data = []): Payment
     {
         return DB::transaction(function () use ($id) {
 
-            return $this->paymentRepository->forceDelete($id);
+            return $this->paymentRepository->changeStatus(
+                $id,
+                Payment::STATUS_REFUNDED
+            );
 
         });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Verify
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Get completed payment amount.
-     */
-    public function getCompletedAmount(
-        string $module,
-        int $moduleId
+    public function verifyPayment(int $id): Payment
+    {
+        return $this->paymentRepository
+            ->changeStatus(
+                $id,
+                Payment::STATUS_COMPLETED
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    public function totalPaid(
+        string $paymentableType,
+        int $paymentableId
     ): float {
 
-        return (float) Payment::query()
-
-            ->where('module', $module)
-
-            ->where('module_id', $moduleId)
-
-            ->where('status', 'Completed')
-
-            ->sum('amount');
-
+        return $this->paymentRepository
+            ->totalPaid(
+                $paymentableType,
+                $paymentableId
+            );
     }
 
-    /**
-     * Get module payments.
-     */
-    public function getModulePayments(
-        string $module,
-        int $moduleId
+    public function completedPayments(): Collection
+    {
+        return $this->paymentRepository->completedPayments();
+    }
+
+    public function pendingPayments(): Collection
+    {
+        return $this->paymentRepository->pendingPayments();
+    }
+
+    public function failedPayments(): Collection
+    {
+        return $this->paymentRepository->failedPayments();
+    }
+
+    public function refundedPayments(): Collection
+    {
+        return $this->paymentRepository->refundedPayments();
+    }
+
+    public function cancelledPayments(): Collection
+    {
+        return $this->paymentRepository->cancelledPayments();
+    }
+
+    public function todayPayments(): Collection
+    {
+        return $this->paymentRepository->todayPayments();
+    }
+
+    public function betweenDates(
+        string $fromDate,
+        string $toDate
     ): Collection {
+        return $this->paymentRepository
+            ->betweenDates($fromDate, $toDate);
+    }
 
-        return Payment::query()
+    // Remove these for now
 
-            ->with([
-                'paymentMode',
-                'creator',
-                'updater',
-            ])
+    public function createPurchasePayment(
+        int $purchaseId,
+        array $data
+    ): Payment {
 
-            ->where('module', $module)
+        return DB::transaction(function () use ($purchaseId, $data) {
 
-            ->where('module_id', $moduleId)
+            $purchase = $this->purchaseRepository->findOrFail($purchaseId);
 
-            ->latest()
+            $data['payment_no'] ??= NumberHelper::generate(
+                Payment::class,
+                'payment_no',
+                'PAY'
+            );
 
-            ->get();
+            $data['paymentable_type'] = PurchaseOrder::class;
+            $data['paymentable_id'] = $purchase->id;
+            $data['supplier_id'] = $purchase->supplier_id;
+
+            $payment = $this->paymentRepository->create($data);
+
+            $this->updatePurchasePaymentSummary($purchaseId);
+
+            return $payment;
+        });
+    }
+
+    public function createSalePayment(
+        int $saleId,
+        array $data
+    ): Payment {
+
+        return DB::transaction(function () use ($saleId, $data) {
+
+            $sale = $this->saleRepository->findOrFail($saleId);
+
+            $data['payment_no'] ??= NumberHelper::generate(
+                Payment::class,
+                'payment_no',
+                'PAY'
+            );
+
+            $data['paymentable_type'] = SaleOrder::class;
+            $data['paymentable_id'] = $sale->id;
+            $data['customer_id'] = $sale->customer_id;
+
+            $payment = $this->paymentRepository->create($data);
+
+            $this->updateSalePaymentSummary($saleId);
+
+            return $payment;
+        });
+    }
+
+    private function updateSalePaymentSummary(
+        int $saleId
+    ): void {
+
+        $sale = $this->saleRepository->findOrFail($saleId);
+
+        $paid = $this->paymentRepository->totalPaid(
+            SaleOrder::class,
+            $saleId
+        );
+
+        $due = max(
+            0,
+            $sale->grand_total - $paid
+        );
+
+        if ($paid <= 0) {
+
+            $status = SaleOrder::PAYMENT_PENDING;
+
+        } elseif ($paid < $sale->grand_total) {
+
+            $status = SaleOrder::PAYMENT_PARTIAL;
+
+        } else {
+
+            $status = SaleOrder::PAYMENT_COMPLETED;
+        }
+
+        $this->saleRepository->update($saleId, [
+
+            'paid_amount' => $paid,
+
+            'due_amount' => $due,
+
+            'payment_status' => $status,
+
+        ]);
+    }
+
+    private function updatePurchasePaymentSummary(
+        int $purchaseId
+    ): void {
+
+        $purchase = $this->purchaseRepository->findOrFail($purchaseId);
+
+        $paid = $this->paymentRepository->totalPaid(
+            PurchaseOrder::class,
+            $purchaseId
+        );
+
+        $due = max(
+            0,
+            $purchase->grand_total - $paid
+        );
+
+        if ($paid <= 0) {
+
+            $status = PurchaseOrder::PAYMENT_PENDING;
+
+        } elseif ($paid < $purchase->grand_total) {
+
+            $status = PurchaseOrder::PAYMENT_PARTIAL;
+
+        } else {
+
+            $status = PurchaseOrder::PAYMENT_COMPLETED;
+        }
+
+        $this->purchaseRepository->update($purchaseId, [
+
+            'paid_amount' => $paid,
+
+            'due_amount' => $due,
+
+            'payment_status' => $status,
+
+        ]);
+    }
+
+    public function createAdvancePayment(
+        array $data
+    ): Payment {
+        throw new \BadMethodCallException('Not implemented yet.');
+    }
+
+    public function createGatewayOrder(
+        int $paymentId
+    ): array {
+
+        return DB::transaction(function () use ($paymentId) {
+
+            $payment = $this->find($paymentId);
+
+            if (
+
+                $payment->status !== Payment::STATUS_PENDING
+
+            ) {
+
+                throw new InvalidArgumentException(
+
+                    'Only pending payment can create gateway order.'
+
+                );
+
+            }
+
+            $gatewayOrder = $this->razorpayService
+                ->createOrder([
+
+                    'receipt' => $payment->payment_no,
+
+                    'amount' => $payment->amount,
+
+                    'currency' => 'INR',
+
+                    'notes' => [
+
+                        'payment_id' => $payment->id,
+
+                        'payment_no' => $payment->payment_no,
+
+                    ],
+
+                ]);
+
+            $this->paymentRepository->update(
+
+                $payment->id,
+
+                [
+
+                    'reference_no' => $gatewayOrder['id'],
+
+                    'gateway' => 'razorpay',
+
+                ]
+
+            );
+
+            return $gatewayOrder;
+
+        });
 
     }
+
+    public function verifyGatewayPayment(
+        array $payload
+    ): Payment {
+
+        return DB::transaction(function () use ($payload) {
+
+            if (
+
+                !$this->razorpayService
+                    ->verifySignature($payload)
+
+            ) {
+
+                throw new InvalidArgumentException(
+
+                    'Invalid Razorpay signature.'
+
+                );
+
+            }
+
+            $payment = Payment::where(
+
+                'reference_no',
+
+                $payload['razorpay_order_id']
+
+            )->firstOrFail();
+
+            $gatewayPayment = $this->razorpayService
+                ->fetchPayment(
+
+                    $payload['razorpay_payment_id']
+
+                );
+
+            $payment = $this->paymentRepository
+                ->update(
+
+                    $payment->id,
+
+                    [
+
+                        'transaction_no'
+                        => $gatewayPayment['id'],
+
+                        'status'
+                        => Payment::STATUS_COMPLETED,
+
+                        'paid_amount'
+                        => $gatewayPayment['amount'] / 100,
+
+                    ]
+
+                );
+
+            if (
+
+                $payment->paymentable_type ===
+                SaleOrder::class
+
+            ) {
+
+                $this->updateSalePaymentSummary(
+
+                    $payment->paymentable_id
+
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Checkout Success
+                |--------------------------------------------------------------------------
+                */
+
+                $payment = $this->paymentRepository
+                    ->findByReferenceNo(
+                        $payload['razorpay_order_id']
+                    );
+
+                if (!$payment) {
+
+                    throw new InvalidArgumentException(
+                        'Payment not found.'
+                    );
+
+                }
+
+            }
+
+            if (
+
+                $payment->paymentable_type ===
+                PurchaseOrder::class
+
+            ) {
+
+                $this->updatePurchasePaymentSummary(
+
+                    $payment->paymentable_id
+
+                );
+
+            }
+
+            return $payment;
+
+        });
+
+    }
+
+    public function webhook(
+        array $payload,
+        string $signature
+    ): bool {
+
+        $verified = $this->razorpayService
+            ->verifyWebhook(
+                json_encode($payload),
+                $signature
+            );
+
+        if (!$verified) {
+            return false;
+        }
+
+        $event = $payload['event'] ?? null;
+
+        switch ($event) {
+
+            case 'payment.captured':
+
+                $entity = $payload['payload']['payment']['entity'];
+
+                $this->verifyGatewayPayment([
+
+                    'razorpay_order_id' =>
+                        $entity['order_id'],
+
+                    'razorpay_payment_id' =>
+                        $entity['id'],
+
+                    'razorpay_signature' =>
+                        $signature,
+
+                ]);
+
+                break;
+
+            case 'payment.failed':
+
+                // TODO:
+                // Handle failed payment
+
+                break;
+
+            case 'refund.processed':
+
+                // TODO:
+                // Handle refund
+
+                break;
+        }
+
+        return true;
+    }
+
+
+
 }

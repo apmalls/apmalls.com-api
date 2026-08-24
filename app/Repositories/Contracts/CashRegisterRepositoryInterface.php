@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Repositories\Contracts;
 
 use App\Models\POS\CashRegister;
@@ -10,79 +8,98 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface CashRegisterRepositoryInterface
 {
-    /**
-     * Get paginated registers.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Listing
+    |--------------------------------------------------------------------------
+    */
+
     public function paginate(
+        int $perPage = 15,
         array $filters = []
     ): LengthAwarePaginator;
 
-    /**
-     * Get trashed registers.
-     */
-    public function trash(
-        array $filters = []
+    public function trashedPaginate(
+        int $perPage = 15
     ): LengthAwarePaginator;
 
-    /**
-     * Get all registers.
-     */
-    public function all(): Collection;
+    public function all(
+        array $filters = []
+    ): Collection;
 
-    /**
-     * Find register.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Find
+    |--------------------------------------------------------------------------
+    */
+
     public function find(
         int $id
-    ): CashRegister;
+    ): ?CashRegister;
 
-    /**
-     * Find deleted register.
-     */
-    public function findWithTrashed(
+    public function findOrFail(
         int $id
     ): CashRegister;
 
-    /**
-     * Find open register by user.
-     */
-    public function findOpenRegisterByUser(
+    public function findByRegisterNo(
+        string $registerNo
+    ): ?CashRegister;
+
+    public function getOpenRegisterByUser(
         int $userId
     ): ?CashRegister;
 
-    /**
-     * Create register.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CRUD
+    |--------------------------------------------------------------------------
+    */
+
     public function create(
         array $data
     ): CashRegister;
 
-    /**
-     * Update register.
-     */
     public function update(
-        CashRegister $cashRegister,
+        int $id,
         array $data
     ): CashRegister;
 
-    /**
-     * Delete register.
-     */
     public function delete(
-        CashRegister $cashRegister
+        int $id
     ): bool;
 
-    /**
-     * Restore register.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Trash
+    |--------------------------------------------------------------------------
+    */
+
     public function restore(
         int $id
     ): bool;
 
-    /**
-     * Permanently delete register.
-     */
     public function forceDelete(
         int $id
     ): bool;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    public function changeStatus(
+        int $id,
+        string $status
+    ): CashRegister;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    public function count(
+        array $filters = []
+    ): int;
 }

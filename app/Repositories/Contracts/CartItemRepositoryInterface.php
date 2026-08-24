@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Collection;
 interface CartItemRepositoryInterface
 {
     /**
-     * Cart Items
+     * Get all items.
      */
-    public function items(
+    public function all(
         int $cartId
     ): Collection;
 
     /**
-     * Find Item
+     * Find item.
      */
     public function find(
         int $id
@@ -39,45 +39,46 @@ interface CartItemRepositoryInterface
     ): ?CartItem;
 
     /**
-     * Add Item
+     * Check product exists.
+     */
+    public function exists(
+        int $cartId,
+        int $productId
+    ): bool;
+
+    /**
+     * Create item.
      */
     public function create(
         array $data
     ): CartItem;
 
     /**
-     * Update Item
+     * Update item.
      */
     public function update(
         int $id,
         array $data
-    ): CartItem;
+    ): bool;
 
     /**
-     * Delete Item
+     * Delete item.
      */
     public function delete(
         int $id
     ): bool;
 
     /**
-     * Clear Cart
+     * Clear cart.
      */
     public function clear(
         int $cartId
     ): bool;
 
     /**
-     * Total Quantity
+     * Count items.
      */
-    public function totalQuantity(
+    public function count(
         int $cartId
     ): int;
-
-    /**
-     * Cart Subtotal
-     */
-    public function subtotal(
-        int $cartId
-    ): float;
 }

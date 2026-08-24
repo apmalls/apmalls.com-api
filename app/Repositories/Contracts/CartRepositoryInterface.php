@@ -9,36 +9,36 @@ use App\Models\Cart\Cart;
 interface CartRepositoryInterface
 {
     /**
-     * Get Active Cart
+     * Get active cart.
      */
-    public function active(
+    public function getActiveCart(
         int $customerId
     ): ?Cart;
 
     /**
-     * Find Cart
+     * Find cart.
      */
     public function find(
         int $id
     ): Cart;
 
     /**
-     * Create Cart
+     * Create cart.
      */
     public function create(
         array $data
     ): Cart;
 
     /**
-     * Update Cart
+     * Update cart.
      */
     public function update(
         int $id,
         array $data
-    ): Cart;
+    ): bool;
 
     /**
-     * Delete Cart
+     * Delete cart.
      */
     public function delete(
         int $id

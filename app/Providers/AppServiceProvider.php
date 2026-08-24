@@ -2,14 +2,51 @@
 
 namespace App\Providers;
 
+use App\Repositories\Banner\WebsiteBannerRepository;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
+use App\Repositories\Contracts\DeliveryAssignmentRepositoryInterface;
+use App\Repositories\Contracts\DeliveryBoyRepositoryInterface;
+use App\Repositories\Contracts\OtpVerificationRepositoryInterface;
 use App\Repositories\Contracts\PaymentGatewayTransactionRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Contracts\Website\HomeRepositoryInterface;
+use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
 use App\Repositories\Dashboard\DashboardRepository;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
+use App\Repositories\Delivery\DeliveryAssignmentRepository;
+use App\Repositories\Delivery\DeliveryBoyRepository;
+use App\Repositories\OTP\OtpVerificationRepository;
 use App\Repositories\Payment\PaymentGatewayTransactionRepository;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Role\RoleRepository;
+use App\Repositories\User\UserRepository;
+use App\Repositories\Website\HomeRepository;
+use App\Services\Banner\WebsiteBannerService;
+use App\Services\Brand\BrandService;
+use App\Services\Checkout\CheckoutService;
+use App\Services\Contracts\CartServiceInterface;
+use App\Services\Contracts\CashRegisterTransactionServiceInterface;
+use App\Services\Contracts\CheckoutServiceInterface;
+use App\Services\Contracts\DeliveryBoyServiceInterface;
+use App\Services\Contracts\DeliveryAssignmentServiceInterface;
+use App\Services\Contracts\GoogleAuthServiceInterface;
+use App\Services\Contracts\OtpServiceInterface;
+use App\Services\Contracts\RazorpayServiceInterface;
+use App\Services\Contracts\Website\HomeServiceInterface;
+use App\Services\Contracts\WebsiteBannerServiceInterface;
+use App\Services\Contracts\WishlistServiceInterface;
+use App\Services\Delivery\DeliveryAssignmentService;
+use App\Services\Delivery\DeliveryBoyService;
+use App\Services\Google\GoogleAuthService;
+use App\Services\OTP\OtpService;
+use App\Services\Payment\RazorpayService;
+use App\Services\POS\CashRegisterTransactionService;
+use App\Services\Website\CartService;
+use App\Services\Coupon\CouponService;
+use App\Services\Contracts\CouponServiceInterface;
+use App\Services\Website\HomeService;
+use App\Services\Website\WishlistService;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\PaymentRepositoryInterface;
@@ -30,6 +67,8 @@ use App\Repositories\Product\ProductRepository;
 use App\Repositories\Contracts\BrandRepositoryInterface;
 use App\Repositories\Product\BrandRepository;
 
+use App\Repositories\Contracts\CouponRepositoryInterface;
+use App\Repositories\Coupon\CouponRepository;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Cart\CartRepository;
 
@@ -45,18 +84,95 @@ use App\Repositories\Customer\CustomerRepository;
 use App\Repositories\Contracts\CustomerAddressRepositoryInterface;
 use App\Repositories\Customer\CustomerAddressRepository;
 
-use App\Repositories\Contracts\SaleOrderRepositoryInterface;
-use App\Repositories\Sale\SaleOrderRepository;
+use App\Repositories\Contracts\SaleRepositoryInterface;
+use App\Repositories\Sale\SaleRepository;
 
 use App\Repositories\Contracts\SaleOrderItemRepositoryInterface;
 use App\Repositories\Sale\SaleOrderItemRepository;
 
+use App\Repositories\Contracts\SaleReturnRepositoryInterface;
+use App\Repositories\Sale\SaleReturnRepository;
+
+use App\Repositories\Contracts\PurchaseReturnRepositoryInterface;
+use App\Repositories\Purchase\PurchaseReturnRepository;
+
+use App\Repositories\Contracts\StockRepositoryInterface;
+use App\Repositories\Inventory\StockRepository;
+
+use App\Repositories\Contracts\StockMovementRepositoryInterface;
+use App\Repositories\Inventory\StockMovementRepository;
+
+use App\Repositories\Contracts\StockAdjustmentRepositoryInterface;
+use App\Repositories\Inventory\StockAdjustmentRepository;
+use App\Repositories\Barcode\BarcodeTemplateRepository;
+use App\Repositories\Contracts\BarcodeTemplateRepositoryInterface;
+use App\Repositories\POS\CashRegisterSessionRepository;
+use App\Repositories\Contracts\CashRegisterSessionRepositoryInterface;
+use App\Repositories\POS\CashRegisterTransactionRepository;
+use App\Repositories\Contracts\CashRegisterTransactionRepositoryInterface;
+use App\Repositories\Setting\GeneralSettingRepository;
+use App\Repositories\Contracts\GeneralSettingRepositoryInterface;
+use App\Repositories\POS\PosHoldRepository;
+use App\Repositories\Contracts\PosHoldRepositoryInterface;
 
 
 
+use App\Services\Contracts\PurchaseServiceInterface;
+use App\Services\Purchase\PurchaseService;
+
+use App\Services\Contracts\PurchaseReturnServiceInterface;
+use App\Services\Purchase\PurchaseReturnService;
+
+use App\Services\Contracts\SaleServiceInterface;
+use App\Services\Sale\SaleService;
+
+use App\Services\Contracts\SaleReturnServiceInterface;
+use App\Services\Sale\SaleReturnService;
+
+use App\Services\Contracts\PaymentServiceInterface;
+use App\Services\Payment\PaymentService;
+use App\Services\Payment\PaymentModeService;
+use App\Services\Contracts\PaymentModeServiceInterface;
+
+use App\Services\Contracts\StockServiceInterface;
+use App\Services\Inventory\StockService;
+
+use App\Services\Contracts\StockMovementServiceInterface;
+use App\Services\Inventory\StockMovementService;
+
+use App\Services\Contracts\StockAdjustmentServiceInterface;
+use App\Services\Inventory\StockAdjustmentService;
+use App\Services\Barcode\BarcodeGeneratorService;
+use App\Services\Contracts\BarcodeGeneratorServiceInterface;
+use App\Services\Barcode\BarcodePrintService;
+use App\Services\Contracts\BarcodePrintServiceInterface;
+use App\Services\Barcode\BarcodeTemplateService;
+use App\Services\Contracts\BarcodeTemplateServiceInterface;
+use App\Services\Setting\GeneralSettingService;
+use App\Services\Contracts\GeneralSettingServiceInterface;
+use App\Services\POS\POSService;
+use App\Services\Contracts\POSServiceInterface;
+
+use App\Services\User\UserService;
+use App\Services\Contracts\UserServiceInterface;
+
+use App\Services\Category\CategoryService;
+use App\Services\Contracts\CategoryServiceInterface;
 
 
+use App\Services\Contracts\BrandServiceInterface;
 
+use App\Services\Unit\UnitService;
+use App\Services\Contracts\UnitServiceInterface;
+
+use App\Services\Product\ProductService;
+use App\Services\Contracts\ProductServiceInterface;
+use App\Repositories\Product\UnitRepository;
+use App\Repositories\Contracts\UnitRepositoryInterface;
+use App\Services\Product\ProductImageService;
+use App\Services\Contracts\ProductImageServiceInterface;
+use App\Repositories\Product\ProductImageRepository;
+use App\Repositories\Contracts\ProductImageRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,8 +190,6 @@ class AppServiceProvider extends ServiceProvider
             PaymentModeRepositoryInterface::class,
             PaymentModeRepository::class
         );
-
-
 
         $this->app->bind(
             PurchaseRepositoryInterface::class,
@@ -127,14 +241,42 @@ class AppServiceProvider extends ServiceProvider
             CustomerAddressRepository::class
         );
 
+        // Sale
         $this->app->bind(
-            SaleOrderRepositoryInterface::class,
-            SaleOrderRepository::class
+            SaleRepositoryInterface::class,
+            SaleRepository::class
         );
 
         $this->app->bind(
             SaleOrderItemRepositoryInterface::class,
             SaleOrderItemRepository::class
+        );
+
+        $this->app->bind(
+            SaleReturnRepositoryInterface::class,
+            SaleReturnRepository::class
+        );
+
+        // Purchase
+        $this->app->bind(
+            PurchaseReturnRepositoryInterface::class,
+            PurchaseReturnRepository::class
+        );
+
+        // Inventory
+        $this->app->bind(
+            StockRepositoryInterface::class,
+            StockRepository::class
+        );
+
+        $this->app->bind(
+            StockMovementRepositoryInterface::class,
+            StockMovementRepository::class
+        );
+
+        $this->app->bind(
+            StockAdjustmentRepositoryInterface::class,
+            StockAdjustmentRepository::class
         );
 
         $this->app->bind(
@@ -158,9 +300,269 @@ class AppServiceProvider extends ServiceProvider
             RoleRepository::class
         );
 
+        $this->app->bind(
+            BarcodeTemplateRepositoryInterface::class,
+            BarcodeTemplateRepository::class
+        );
+
+        $this->app->bind(
+            CashRegisterSessionRepositoryInterface::class,
+            CashRegisterSessionRepository::class
+        );
+
+        $this->app->bind(
+            CashRegisterTransactionRepositoryInterface::class,
+            CashRegisterTransactionRepository::class
+        );
+
+        $this->app->bind(
+            GeneralSettingRepositoryInterface::class,
+            GeneralSettingRepository::class
+        );
+
+        $this->app->bind(
+            PosHoldRepositoryInterface::class,
+            PosHoldRepository::class
+        );
+
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            UserRepository::class
+        );
+
+        $this->app->bind(
+            UnitRepositoryInterface::class,
+            UnitRepository::class
+        );
+
+        // Services
+        $this->app->bind(
+            PurchaseServiceInterface::class,
+            PurchaseService::class
+        );
+
+        $this->app->bind(
+            UserServiceInterface::class,
+            UserService::class
+        );
 
 
 
+        $this->app->bind(
+            CategoryServiceInterface::class,
+            CategoryService::class
+        );
+
+        $this->app->bind(
+            BrandServiceInterface::class,
+            BrandService::class
+        );
+
+        $this->app->bind(
+            UnitServiceInterface::class,
+            UnitService::class
+        );
+
+        $this->app->bind(
+            ProductServiceInterface::class,
+            ProductService::class
+        );
+
+        $this->app->bind(
+            ProductImageServiceInterface::class,
+            ProductImageService::class
+        );
+
+        $this->app->bind(
+            ProductImageRepositoryInterface::class,
+            ProductImageRepository::class
+        );
+
+        $this->app->bind(
+            PurchaseReturnServiceInterface::class,
+            PurchaseReturnService::class
+        );
+
+        $this->app->bind(
+            SaleServiceInterface::class,
+            SaleService::class
+        );
+
+        $this->app->bind(
+            SaleReturnServiceInterface::class,
+            SaleReturnService::class
+        );
+
+        $this->app->bind(
+            PaymentServiceInterface::class,
+            PaymentService::class
+        );
+
+        $this->app->bind(
+            StockServiceInterface::class,
+            StockService::class
+        );
+
+        $this->app->bind(
+            StockMovementServiceInterface::class,
+            StockMovementService::class
+        );
+
+        $this->app->bind(
+            StockAdjustmentServiceInterface::class,
+            StockAdjustmentService::class
+        );
+
+        $this->app->bind(
+            CashRegisterTransactionServiceInterface::class,
+            CashRegisterTransactionService::class
+        );
+
+        $this->app->bind(
+            BarcodeGeneratorServiceInterface::class,
+            BarcodeGeneratorService::class
+        );
+
+        $this->app->bind(
+            BarcodePrintServiceInterface::class,
+            BarcodePrintService::class
+        );
+
+        $this->app->bind(
+            BarcodeTemplateServiceInterface::class,
+            BarcodeTemplateService::class
+        );
+
+        $this->app->bind(
+            GeneralSettingServiceInterface::class,
+            GeneralSettingService::class
+        );
+
+        $this->app->bind(
+            POSServiceInterface::class,
+            POSService::class
+        );
+
+        $this->app->bind(
+            PaymentModeServiceInterface::class,
+            PaymentModeService::class
+        );
+
+        $this->app->bind(
+            WebsiteBannerRepositoryInterface::class,
+            WebsiteBannerRepository::class
+        );
+
+        $this->app->bind(
+            WebsiteBannerServiceInterface::class,
+            WebsiteBannerService::class
+        );
+
+        $this->app->bind(
+            WishlistServiceInterface::class,
+            WishlistService::class
+        );
+
+        $this->app->bind(
+            HomeServiceInterface::class,
+            HomeService::class
+        );
+
+        $this->app->bind(
+            HomeRepositoryInterface::class,
+            HomeRepository::class
+        );
+
+        $this->app->bind(
+            CouponRepositoryInterface::class,
+            CouponRepository::class
+        );
+
+        $this->app->bind(
+            CouponServiceInterface::class,
+            CouponService::class
+        );
+
+        $this->app->bind(
+            CartServiceInterface::class,
+            CartService::class
+        );
+
+        $this->app->bind(
+            CartRepositoryInterface::class,
+            CartRepository::class
+        );
+
+        $this->app->bind(
+            CartItemRepositoryInterface::class,
+            CartItemRepository::class
+        );
+
+        $this->app->bind(
+
+            RazorpayServiceInterface::class,
+
+            RazorpayService::class
+
+        );
+
+        $this->app->bind(
+            CheckoutServiceInterface::class,
+            CheckoutService::class
+        );
+
+        $this->app->bind(
+            GoogleAuthServiceInterface::class,
+            GoogleAuthService::class
+        );
+
+        $this->app->bind(
+
+            OtpVerificationRepositoryInterface::class,
+
+            OtpVerificationRepository::class
+
+        );
+
+        $this->app->bind(
+
+            OtpServiceInterface::class,
+
+            OtpService::class
+
+        );
+
+        /*
+   |--------------------------------------------------------------------------
+   | Delivery Boy
+   |--------------------------------------------------------------------------
+   */
+
+        $this->app->bind(
+            DeliveryBoyRepositoryInterface::class,
+            DeliveryBoyRepository::class
+        );
+
+        $this->app->bind(
+            DeliveryBoyServiceInterface::class,
+            DeliveryBoyService::class
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery Assignment
+        |--------------------------------------------------------------------------
+        */
+
+        $this->app->bind(
+            DeliveryAssignmentRepositoryInterface::class,
+            DeliveryAssignmentRepository::class
+        );
+
+        $this->app->bind(
+            DeliveryAssignmentServiceInterface::class,
+            DeliveryAssignmentService::class
+        );
     }
 
     /**

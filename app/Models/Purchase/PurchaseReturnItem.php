@@ -2,10 +2,9 @@
 
 namespace App\Models\Purchase;
 
-
-use App\Models\Product;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Product\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class PurchaseReturnItem extends Model
 {
@@ -13,15 +12,39 @@ class PurchaseReturnItem extends Model
 
     protected $fillable = [
 
+        /*
+        |--------------------------------------------------------------------------
+        | Relations
+        |--------------------------------------------------------------------------
+        */
+
         'purchase_return_id',
 
         'purchase_order_item_id',
 
         'product_id',
 
-        'purchase_price',
+        /*
+        |--------------------------------------------------------------------------
+        | Pricing
+        |--------------------------------------------------------------------------
+        */
+
+        'unit_cost',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Quantity
+        |--------------------------------------------------------------------------
+        */
 
         'quantity',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Total
+        |--------------------------------------------------------------------------
+        */
 
         'line_total',
 
@@ -29,9 +52,9 @@ class PurchaseReturnItem extends Model
 
     protected $casts = [
 
-        'purchase_price' => 'decimal:2',
+        'unit_cost' => 'decimal:2',
 
-        'quantity' => 'integer',
+        'quantity' => 'decimal:2',
 
         'line_total' => 'decimal:2',
 
@@ -56,5 +79,43 @@ class PurchaseReturnItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helper Methods
+    |--------------------------------------------------------------------------
+    */
+
+    public function getTotalAttribute(): float
+    {
+        return (float) $this->line_total;
+    }
+
+    public function calculateLineTotal(): float
+    {
+        return round(
+            (float) $this->unit_cost * (float) $this->quantity,
+            2
+        );
+    }
+
+    public function isFullReturn(): bool
+    {
+        if (!$this->purchaseOrderItem) {
+            return false;
+        }
+
+        return (float) $this->quantity >= (float) $this->purchaseOrderItem->received_quantity;
+    }
+
+    public function isPartialReturn(): bool
+    {
+        if (!$this->purchaseOrderItem) {
+            return false;
+        }
+
+        return (float) $this->quantity > 0
+            && (float) $this->quantity < (float) $this->purchaseOrderItem->received_quantity;
     }
 }

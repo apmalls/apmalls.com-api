@@ -257,13 +257,13 @@ class CategoryRepository implements CategoryRepositoryInterface
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Website
+|--------------------------------------------------------------------------
+*/
 
     /**
-     * Website Category Listing
+     * Website category listing.
      */
     public function websitePaginate(
         array $filters = []
@@ -271,30 +271,12 @@ class CategoryRepository implements CategoryRepositoryInterface
 
         return Category::query()
 
-            ->with([
-                'children' => fn($query) =>
-
-                    $query
-
-                        ->where('is_active', true)
-
-                        ->withCount([
-                            'products' => fn($query) =>
-                                $query->where(
-                                    'is_active',
-                                    true
-                                ),
-                        ])
-
-                        ->orderBy('sort_order'),
-            ])
+            ->withCount('products')
 
             ->where(
                 'is_active',
                 true
             )
-
-            ->whereNull('parent_id')
 
             ->when(
 
@@ -310,7 +292,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
             )
 
-            ->orderBy('sort_order')
+            ->orderBy('name')
 
             ->paginate(
                 $filters['per_page'] ?? 20
@@ -319,50 +301,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Featured Categories
-     */
-    public function featured(): Collection
-    {
-        return Category::query()
-
-            ->with([
-                'children' => fn($query) =>
-
-                    $query
-
-                        ->where('is_active', true)
-
-                        ->withCount([
-                            'products' => fn($query) =>
-                                $query->where(
-                                    'is_active',
-                                    true
-                                ),
-                        ])
-
-                        ->orderBy('sort_order'),
-            ])
-
-            ->where(
-                'is_active',
-                true
-            )
-
-            ->where(
-                'is_featured',
-                true
-            )
-
-            ->whereNull('parent_id')
-
-            ->orderBy('sort_order')
-
-            ->get();
-
-    }
-
-    /**
-     * Find Category By Slug
+     * Find category by slug.
      */
     public function findBySlug(
         string $slug
@@ -372,25 +311,27 @@ class CategoryRepository implements CategoryRepositoryInterface
 
             ->with([
 
-                'parent',
-
-                'children' => fn($query) =>
+                'products' => function ($query) {
 
                     $query
 
-                        ->where('is_active', true)
-
-                        ->withCount([
-                            'products' => fn($query) =>
-                                $query->where(
-                                    'is_active',
-                                    true
-                                ),
+                        ->with([
+                            'category',
+                            'brand',
+                            'unit',
+                            'images',
                         ])
 
-                        ->orderBy('sort_order'),
+                        ->where(
+                            'is_active',
+                            true
+                        );
+
+                },
 
             ])
+
+            ->withCount('products')
 
             ->where(
                 'slug',
@@ -403,6 +344,35 @@ class CategoryRepository implements CategoryRepositoryInterface
             )
 
             ->firstOrFail();
+
+    }
+
+    /**
+     * Featured categories.
+     */
+    public function featured(
+        int $limit = 10
+    ): Collection {
+
+        return Category::query()
+
+            ->withCount('products')
+
+            ->where(
+                'is_featured',
+                true
+            )
+
+            ->where(
+                'is_active',
+                true
+            )
+
+            ->orderBy('name')
+
+            ->limit($limit)
+
+            ->get();
 
     }
 }

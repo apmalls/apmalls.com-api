@@ -36,4 +36,6 @@ interface CustomerRepositoryInterface
         int $id,
         array $data
     ): Customer;
+
+    public function count(): int;
 }

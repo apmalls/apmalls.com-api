@@ -5,147 +5,437 @@ declare(strict_types=1);
 namespace App\Services\Website;
 
 use App\Models\Cart\Cart;
-use App\Models\Cart\CartItem;
+use App\Models\Product\Product;
+use App\Services\Contracts\CartServiceInterface;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Collection;
+
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\CouponRepositoryInterface;
 use App\Repositories\Contracts\CartItemRepositoryInterface;
 
-class CartService
+class CartService implements CartServiceInterface
 {
+    /**
+     * Create new service instance.
+     */
     public function __construct(
         protected CartRepositoryInterface $cartRepository,
         protected CartItemRepositoryInterface $cartItemRepository,
         protected ProductRepositoryInterface $productRepository,
+        protected CouponRepositoryInterface $couponRepository,
     ) {
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Website
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Customer Active Cart
+     * Customer active cart.
      */
-    public function index(
+    public function getActiveCart(
         int $customerId
     ): ?Cart {
 
-        return $this->cartRepository
-            ->active($customerId);
+        return $this->cartRepository->getActiveCart(
+            $customerId
+        );
 
     }
 
     /**
-     * Get Or Create Active Cart
+     * Create customer cart.
      */
-    private function activeCart(
+    protected function createCart(
         int $customerId
     ): Cart {
 
-        $cart = $this->cartRepository
-            ->active($customerId);
+        return $this->cartRepository->create([
 
-        if ($cart) {
+            'cart_no' => $this->generateCartNumber(),
 
-            return $cart;
+            'customer_id' => $customerId,
 
-        }
+            'subtotal' => 0,
 
-        return $this->cartRepository
-            ->create([
+            'discount_amount' => 0,
 
-                'cart_no' => 'CRT-' . now()->format('YmdHis') . '-' . $customerId,
+            'tax_amount' => 0,
 
-                'customer_id' => $customerId,
+            'shipping_charge' => 0,
 
-                'subtotal' => 0,
+            'grand_total' => 0,
 
-                'discount_amount' => 0,
+            'status' => 'Active',
 
-                'tax_amount' => 0,
-
-                'shipping_charge' => 0,
-
-                'grand_total' => 0,
-
-                'status' => 'Active',
-
-            ]);
+        ]);
 
     }
 
     /**
-     * Add Product To Cart
+     * Generate cart number.
      */
-    public function add(
-        int $customerId,
-        array $data
+    protected function generateCartNumber(): string
+    {
+        return 'CRT-'
+            . now()->format('YmdHis')
+            . random_int(1000, 9999);
+    }
+
+    /**
+     * Find active cart or create.
+     */
+    protected function findOrCreateCart(
+        int $customerId
     ): Cart {
 
-        return DB::transaction(function () use ($customerId, $data) {
-
-            $product = $this->productRepository
-                ->find($data['product_id']);
-
-            $cart = $this->activeCart(
-                $customerId
-            );
-
-            $item = $this->cartItemRepository
-                ->findByProduct(
-                    $cart->id,
-                    $product->id
+        return $this->getActiveCart(
+            $customerId
+        ) ?? $this->createCart(
+                    $customerId
                 );
 
-            if ($item) {
+    }
 
-                $quantity = $item->quantity + $data['quantity'];
+    /**
+     * Recalculate cart totals.
+     */
+    protected function recalculate(
+        int $cartId
+    ): Cart {
 
-                $this->cartItemRepository
-                    ->update(
-                        $item->id,
-                        [
+        $cart = $this->cartRepository->find(
+            $cartId
+        );
 
-                            'quantity' => $quantity,
+        $subtotal = 0;
 
-                            'price' => $product->selling_price,
+        $discount = 0;
 
-                            'tax_percent' => $product->tax_percent,
+        $tax = 0;
 
-                            'discount_percent' => $product->discount_percent,
+        foreach ($cart->items as $item) {
 
-                            'subtotal' => $quantity * $product->selling_price,
+            $subtotal += $item->subtotal;
 
-                        ]
-                    );
+            $discount += $item->discount_amount;
+
+            $tax += $item->tax_amount;
+
+        }
+
+        $shipping = $cart->shipping_charge;
+
+        $couponDiscount = 0;
+
+        if ($cart->coupon) {
+
+            if ($cart->coupon->discount_type === 'Fixed') {
+
+                $couponDiscount = $cart->coupon->discount_value;
 
             } else {
 
-                $this->cartItemRepository
-                    ->create([
+                $couponDiscount = (
+                    $subtotal
+                    *
+                    $cart->coupon->discount_value
+                ) / 100;
 
-                        'cart_id' => $cart->id,
+                if (
 
-                        'product_id' => $product->id,
+                    $cart->coupon->maximum_discount_amount
 
-                        'quantity' => $data['quantity'],
+                    &&
 
-                        'price' => $product->selling_price,
+                    $couponDiscount >
 
-                        'tax_percent' => $product->tax_percent,
+                    $cart->coupon->maximum_discount_amount
 
-                        'discount_percent' => $product->discount_percent,
+                ) {
 
-                        'tax_amount' => 0,
+                    $couponDiscount =
+                        $cart->coupon->maximum_discount_amount;
 
-                        'discount_amount' => 0,
-
-                        'subtotal' => $data['quantity']
-                            * $product->selling_price,
-
-                    ]);
+                }
 
             }
 
-            return $this->recalculateCart(
+        }
+
+        $grandTotal =
+
+            $subtotal
+
+            +
+
+            $tax
+
+            +
+
+            $shipping
+
+            -
+
+            $couponDiscount;
+
+        $this->cartRepository->update(
+
+            $cart->id,
+
+            [
+
+                'subtotal' => $subtotal,
+
+                'discount_amount' => $discount + $couponDiscount,
+
+                'tax_amount' => $tax,
+
+                'grand_total' => $grandTotal,
+
+            ]
+
+        );
+
+        return $this->cartRepository->find(
+            $cart->id
+        );
+
+    }
+
+    /**
+     * Add product to cart.
+     */
+    public function addItem(
+        int $customerId,
+        int $productId,
+        int $quantity = 1
+    ): Cart {
+
+        return DB::transaction(function () use ($customerId, $productId, $quantity) {
+
+            $cart = $this->findOrCreateCart(
+                $customerId
+            );
+
+            $product = $this->productRepository->find(
+                $productId
+            );
+
+            if (!$product->is_active) {
+
+                throw new \Exception(
+                    'Product is inactive.'
+                );
+
+            }
+
+            if ($product->stock < $quantity) {
+
+                throw new \Exception(
+                    'Insufficient stock.'
+                );
+
+            }
+
+            $cartItem = $this->cartItemRepository
+                ->findByProduct(
+                    $cart->id,
+                    $productId
+                );
+
+            if ($cartItem) {
+
+                $newQuantity =
+
+                    $cartItem->quantity
+
+                    +
+
+                    $quantity;
+
+                if ($product->stock < $newQuantity) {
+
+                    throw new \Exception(
+                        'Insufficient stock.'
+                    );
+
+                }
+
+                $price = (float) $product->selling_price;
+
+                $discountAmount =
+
+                    ($price * $product->discount_percent)
+
+                    / 100;
+
+                $priceAfterDiscount =
+
+                    $price
+
+                    -
+
+                    $discountAmount;
+
+                $taxAmount =
+
+                    (
+
+                        $priceAfterDiscount
+
+                        *
+
+                        $product->tax_percent
+
+                    )
+
+                    / 100;
+
+                $lineTotal =
+
+                    (
+
+                        $priceAfterDiscount
+
+                        +
+
+                        $taxAmount
+
+                    )
+
+                    *
+
+                    $newQuantity;
+
+                $this->cartItemRepository->update(
+
+                    $cartItem->id,
+
+                    [
+
+                        'quantity' => $newQuantity,
+
+                        'price' => $price,
+
+                        'tax_percent' => $product->tax_percent,
+
+                        'tax_amount' =>
+
+                            $taxAmount
+
+                            *
+
+                            $newQuantity,
+
+                        'discount_percent' =>
+
+                            $product->discount_percent,
+
+                        'discount_amount' =>
+
+                            $discountAmount
+
+                            *
+
+                            $newQuantity,
+
+                        'subtotal' => $lineTotal,
+
+                    ]
+
+                );
+
+            } else {
+
+                $price = (float) $product->selling_price;
+
+                $discountAmount =
+
+                    ($price * $product->discount_percent)
+
+                    / 100;
+
+                $priceAfterDiscount =
+
+                    $price
+
+                    -
+
+                    $discountAmount;
+
+                $taxAmount =
+
+                    (
+
+                        $priceAfterDiscount
+
+                        *
+
+                        $product->tax_percent
+
+                    )
+
+                    / 100;
+
+                $lineTotal =
+
+                    (
+
+                        $priceAfterDiscount
+
+                        +
+
+                        $taxAmount
+
+                    )
+
+                    *
+
+                    $quantity;
+
+                $this->cartItemRepository->create([
+
+                    'cart_id' => $cart->id,
+
+                    'product_id' => $product->id,
+
+                    'quantity' => $quantity,
+
+                    'price' => $price,
+
+                    'tax_percent' => $product->tax_percent,
+
+                    'tax_amount' =>
+
+                        $taxAmount
+
+                        *
+
+                        $quantity,
+
+                    'discount_percent' =>
+
+                        $product->discount_percent,
+
+                    'discount_amount' =>
+
+                        $discountAmount
+
+                        *
+
+                        $quantity,
+
+                    'subtotal' => $lineTotal,
+
+                ]);
+
+            }
+
+            return $this->recalculate(
                 $cart->id
             );
 
@@ -154,14 +444,15 @@ class CartService
     }
 
     /**
-     * Update Cart Item
+     * Update cart item quantity.
      */
-    public function updateItem(
-        int $itemId,
-        array $data
+    public function updateQuantity(
+        int $customerId,
+        int $productId,
+        int $quantity
     ): Cart {
 
-        return DB::transaction(function () use ($itemId, $data) {
+        return DB::transaction(function () use ($customerId, $productId, $quantity) {
 
             // Serialize concurrent qty writes for the same line
             $item = $this->cartItemRepository
@@ -169,20 +460,132 @@ class CartService
 
             $quantity = (int) $data['quantity'];
 
-            $this->cartItemRepository
-                ->update(
-                    $itemId,
-                    [
+                throw new \Exception(
+                    'Quantity must be at least 1.'
+                );
 
                         'quantity' => $quantity,
 
                         'subtotal' => $quantity * $item->price,
 
-                    ]
+                throw new \Exception(
+                    'Cart not found.'
                 );
 
-            return $this->recalculateCart(
-                $item->cart_id
+            }
+
+            $cartItem = $this->cartItemRepository
+                ->findByProduct(
+                    $cart->id,
+                    $productId
+                );
+
+            if (!$cartItem) {
+
+                throw new \Exception(
+                    'Product not found in cart.'
+                );
+
+            }
+
+            $product = $this->productRepository->find(
+                $productId
+            );
+
+            if ($product->stock < $quantity) {
+
+                throw new \Exception(
+                    'Insufficient stock.'
+                );
+
+            }
+
+            $price = (float) $product->selling_price;
+
+            $discountAmount =
+
+                ($price * $product->discount_percent)
+
+                / 100;
+
+            $priceAfterDiscount =
+
+                $price
+
+                -
+
+                $discountAmount;
+
+            $taxAmount =
+
+                (
+
+                    $priceAfterDiscount
+
+                    *
+
+                    $product->tax_percent
+
+                )
+
+                / 100;
+
+            $lineTotal =
+
+                (
+
+                    $priceAfterDiscount
+
+                    +
+
+                    $taxAmount
+
+                )
+
+                *
+
+                $quantity;
+
+            $this->cartItemRepository->update(
+
+                $cartItem->id,
+
+                [
+
+                    'quantity' => $quantity,
+
+                    'price' => $price,
+
+                    'tax_percent' => $product->tax_percent,
+
+                    'tax_amount' =>
+
+                        $taxAmount
+
+                        *
+
+                        $quantity,
+
+                    'discount_percent' =>
+
+                        $product->discount_percent,
+
+                    'discount_amount' =>
+
+                        $discountAmount
+
+                        *
+
+                        $quantity,
+
+                    'subtotal' => $lineTotal,
+
+                ]
+
+            );
+
+            return $this->recalculate(
+                $cart->id
             );
 
         });
@@ -190,24 +593,47 @@ class CartService
     }
 
     /**
-     * Remove Cart Item
+     * Remove cart item.
      */
     public function removeItem(
-        int $itemId
+        int $customerId,
+        int $productId
     ): Cart {
 
-        return DB::transaction(function () use ($itemId) {
+        return DB::transaction(function () use ($customerId, $productId) {
 
-            $item = $this->cartItemRepository
-                ->find($itemId);
+            $cart = $this->getActiveCart(
+                $customerId
+            );
 
-            $cartId = $item->cart_id;
+            if (!$cart) {
 
-            $this->cartItemRepository
-                ->delete($itemId);
+                throw new \Exception(
+                    'Cart not found.'
+                );
 
-            return $this->recalculateCart(
-                $cartId
+            }
+
+            $cartItem = $this->cartItemRepository
+                ->findByProduct(
+                    $cart->id,
+                    $productId
+                );
+
+            if (!$cartItem) {
+
+                throw new \Exception(
+                    'Product not found in cart.'
+                );
+
+            }
+
+            $this->cartItemRepository->delete(
+                $cartItem->id
+            );
+
+            return $this->recalculate(
+                $cart->id
             );
 
         });
@@ -215,88 +641,256 @@ class CartService
     }
 
     /**
-     * Clear Cart
+     * Clear customer cart.
      */
     public function clear(
         int $customerId
     ): bool {
 
-        $cart = $this->cartRepository
-            ->active($customerId);
+        return DB::transaction(function () use ($customerId) {
 
-        if (!$cart) {
+            $cart = $this->getActiveCart(
+                $customerId
+            );
+
+            if (!$cart) {
+
+                return true;
+
+            }
+
+            $this->cartItemRepository->clear(
+                $cart->id
+            );
+
+            $this->cartRepository->update(
+
+                $cart->id,
+
+                [
+
+                    'coupon_id' => null,
+
+                    'subtotal' => 0,
+
+                    'discount_amount' => 0,
+
+                    'tax_amount' => 0,
+
+                    'shipping_charge' => 0,
+
+                    'grand_total' => 0,
+
+                ]
+
+            );
 
             return true;
 
+        });
+
+    }
+
+    /**
+     * Cart item count.
+     */
+    public function count(
+        int $customerId
+    ): int {
+
+        $cart = $this->getActiveCart(
+            $customerId
+        );
+
+        if (!$cart) {
+
+            return 0;
+
         }
 
-        return $this->cartItemRepository
-            ->clear($cart->id);
+        return $this->cartItemRepository->count(
+            $cart->id
+        );
 
     }
 
     /**
-     * Recalculate Cart
+     * Apply coupon.
      */
-    private function recalculateCart(
-        int $cartId
+    public function applyCoupon(
+        int $customerId,
+        string $couponCode
     ): Cart {
 
-        $items = $this->cartItemRepository
-            ->items($cartId);
+        return DB::transaction(function () use ($customerId, $couponCode) {
 
-        $subtotal = $items->sum('subtotal');
+            $cart = $this->getActiveCart(
+                $customerId
+            );
 
-        $discount = $items->sum(
-            'discount_amount'
-        );
+            if (!$cart) {
 
-        $tax = $items->sum(
-            'tax_amount'
-        );
+                throw new \Exception(
+                    'Cart not found.'
+                );
 
-        $shipping = 0;
+            }
 
-        $grandTotal =
+            $coupon = $this->couponRepository->findByCode(
+                $couponCode
+            );
 
-            $subtotal
+            if (!$coupon) {
 
-            - $discount
+                throw new \Exception(
+                    'Invalid coupon.'
+                );
 
-            + $tax
+            }
 
-            + $shipping;
+            if (
 
-        return $this->cartRepository
-            ->update(
-                $cartId,
+                $coupon->start_at
+
+                &&
+
+                now()->lt(
+                    $coupon->start_at
+                )
+
+            ) {
+
+                throw new \Exception(
+                    'Coupon is not active yet.'
+                );
+
+            }
+
+            if (
+
+                $coupon->end_at
+
+                &&
+
+                now()->gt(
+                    $coupon->end_at
+                )
+
+            ) {
+
+                throw new \Exception(
+                    'Coupon has expired.'
+                );
+
+            }
+
+            if (
+
+                $coupon->usage_limit
+
+                &&
+
+                $coupon->used_count >=
+
+                $coupon->usage_limit
+
+            ) {
+
+                throw new \Exception(
+                    'Coupon usage limit exceeded.'
+                );
+
+            }
+
+            if (
+
+                $cart->subtotal <
+
+                $coupon->minimum_order_amount
+
+            ) {
+
+                throw new \Exception(
+                    'Minimum order amount not reached.'
+                );
+
+            }
+
+            $this->cartRepository->update(
+
+                $cart->id,
+
                 [
 
-                    'subtotal' => $subtotal,
-
-                    'discount_amount' => $discount,
-
-                    'tax_amount' => $tax,
-
-                    'shipping_charge' => $shipping,
-
-                    'grand_total' => $grandTotal,
+                    'coupon_id' => $coupon->id,
 
                 ]
+
             );
+
+            $this->couponRepository->incrementUsage(
+                $coupon->id
+            );
+
+            return $this->recalculate(
+                $cart->id
+            );
+
+        });
 
     }
 
-
     /**
-     * Cart Summary
+     * Remove coupon.
      */
-    public function summary(
+    public function removeCoupon(
         int $customerId
-    ): ?Cart {
+    ): Cart {
 
-        return $this->cartRepository
-            ->active($customerId);
+        return DB::transaction(function () use ($customerId) {
+
+            $cart = $this->getActiveCart(
+                $customerId
+            );
+
+            if (!$cart) {
+
+                throw new \Exception(
+                    'Cart not found.'
+                );
+
+            }
+
+            if (
+
+                $cart->coupon_id
+
+            ) {
+
+                $this->couponRepository
+                    ->decrementUsage(
+                        $cart->coupon_id
+                    );
+
+            }
+
+            $this->cartRepository->update(
+
+                $cart->id,
+
+                [
+
+                    'coupon_id' => null,
+
+                ]
+
+            );
+
+            return $this->recalculate(
+                $cart->id
+            );
+
+        });
 
     }
 

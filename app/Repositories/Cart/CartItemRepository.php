@@ -11,9 +11,9 @@ use App\Repositories\Contracts\CartItemRepositoryInterface;
 class CartItemRepository implements CartItemRepositoryInterface
 {
     /**
-     * Cart Items
+     * Get all items.
      */
-    public function items(
+    public function all(
         int $cartId
     ): Collection {
 
@@ -64,20 +64,14 @@ class CartItemRepository implements CartItemRepositoryInterface
 
         return CartItem::query()
 
-            ->with([
-                'product',
-                'product.images',
-                'product.brand',
-                'product.category',
-                'product.unit',
-            ])
-
-            ->findOrFail($id);
+            ->findOrFail(
+                $id
+            );
 
     }
 
     /**
-     * Find Product In Cart
+     * Find product in cart.
      */
     public function findByProduct(
         int $cartId,
@@ -101,47 +95,75 @@ class CartItemRepository implements CartItemRepositoryInterface
     }
 
     /**
-     * Add Item
+     * Check product exists.
+     */
+    public function exists(
+        int $cartId,
+        int $productId
+    ): bool {
+
+        return CartItem::query()
+
+            ->where(
+                'cart_id',
+                $cartId
+            )
+
+            ->where(
+                'product_id',
+                $productId
+            )
+
+            ->exists();
+
+    }
+
+    /**
+     * Create item.
      */
     public function create(
         array $data
     ): CartItem {
 
-        return CartItem::create($data);
+        return CartItem::query()
+
+            ->create(
+                $data
+            );
 
     }
 
     /**
-     * Update Item
+     * Update item.
      */
     public function update(
         int $id,
         array $data
-    ): CartItem {
+    ): bool {
 
-        $item = $this->find($id);
+        return $this->find($id)
 
-        $item->update($data);
-
-        return $item->refresh();
+            ->update(
+                $data
+            );
 
     }
 
     /**
-     * Delete Item
+     * Delete item.
      */
     public function delete(
         int $id
     ): bool {
 
-        return (bool) $this->find($id)
+        return $this->find($id)
 
             ->delete();
 
     }
 
     /**
-     * Clear Cart
+     * Clear cart.
      */
     public function clear(
         int $cartId
@@ -159,38 +181,20 @@ class CartItemRepository implements CartItemRepositoryInterface
     }
 
     /**
-     * Total Quantity
+     * Count items.
      */
-    public function totalQuantity(
+    public function count(
         int $cartId
     ): int {
 
-        return (int) CartItem::query()
+        return CartItem::query()
 
             ->where(
                 'cart_id',
                 $cartId
             )
 
-            ->sum('quantity');
-
-    }
-
-    /**
-     * Cart Subtotal
-     */
-    public function subtotal(
-        int $cartId
-    ): float {
-
-        return (float) CartItem::query()
-
-            ->where(
-                'cart_id',
-                $cartId
-            )
-
-            ->sum('subtotal');
+            ->count();
 
     }
 }

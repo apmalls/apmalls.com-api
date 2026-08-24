@@ -94,9 +94,9 @@ class SaleOrderController extends Controller
             $customerId = auth()->user()->customer->id;
 
             Log::info('Invoice Show', [
-    'customer_id' => $customerId,
-    'order_id' => $id,
-]);
+                'customer_id' => $customerId,
+                'order_id' => $id,
+            ]);
 
             return response()->json([
 
@@ -183,42 +183,42 @@ class SaleOrderController extends Controller
     // }
 
     public function downloadInvoice(
-    int $id
-) {
-    try {
+        int $id
+    ) {
+        try {
 
-        Log::info('Invoice API called', [
-            'order_id' => $id,
-            'user' => auth()->user(),
-        ]);
+            Log::info('Invoice API called', [
+                'order_id' => $id,
+                'user' => auth()->user(),
+            ]);
 
-        Log::info('Customer Relation', [
-            'customer' => auth()->user()->customer,
-        ]);
+            Log::info('Customer Relation', [
+                'customer' => auth()->user()->customer,
+            ]);
 
-        $customerId = auth()->user()->customer->id;
+            $customerId = auth()->user()->customer->id;
 
-        Log::info('Customer ID', [
-            'customer_id' => $customerId,
-        ]);
+            Log::info('Customer ID', [
+                'customer_id' => $customerId,
+            ]);
 
-        return $this->saleOrderService
-            ->downloadInvoice(
-                $customerId,
-                $id
-            );
+            return $this->saleOrderService
+                ->downloadInvoice(
+                    $customerId,
+                    $id
+                );
 
-    } catch (Throwable $exception) {
+        } catch (Throwable $exception) {
 
-        Log::error('Invoice Download Error', [
-            'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
-        ]);
+            Log::error('Invoice Download Error', [
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
 
-        return $this->handleException($exception);
+            return $this->handleException($exception);
 
+        }
     }
-}
 }

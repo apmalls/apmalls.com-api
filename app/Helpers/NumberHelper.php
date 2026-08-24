@@ -24,7 +24,11 @@ class NumberHelper
 
         /** @var Model $model */
 
-        $last = $model::latest('id')->first();
+        $year = now()->format('Y');
+
+        $last = $model::where($column, 'like', "{$prefix}-{$year}-%")
+            ->latest('id')
+            ->first();
 
         $next = $last
             ? ((int) substr($last->{$column}, -$length)) + 1

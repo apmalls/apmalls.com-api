@@ -12,19 +12,19 @@ use App\Repositories\Contracts\WishlistRepositoryInterface;
 class WishlistRepository implements WishlistRepositoryInterface
 {
     /**
-     * Customer Wishlist
+     * Customer wishlist.
      */
     public function index(
         int $customerId
-    ): Collection {
-
+    ): Collection
+    {
         return Wishlist::query()
 
             ->with([
                 'product',
                 'product.images',
-                'product.brand',
                 'product.category',
+                'product.brand',
                 'product.unit',
             ])
 
@@ -36,38 +36,36 @@ class WishlistRepository implements WishlistRepositoryInterface
             ->latest()
 
             ->get();
-
     }
 
     /**
-     * Find Wishlist Item
+     * Find wishlist item.
      */
     public function find(
         int $id
-    ): Wishlist {
-
+    ): Wishlist
+    {
         return Wishlist::query()
 
             ->with([
                 'product',
                 'product.images',
-                'product.brand',
                 'product.category',
+                'product.brand',
                 'product.unit',
             ])
 
             ->findOrFail($id);
-
     }
 
     /**
-     * Find Product In Wishlist
+     * Find product in wishlist.
      */
     public function findByProduct(
         int $customerId,
         int $productId
-    ): ?Wishlist {
-
+    ): ?Wishlist
+    {
         return Wishlist::query()
 
             ->where(
@@ -81,39 +79,71 @@ class WishlistRepository implements WishlistRepositoryInterface
             )
 
             ->first();
-
     }
 
     /**
-     * Add Product To Wishlist
+     * Check product exists in wishlist.
+     */
+    public function exists(
+        int $customerId,
+        int $productId
+    ): bool
+    {
+        return Wishlist::query()
+
+            ->where(
+                'customer_id',
+                $customerId
+            )
+
+            ->where(
+                'product_id',
+                $productId
+            )
+
+            ->exists();
+    }
+
+    /**
+     * Add product to wishlist.
      */
     public function create(
         array $data
-    ): Wishlist {
-
-        return Wishlist::create($data);
-
+    ): Wishlist
+    {
+        return Wishlist::query()->create($data);
     }
 
     /**
-     * Delete Wishlist Item
+     * Remove wishlist item.
      */
     public function delete(
-        int $id
-    ): bool {
+        int $customerId,
+        int $productId
+    ): bool
+    {
+        return (bool) Wishlist::query()
 
-        return (bool) $this->find($id)
+            ->where(
+                'customer_id',
+                $customerId
+            )
+
+            ->where(
+                'product_id',
+                $productId
+            )
+
             ->delete();
-
     }
 
     /**
-     * Clear Wishlist
+     * Clear customer wishlist.
      */
     public function clear(
         int $customerId
-    ): bool {
-
+    ): bool
+    {
         return (bool) Wishlist::query()
 
             ->where(
@@ -122,16 +152,15 @@ class WishlistRepository implements WishlistRepositoryInterface
             )
 
             ->delete();
-
     }
 
     /**
-     * Wishlist Count
+     * Wishlist items count.
      */
     public function count(
         int $customerId
-    ): int {
-
+    ): int
+    {
         return Wishlist::query()
 
             ->where(
@@ -140,6 +169,5 @@ class WishlistRepository implements WishlistRepositoryInterface
             )
 
             ->count();
-
     }
 }

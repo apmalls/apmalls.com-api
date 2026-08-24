@@ -9,22 +9,28 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface WishlistRepositoryInterface
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Website
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Customer Wishlist
+     * Customer wishlist.
      */
     public function index(
         int $customerId
     ): Collection;
 
     /**
-     * Find Wishlist Item
+     * Find wishlist item.
      */
     public function find(
         int $id
     ): Wishlist;
 
     /**
-     * Find Product In Wishlist
+     * Find product in wishlist.
      */
     public function findByProduct(
         int $customerId,
@@ -32,28 +38,37 @@ interface WishlistRepositoryInterface
     ): ?Wishlist;
 
     /**
-     * Add Product
+     * Check product exists in wishlist.
+     */
+    public function exists(
+        int $customerId,
+        int $productId
+    ): bool;
+
+    /**
+     * Add product to wishlist.
      */
     public function create(
         array $data
     ): Wishlist;
 
     /**
-     * Delete Wishlist Item
+     * Remove wishlist item.
      */
     public function delete(
-        int $id
+        int $customerId,
+        int $productId
     ): bool;
 
     /**
-     * Clear Wishlist
+     * Clear customer wishlist.
      */
     public function clear(
         int $customerId
     ): bool;
 
     /**
-     * Wishlist Count
+     * Wishlist items count.
      */
     public function count(
         int $customerId

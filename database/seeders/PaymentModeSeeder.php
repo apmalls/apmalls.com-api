@@ -13,11 +13,14 @@ class PaymentModeSeeder extends Seeder
      */
     public function run(): void
     {
-         $paymentModes = [
+        $paymentModes = [
 
             [
                 'name' => 'Cash',
                 'code' => 'CASH',
+                'description' => 'Cash Payment',
+                'icon' => 'payment-modes/cash.png',
+                'is_online' => false,
                 'is_active' => true,
                 'sort_order' => 1,
             ],
@@ -25,43 +28,41 @@ class PaymentModeSeeder extends Seeder
             [
                 'name' => 'UPI',
                 'code' => 'UPI',
+                'description' => 'UPI Payment',
+                'icon' => 'payment-modes/upi.png',
+                'is_online' => true,
                 'is_active' => true,
                 'sort_order' => 2,
             ],
 
             [
-                'name' => 'Bank Transfer',
-                'code' => 'BANK_TRANSFER',
+                'name' => 'Credit/Debit Card',
+                'code' => 'CARD',
+                'description' => 'Card Payment',
+                'icon' => 'payment-modes/card.png',
+                'is_online' => true,
                 'is_active' => true,
                 'sort_order' => 3,
             ],
 
             [
-                'name' => 'Cheque',
-                'code' => 'CHEQUE',
+                'name' => 'Bank Transfer',
+                'code' => 'BANK',
+                'description' => 'Bank Transfer',
+                'icon' => 'payment-modes/bank.png',
+                'is_online' => true,
                 'is_active' => true,
                 'sort_order' => 4,
             ],
 
             [
-                'name' => 'Credit Card',
-                'code' => 'CREDIT_CARD',
+                'name' => 'Razorpay',
+                'code' => 'RAZORPAY',
+                'description' => 'Razorpay Gateway',
+                'icon' => 'payment-modes/razorpay.png',
+                'is_online' => true,
                 'is_active' => true,
                 'sort_order' => 5,
-            ],
-
-            [
-                'name' => 'Debit Card',
-                'code' => 'DEBIT_CARD',
-                'is_active' => true,
-                'sort_order' => 6,
-            ],
-
-            [
-                'name' => 'Wallet',
-                'code' => 'WALLET',
-                'is_active' => true,
-                'sort_order' => 7,
             ],
 
         ];
@@ -70,13 +71,12 @@ class PaymentModeSeeder extends Seeder
 
             PaymentMode::updateOrCreate(
 
-                [
-                    'code' => $paymentMode['code'],
-                ],
+                ['code' => $paymentMode['code']],
 
                 $paymentMode
 
             );
+
         }
     }
 }

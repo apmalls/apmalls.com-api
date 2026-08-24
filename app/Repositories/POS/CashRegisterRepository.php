@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Repositories\POS;
 
 use App\Models\POS\CashRegister;
@@ -11,12 +9,197 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CashRegisterRepository implements CashRegisterRepositoryInterface
 {
-    /**
-     * Get paginated registers.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Listing
+    |--------------------------------------------------------------------------
+    */
+
     public function paginate(
+        int $perPage = 15,
         array $filters = []
     ): LengthAwarePaginator {
+
+        return $this->filter($filters)
+            ->paginate($perPage);
+    }
+
+    public function trashedPaginate(
+        int $perPage = 15
+    ): LengthAwarePaginator {
+
+        return CashRegister::onlyTrashed()
+            ->with([
+                'user',
+                'creator',
+                'updater',
+            ])
+            ->latest()
+            ->paginate($perPage);
+    }
+
+    public function all(
+        array $filters = []
+    ): Collection {
+
+        return $this->filter($filters)
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find
+    |--------------------------------------------------------------------------
+    */
+
+    public function find(
+        int $id
+    ): ?CashRegister {
+
+        return CashRegister::with([
+            'user',
+            'creator',
+            'updater',
+        ])->find($id);
+    }
+
+    public function findOrFail(
+        int $id
+    ): CashRegister {
+
+        return CashRegister::with([
+            'user',
+            'sessions',
+            'creator',
+            'updater',
+        ])->findOrFail($id);
+    }
+
+    public function findByRegisterNo(
+        string $registerNo
+    ): ?CashRegister {
+
+        return CashRegister::where(
+            'register_no',
+            $registerNo
+        )->first();
+    }
+
+    public function getOpenRegisterByUser(
+        int $userId
+    ): ?CashRegister {
+
+        return CashRegister::where(
+                'user_id',
+                $userId
+            )
+            ->where(
+                'status',
+                CashRegister::STATUS_OPEN
+            )
+            ->first();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CRUD
+    |--------------------------------------------------------------------------
+    */
+
+    public function create(
+        array $data
+    ): CashRegister {
+
+        return CashRegister::create($data);
+    }
+
+    public function update(
+        int $id,
+        array $data
+    ): CashRegister {
+
+        $register = $this->findOrFail($id);
+
+        $register->update($data);
+
+        return $register->fresh();
+    }
+
+    public function delete(
+        int $id
+    ): bool {
+
+        return $this->findOrFail($id)
+            ->delete();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trash
+    |--------------------------------------------------------------------------
+    */
+
+    public function restore(
+        int $id
+    ): bool {
+
+        return CashRegister::onlyTrashed()
+            ->findOrFail($id)
+            ->restore();
+    }
+
+    public function forceDelete(
+        int $id
+    ): bool {
+
+        return CashRegister::onlyTrashed()
+            ->findOrFail($id)
+            ->forceDelete();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    public function changeStatus(
+        int $id,
+        string $status
+    ): CashRegister {
+
+        $register = $this->findOrFail($id);
+
+        $register->update([
+            'status' => $status,
+        ]);
+
+        return $register->fresh();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    public function count(
+        array $filters = []
+    ): int {
+
+        return $this->filter($filters)
+            ->count();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filters
+    |--------------------------------------------------------------------------
+    */
+
+    protected function filter(
+        array $filters = []
+    ) {
 
         return CashRegister::query()
 
@@ -27,186 +210,39 @@ class CashRegisterRepository implements CashRegisterRepositoryInterface
             ])
 
             ->when(
-
-                ! empty($filters['search']),
-
-                function ($query) use ($filters) {
-
-                    $query->where(function ($query) use ($filters) {
-
-                        $query->where(
-                            'register_no',
-                            'ILIKE',
-                            '%' . trim($filters['search']) . '%'
-                        )
-
-                        ->orWhere(
-                            'name',
-                            'ILIKE',
-                            '%' . trim($filters['search']) . '%'
-                        );
-
-                    });
-
-                }
-
+                $filters['status'] ?? null,
+                fn($q, $status) => $q->where(
+                    'status',
+                    $status
+                )
             )
 
             ->when(
-
-                ! empty($filters['status']),
-
-                fn ($query) => $query->where(
-                    'status',
-                    $filters['status']
+                $filters['user_id'] ?? null,
+                fn($q, $userId) => $q->where(
+                    'user_id',
+                    $userId
                 )
-
             )
 
-            ->latest()
-
-            ->paginate(
-                $filters['per_page'] ?? 10
-            );
-
-    }
-
-    /**
-     * Get trashed registers.
-     */
-    public function trash(
-        array $filters = []
-    ): LengthAwarePaginator {
-
-        return CashRegister::onlyTrashed()
-
-            ->latest('deleted_at')
-
-            ->paginate(
-                $filters['per_page'] ?? 10
-            );
-
-    }
-
-    /**
-     * Get all registers.
-     */
-    public function all(): Collection
-    {
-        return CashRegister::all();
-    }
-
-    /**
-     * Find register.
-     */
-    public function find(
-        int $id
-    ): CashRegister {
-
-        return CashRegister::with([
-            'user',
-            'creator',
-            'updater',
-        ])
-        ->findOrFail($id);
-
-    }
-
-    /**
-     * Find deleted register.
-     */
-    public function findWithTrashed(
-        int $id
-    ): CashRegister {
-
-        return CashRegister::onlyTrashed()
-
-            ->findOrFail($id);
-
-    }
-
-    /**
-     * Find user's open register.
-     */
-    public function findOpenRegisterByUser(
-        int $userId
-    ): ?CashRegister {
-
-        return CashRegister::where(
-                'user_id',
-                $userId
+            ->when(
+                $filters['register_no'] ?? null,
+                fn($q, $registerNo) => $q->where(
+                    'register_no',
+                    'ILIKE',
+                    "%{$registerNo}%"
+                )
             )
-            ->where(
-                'status',
-                'Open'
+
+            ->when(
+                $filters['name'] ?? null,
+                fn($q, $name) => $q->where(
+                    'name',
+                    'ILIKE',
+                    "%{$name}%"
+                )
             )
-            ->first();
 
-    }
-
-    /**
-     * Create register.
-     */
-    public function create(
-        array $data
-    ): CashRegister {
-
-        return CashRegister::create($data);
-
-    }
-
-    /**
-     * Update register.
-     */
-    public function update(
-        CashRegister $cashRegister,
-        array $data
-    ): CashRegister {
-
-        $cashRegister->update($data);
-
-        return $cashRegister->refresh();
-
-    }
-
-    /**
-     * Delete register.
-     */
-    public function delete(
-        CashRegister $cashRegister
-    ): bool {
-
-        return (bool) $cashRegister->delete();
-
-    }
-
-    /**
-     * Restore register.
-     */
-    public function restore(
-        int $id
-    ): bool {
-
-        return (bool) CashRegister::onlyTrashed()
-
-            ->findOrFail($id)
-
-            ->restore();
-
-    }
-
-    /**
-     * Force delete register.
-     */
-    public function forceDelete(
-        int $id
-    ): bool {
-
-        return (bool) CashRegister::onlyTrashed()
-
-            ->findOrFail($id)
-
-            ->forceDelete();
-
+            ->latest();
     }
 }

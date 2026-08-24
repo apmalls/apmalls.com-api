@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             PaymentModeSeeder::class,
             ProductSeeder::class,
+            CouponSeeder::class,
 
 
         ]);

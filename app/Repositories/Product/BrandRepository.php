@@ -241,10 +241,10 @@ class BrandRepository implements BrandRepositoryInterface
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
+ |--------------------------------------------------------------------------
+ | Website
+ |--------------------------------------------------------------------------
+ */
 
     /**
      * Website brand listing.
@@ -294,10 +294,28 @@ class BrandRepository implements BrandRepositoryInterface
         return Brand::query()
 
             ->with([
-                'products.images',
-                'products.category',
-                'products.unit',
+
+                'products' => function ($query) {
+
+                    $query
+
+                        ->with([
+                            'category',
+                            'brand',
+                            'unit',
+                            'images',
+                        ])
+
+                        ->where(
+                            'is_active',
+                            true
+                        );
+
+                },
+
             ])
+
+            ->withCount('products')
 
             ->where(
                 'slug',
@@ -316,8 +334,10 @@ class BrandRepository implements BrandRepositoryInterface
     /**
      * Featured brands.
      */
-    public function featured(): Collection
-    {
+    public function featured(
+        int $limit = 10
+    ): Collection {
+
         return Brand::query()
 
             ->withCount('products')
@@ -333,6 +353,8 @@ class BrandRepository implements BrandRepositoryInterface
             )
 
             ->orderBy('name')
+
+            ->limit($limit)
 
             ->get();
 

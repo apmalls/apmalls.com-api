@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
-use Throwable;
+use App\Http\Requests\Website\Category\CategoryListRequest;
+use App\Http\Resources\Category\CategoryResource;
+use App\Http\Resources\Product\ProductResource;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Services\Website\CategoryService;
-use App\Http\Requests\Website\Category\CategoryListRequest;
+
+use App\Services\Contracts\CategoryServiceInterface;
+
 
 class CategoryController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
     public function __construct(
-        protected CategoryService $categoryService,
-    ) {
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Category Listing
-    |--------------------------------------------------------------------------
-    */
+        protected CategoryServiceInterface $categoryService
+    ) {}
 
     /**
-     * Display category listing.
+     * Category listing.
      */
     public function index(
         CategoryListRequest $request
@@ -32,7 +32,7 @@ class CategoryController extends Controller
 
         try {
 
-            $categories = $this->categoryService->paginate(
+            $categories = $this->categoryService->websitePaginate(
                 $request->filters()
             );
 
@@ -42,59 +42,38 @@ class CategoryController extends Controller
 
                 'message' => 'Categories fetched successfully.',
 
-                'data' => $categories,
+                'data' => CategoryResource::collection($categories),
 
-            ], 200);
+                'pagination' => [
 
-        } catch (Throwable $exception) {
+                    'current_page' => $categories->currentPage(),
 
-            return $this->handleException($exception);
+                    'last_page' => $categories->lastPage(),
 
-        }
+                    'per_page' => $categories->perPage(),
 
-    }
+                    'total' => $categories->total(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Featured Categories
-    |--------------------------------------------------------------------------
-    */
+                ],
 
-    /**
-     * Display featured categories.
-     */
-    public function featured(): JsonResponse
-    {
-        try {
+            ]);
 
-            $categories = $this->categoryService->featured();
+        } catch (Exception $e) {
 
             return response()->json([
 
-                'success' => true,
+                'success' => false,
 
-                'message' => 'Featured categories fetched successfully.',
+                'message' => $e->getMessage(),
 
-                'data' => $categories,
-
-            ], 200);
-
-        } catch (Throwable $exception) {
-
-            return $this->handleException($exception);
+            ], 500);
 
         }
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Category Details
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Display category details.
+     * Category details.
      */
     public function show(
         string $slug
@@ -102,9 +81,7 @@ class CategoryController extends Controller
 
         try {
 
-            $category = $this->categoryService->show(
-                $slug
-            );
+            $category = $this->categoryService->findBySlug($slug);
 
             return response()->json([
 
@@ -112,13 +89,27 @@ class CategoryController extends Controller
 
                 'message' => 'Category fetched successfully.',
 
-                'data' => $category,
+                'data' => [
 
-            ], 200);
+                    'category' => new CategoryResource($category),
 
-        } catch (Throwable $exception) {
+                    'products' => ProductResource::collection(
+                        $category->products
+                    ),
 
-            return $this->handleException($exception);
+                ],
+
+            ]);
+
+        } catch (Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage(),
+
+            ], 500);
 
         }
 

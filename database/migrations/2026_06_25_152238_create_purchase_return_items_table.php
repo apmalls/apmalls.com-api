@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,24 +15,30 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('purchase_return_id')
-                ->constrained('purchase_returns')
+                ->constrained()
                 ->cascadeOnDelete();
 
             $table->foreignId('purchase_order_item_id')
-                ->constrained('purchase_order_items')
+                ->constrained()
                 ->restrictOnDelete();
 
             $table->foreignId('product_id')
-                ->constrained('products')
+                ->constrained()
                 ->restrictOnDelete();
 
-            $table->decimal('purchase_price',12,2);
+            $table->decimal('unit_cost', 15, 2)->default(0);
 
-            $table->integer('quantity');
+            $table->decimal('quantity', 15, 2)->default(0);
 
-            $table->decimal('line_total',12,2);
+            $table->decimal('line_total', 15, 2)->default(0);
 
             $table->timestamps();
+
+            $table->index('purchase_return_id');
+
+            $table->index('purchase_order_item_id');
+
+            $table->index('product_id');
 
         });
     }

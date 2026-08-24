@@ -30,6 +30,15 @@ class Brand extends Model
         'featured' => 'boolean',
     ];
 
+    protected $appends = [
+        'logo_url',
+    ];
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        return $this->fileUrl($this->logo);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships

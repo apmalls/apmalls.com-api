@@ -1,28 +1,46 @@
 <?php
 
 
+use App\Http\Controllers\Api\V1\Admin\Banner\WebsiteBannerController;
+use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
+use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryAssignmentController;
+use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryBoyController;
+use App\Http\Controllers\Api\V1\Admin\POS\POSController;
+use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseReturnController;
+use App\Http\Controllers\Api\V1\Admin\Sale\SaleController;
+use App\Http\Controllers\Api\V1\Admin\Sale\SaleReturnController;
+use App\Http\Controllers\Api\V1\Admin\Inventory\StockAdjustmentController;
+use App\Http\Controllers\Api\V1\Admin\Inventory\StockController;
+use App\Http\Controllers\Api\V1\Admin\Inventory\StockMovementController;
+use App\Http\Controllers\Api\V1\Admin\Payment\PaymentController;
+use App\Http\Controllers\Api\V1\Admin\Payment\PaymentModeController;
 use App\Http\Controllers\Api\V1\Admin\Permission\PermissionController;
+use App\Http\Controllers\Api\V1\Admin\Purchase\PurchaseOrderController;
+use App\Http\Controllers\API\V1\Admin\Setting\GeneralSettingController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodeTemplateController;
+use App\Http\Controllers\Api\V1\Admin\Barcode\ProductBarcodeController;
+use App\Http\Controllers\Api\V1\Auth\GoogleAuthController;
+use App\Http\Controllers\Api\V1\Auth\OtpAuthController;
 use App\Http\Controllers\Api\V1\Customer\CustomerController;
 
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
 
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
-use App\Http\Controllers\Api\V1\Payment\PaymentController;
-use App\Http\Controllers\Api\V1\Payment\PaymentModeController;
-use App\Http\Controllers\Api\V1\Product\BrandController;
-use App\Http\Controllers\Api\V1\Product\CategoryController;
-use App\Http\Controllers\Api\V1\Product\ProductController;
-use App\Http\Controllers\Api\V1\Product\ProductImageController;
-use App\Http\Controllers\Api\V1\Product\UnitController;
-use App\Http\Controllers\Api\V1\Purchase\PurchaseOrderController;
-use App\Http\Controllers\Api\V1\Purchase\PurchaseReturnController;
+
+
+use App\Http\Controllers\Api\V1\Admin\Product\BrandController;
+use App\Http\Controllers\Api\V1\Admin\Product\CategoryController;
+use App\Http\Controllers\Api\V1\Admin\Product\ProductController;
+use App\Http\Controllers\Api\V1\Admin\Product\ProductImageController;
+use App\Http\Controllers\Api\V1\Admin\Product\UnitController;
+use App\Http\Controllers\Api\V1\Admin\SystemMaintenance\SystemMaintenanceController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
-use App\Http\Controllers\Api\V1\Sale\SaleOrderController;
-use App\Http\Controllers\Api\V1\Sale\SaleReturnController;
+
+
 use App\Http\Controllers\Api\V1\Supplier\SupplierAddressController;
 use App\Http\Controllers\Api\V1\Supplier\SupplierController;
-use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\Admin\User\UserController;
 
 use App\Http\Controllers\Api\V1\Website\CartController;
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
@@ -32,13 +50,9 @@ use App\Http\Controllers\Api\V1\Website\CustomerAddressController as WebsiteCust
 use App\Http\Controllers\Api\V1\Website\SaleOrderController as WebsiteSaleOrderController;
 use App\Http\Controllers\Api\V1\Website\WishlistController;
 use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentController;
+use App\Http\Controllers\Api\V1\Website\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
-
-// Test Route
-Route::get('/test', function () {
-    return response()->json(['message' => 'API is working!']);
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +119,22 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+        Route::post(
+            'send-otp',
+            [OtpAuthController::class, 'sendOtp']
+        );
+
+        Route::post(
+            'verify-otp',
+            [OtpAuthController::class, 'verifyOtp']
+        );
+    });
+
+    Route::prefix('auth')->group(function () {
+
+        Route::get('/google', [GoogleAuthController::class, 'redirect']);
+
+        Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
     });
 
     /*
@@ -123,20 +153,27 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile', [AuthController::class, 'updateProfile']);
 
             Route::put('/change-password', [AuthController::class, 'changePassword']);
-
         });
 
+    Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
-    /*
-|--------------------------------------------------------------------------
-| User Management
-|--------------------------------------------------------------------------
-*/
+        Route::middleware([
+            'role:Super Admin'
+        ])->group(function () {
 
-    Route::middleware('auth:sanctum')
-        ->prefix('users')
-        ->controller(UserController::class)
-        ->group(function () {
+            Route::post(
+                'system/refresh',
+                [SystemMaintenanceController::class, 'refresh']
+            );
+        });
+
+        /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
+
+        Route::prefix('users')->controller(UserController::class)->group(function () {
 
             Route::get('/', 'index');                   // User List
 
@@ -158,33 +195,27 @@ Route::prefix('v1')->group(function () {
         });
 
 
-    /*
-   |--------------------------------------------------------------------------
-   | Product Category
-   |--------------------------------------------------------------------------
-   */
-    Route::middleware('auth:sanctum')
-        ->prefix('categories')
-        ->controller(CategoryController::class)
-        ->group(function () {
-            Route::get('/', 'index');                    // Category List
-            Route::post('/', 'store');                   // Create Category
-            Route::get('/tree', 'tree');                 // Category Tree
-            Route::get('/trash', 'trash');               // Trashed Categories
-            Route::get('/{id}', 'show');                 // Category Details
-            Route::put('/{id}', 'update');               // Update Category
-            Route::delete('/{id}', 'destroy');           // Delete Category
-            Route::patch('/{id}/status', 'changeStatus'); // Change Status
-            Route::put('/{id}/restore', 'restore');      // Restore Category
-            Route::delete('/{id}/force-delete', 'forceDelete'); // Force Delete
-            Route::post('/bulk-delete', 'bulkDelete');   // Bulk Delete
+        /*
+       |--------------------------------------------------------------------------
+       | Product Category
+       |--------------------------------------------------------------------------
+       */
+        Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+            Route::get('/', 'index')->middleware('permission:category.view');                    // Category List
+            Route::post('/', 'store')->middleware('permission:category.create');                   // Create Category
+            Route::get('/tree', 'tree')->middleware('permission:category.view');                 // Category Tree
+            Route::get('/trash', 'trash')->middleware('permission:category.view');               // Trashed Categories
+            Route::get('/{id}', 'show')->middleware('permission:category.view');                 // Category Details
+            Route::put('/{id}', 'update')->middleware('permission:category.update');               // Update Category
+            Route::delete('/{id}', 'destroy')->middleware('permission:category.delete');           // Delete Category
+            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:category.update'); // Change Status
+            Route::put('/{id}/restore', 'restore')->middleware('permission:category.restore');      // Restore Category
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:category.force-delete'); // Force Delete
+            Route::post('/bulk-delete', 'bulkDelete')->middleware('permission:category.delete');   // Bulk Delete
         });
 
 
-    Route::middleware('auth:sanctum')
-        ->prefix('brands')
-        ->controller(BrandController::class)
-        ->group(function () {
+        Route::prefix('brands')->controller(BrandController::class)->group(function () {
             Route::get('/', 'index');                        // Brand List
             Route::get('/dropdown', 'dropdown');             // Brand Dropdown
             Route::get('/trash', 'trash');                   // Trashed Brands
@@ -199,10 +230,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/bulk-status', 'bulkStatusUpdate'); // Bulk Status Update
         });
 
-
-    Route::middleware('auth:sanctum')->prefix('units')
-        ->controller(UnitController::class)
-        ->group(function () {
+        Route::prefix('units')->controller(UnitController::class)->group(function () {
 
             Route::get('/', 'index');
 
@@ -221,14 +249,10 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/restore', 'restore');
 
             Route::delete('/{id}/force-delete', 'forceDelete');
-
         });
 
 
-    Route::middleware('auth:sanctum')
-        ->prefix('products')
-        ->controller(ProductController::class)
-        ->group(function () {
+        Route::prefix('products')->controller(ProductController::class)->group(function () {
 
             /*
             |--------------------------------------------------------------------------
@@ -248,283 +272,599 @@ Route::prefix('v1')->group(function () {
 
             Route::delete('/{id}', 'destroy');           // Soft Delete
 
-            Route::patch('/{id}/status', 'changeStatus');// Change Status
+            Route::patch('/{id}/status', 'changeStatus'); // Change Status
 
             Route::put('/{id}/restore', 'restore');      // Restore Product
 
             Route::delete('/{id}/force-delete', 'forceDelete'); // Permanent Delete
 
+            Route::controller(ProductImageController::class)->group(function () {
 
+                /*
+                |--------------------------------------------------------------------------
+                | Product Gallery
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get('/{product}/images', 'index');
+
+                Route::post('/{product}/images', 'store');
+
+                Route::put('/images/{image}', 'update');
+
+                Route::delete('/images/{image}', 'destroy');
+
+                Route::patch('/images/{image}/sort-order', 'updateSortOrder');
+            });
         });
 
-    Route::middleware('auth:sanctum')
-        ->prefix('products')
-        ->controller(ProductImageController::class)
-        ->group(function () {
+        Route::prefix('suppliers')->controller(SupplierController::class)->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+            Route::controller(SupplierAddressController::class)->group(function () {
+
+                Route::get('{supplier}/addresses', 'index');
+
+                Route::post('{supplier}/addresses', 'store');
+
+                Route::get('addresses/trash/{supplier}', 'trash');
+
+                Route::get('addresses/{id}', 'show');
+
+                Route::put('addresses/{id}', 'update');
+
+                Route::delete('addresses/{id}', 'destroy');
+
+                Route::patch('addresses/{id}/default', 'changeDefault');
+
+                Route::put('addresses/{id}/restore', 'restore');
+
+                Route::delete('addresses/{id}/force-delete', 'forceDelete');
+            });
+        });
+
+        Route::prefix('customers')->controller(CustomerController::class)->group(function () {
+
+            Route::get('/', 'index');
+
+            Route::post('/', 'store');
+
+            Route::get('/trash', 'trash');
+
+            Route::get('/{id}', 'show');
+
+            Route::put('/{id}', 'update');
+
+            Route::delete('/{id}', 'destroy');
+
+            Route::patch('/{id}/status', 'changeStatus');
+
+            Route::put('/{id}/restore', 'restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete');
+
+            Route::controller(CustomerAddressController::class)->group(function () {
+
+                Route::get('{customer}/addresses', 'index');
+
+                Route::post('{customer}/addresses', 'store');
+
+                Route::get('addresses/trash/{customer}', 'trash');
+
+                Route::get('addresses/{id}', 'show');
+
+                Route::put('addresses/{id}', 'update');
+
+                Route::delete('addresses/{id}', 'destroy');
+
+                Route::patch('addresses/{id}/default', 'changeDefault');
+
+                Route::put('addresses/{id}/restore', 'restore');
+
+                Route::delete('addresses/{id}/force-delete', 'forceDelete');
+            });
+        });
+
+
+        Route::prefix('purchases')->controller(PurchaseOrderController::class)->group(function () {
 
             /*
             |--------------------------------------------------------------------------
-            | Product Gallery
+            | Listing
             |--------------------------------------------------------------------------
             */
 
-            Route::get('/{product}/images', 'index');
+            Route::get('/', 'index')->middleware('permission:purchase-order.view');
 
-            Route::post('/{product}/images', 'store');
+            Route::get('/all', 'all')->middleware('permission:purchase-order.view');
 
-            Route::put('/images/{image}', 'update');
+            Route::get('/trashed', 'trashed')->middleware('permission:purchase-order.trash');
 
-            Route::delete('/images/{image}', 'destroy');
+            Route::get('/count', 'count')->middleware('permission:purchase-order.view');
 
-            Route::patch('/images/{image}/sort-order', 'updateSortOrder');
+            Route::get('/total-amount', 'totalAmount')->middleware('permission:purchase-order.view');
 
+            /*
+            |--------------------------------------------------------------------------
+            | CRUD
+            |--------------------------------------------------------------------------
+            */
+
+            Route::post('/', 'store')->middleware('permission:purchase-order.create');
+
+            Route::get('/{id}', 'show')->middleware('permission:purchase-order.view');
+
+            Route::put('/{id}', 'update')->middleware('permission:purchase-order.update');
+
+            Route::delete('/{id}', 'destroy')->middleware('permission:purchase-order.delete');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Restore
+            |--------------------------------------------------------------------------
+            */
+
+            Route::post('/restore/{id}', 'restore')->middleware('permission:purchase-order.restore');
+
+            Route::delete('/force-delete/{id}', 'forceDelete')->middleware('permission:purchase-order.force-delete');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
+
+            Route::patch('/status/{id}', 'changeStatus')->middleware('permission:purchase-order.status');
         });
 
 
-    Route::middleware('auth:sanctum')
-        ->prefix('suppliers')
-        ->controller(SupplierController::class)
-        ->group(function () {
 
-            Route::get('/', 'index');
+        Route::prefix('sales')->controller(SaleController::class)->group(function () {
 
-            Route::post('/', 'store');
+            /*
+            |--------------------------------------------------------------------------
+            | Reports
+            |--------------------------------------------------------------------------
+            */
 
-            Route::get('/trash', 'trash');
+            Route::get('/count', 'count')->middleware('permission:sale-order.view');
 
-            Route::get('/{id}', 'show');
+            Route::get('/total-amount', 'totalAmount')->middleware('permission:sale-order.view');
 
-            Route::put('/{id}', 'update');
+            /*
+            |--------------------------------------------------------------------------
+            | Trash
+            |--------------------------------------------------------------------------
+            */
 
-            Route::delete('/{id}', 'destroy');
+            Route::get('/trash', 'trash')->middleware('permission:sale-order.view');
 
-            Route::patch('/{id}/status', 'changeStatus');
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:sale-order.restore');
 
-            Route::put('/{id}/restore', 'restore');
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:sale-order.force-delete');
 
-            Route::delete('/{id}/force-delete', 'forceDelete');
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
 
+            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:sale-order.status');
 
+            /*
+            |--------------------------------------------------------------------------
+            | CRUD
+            |--------------------------------------------------------------------------
+            */
 
-        });
+            Route::get('/', 'index')->middleware('permission:sale-order.view');
 
-    Route::middleware('auth:sanctum')
-        ->prefix('suppliers')->controller(SupplierAddressController::class)
-        ->group(function () {
+            Route::post('/', 'store')->middleware('permission:sale-order.create');
 
-            Route::get('{supplier}/addresses', 'index');
+            Route::get('/{id}', 'show')->middleware('permission:sale-order.view');
 
-            Route::post('{supplier}/addresses', 'store');
+            Route::put('/{id}', 'update')->middleware('permission:sale-order.update');
 
-            Route::get('addresses/trash/{supplier}', 'trash');
-
-            Route::get('addresses/{id}', 'show');
-
-            Route::put('addresses/{id}', 'update');
-
-            Route::delete('addresses/{id}', 'destroy');
-
-            Route::patch('addresses/{id}/default', 'changeDefault');
-
-            Route::put('addresses/{id}/restore', 'restore');
-
-            Route::delete('addresses/{id}/force-delete', 'forceDelete');
-
-        });
-
-
-    Route::middleware('auth:sanctum')
-        ->prefix('customers')
-        ->controller(CustomerController::class)
-        ->group(function () {
-
-            Route::get('/', 'index');
-
-            Route::post('/', 'store');
-
-            Route::get('/trash', 'trash');
-
-            Route::get('/{id}', 'show');
-
-            Route::put('/{id}', 'update');
-
-            Route::delete('/{id}', 'destroy');
-
-            Route::patch('/{id}/status', 'changeStatus');
-
-            Route::put('/{id}/restore', 'restore');
-
-            Route::delete('/{id}/force-delete', 'forceDelete');
-
-
-
-        });
-
-    Route::middleware('auth:sanctum')
-        ->prefix('customers')->controller(CustomerAddressController::class)
-        ->group(function () {
-
-            Route::get('{customer}/addresses', 'index');
-
-            Route::post('{customer}/addresses', 'store');
-
-            Route::get('addresses/trash/{customer}', 'trash');
-
-            Route::get('addresses/{id}', 'show');
-
-            Route::put('addresses/{id}', 'update');
-
-            Route::delete('addresses/{id}', 'destroy');
-
-            Route::patch('addresses/{id}/default', 'changeDefault');
-
-            Route::put('addresses/{id}/restore', 'restore');
-
-            Route::delete('addresses/{id}/force-delete', 'forceDelete');
-
+            Route::delete('/{id}', 'destroy')->middleware('permission:sale-order.delete');
         });
 
 
-    Route::prefix('purchase-orders')
-        ->controller(PurchaseOrderController::class)
-        ->group(function () {
+        Route::prefix('purchase-returns')
+            ->controller(PurchaseReturnController::class)
+            ->group(function () {
 
-            Route::get('/', 'index');
+                /*
+                |--------------------------------------------------------------------------
+                | Listing
+                |--------------------------------------------------------------------------
+                */
 
-            Route::post('/', 'store');
+                Route::get('/', 'index')
+                    ->middleware('permission:purchase-return-list');
 
-            Route::get('/trash', 'trash');
+                Route::get('/trash', 'trash')
+                    ->middleware('permission:purchase-return-trash');
 
-            Route::get('/{id}', 'show');
+                Route::get('/count', 'count')
+                    ->middleware('permission:purchase-return-list');
 
-            Route::put('/{id}', 'update');
+                Route::get('/total-amount', 'totalAmount')
+                    ->middleware('permission:purchase-return-list');
 
-            Route::patch('/{id}/status', 'changeStatus');
+                /*
+                |--------------------------------------------------------------------------
+                | CRUD
+                |--------------------------------------------------------------------------
+                */
 
-            Route::delete('/{id}', 'destroy');
+                Route::post('/', 'store')
+                    ->middleware('permission:purchase-return-create');
 
-            Route::put('/{id}/restore', 'restore');
+                Route::get('/{id}', 'show')
+                    ->middleware('permission:purchase-return-view');
 
-            Route::delete('/{id}/force-delete', 'forceDelete');
+                Route::put('/{id}', 'update')
+                    ->middleware('permission:purchase-return-update');
 
+                Route::patch('/{id}/status', 'changeStatus')
+                    ->middleware('permission:purchase-return-status');
+
+                Route::delete('/{id}', 'destroy')
+                    ->middleware('permission:purchase-return-delete');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Restore
+                |--------------------------------------------------------------------------
+                */
+
+                Route::patch('/{id}/restore', 'restore')
+                    ->middleware('permission:purchase-return-restore');
+
+                Route::delete('/{id}/force-delete', 'forceDelete')
+                    ->middleware('permission:purchase-return-force-delete');
+            });
+
+
+        Route::prefix('sale-returns')->controller(SaleReturnController::class)->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Listing
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/', 'index')
+                ->middleware('permission:sale-return-list');
+
+            Route::get('/trash', 'trash')
+                ->middleware('permission:sale-return-trash');
+
+            Route::get('/count', 'count')
+                ->middleware('permission:sale-return-list');
+
+            Route::get('/total-amount', 'totalAmount')
+                ->middleware('permission:sale-return-list');
+
+            /*
+            |--------------------------------------------------------------------------
+            | CRUD
+            |--------------------------------------------------------------------------
+            */
+
+            Route::post('/', 'store')
+                ->middleware('permission:sale-return-create');
+
+            Route::get('/{id}', 'show')
+                ->middleware('permission:sale-return-view');
+
+            Route::put('/{id}', 'update')
+                ->middleware('permission:sale-return-update');
+
+            Route::patch('/{id}/status', 'changeStatus')
+                ->middleware('permission:sale-return-status');
+
+            Route::delete('/{id}', 'destroy')
+                ->middleware('permission:sale-return-delete');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Restore
+            |--------------------------------------------------------------------------
+            */
+
+            Route::patch('/{id}/restore', 'restore')
+                ->middleware('permission:sale-return-restore');
+
+            Route::delete('/{id}/force-delete', 'forceDelete')
+                ->middleware('permission:sale-return-force-delete');
         });
 
 
-    Route::prefix('sale-orders')
-        ->controller(SaleOrderController::class)
-        ->group(function () {
+        Route::prefix('payment-modes')->controller(PaymentModeController::class)->group(function () {
 
-            Route::get('/', 'index');
+            Route::get('/', 'index')->middleware('permission:payment-mode-list');
 
-            Route::post('/', 'store');
+            Route::get('/active', 'active')->middleware('permission:payment-mode-list');
 
-            Route::get('/trash', 'trash');
+            Route::get('/trashed', 'trashed')->middleware('permission:payment-mode-list');
 
-            Route::get('/{id}', 'show');
+            Route::post('/', 'store')->middleware('permission:payment-mode-create');
 
-            Route::put('/{id}', 'update');
+            Route::get('/{id}', 'show')->middleware('permission:payment-mode-view');
 
-            Route::patch('/{id}/status', 'changeStatus');
+            Route::put('/{id}', 'update')->middleware('permission:payment-mode-update');
 
-            Route::delete('/{id}', 'destroy');
+            Route::delete('/{id}', 'destroy')->middleware('permission:payment-mode-delete');
 
-            Route::put('/{id}/restore', 'restore');
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:payment-mode-restore');
 
-            Route::delete('/{id}/force-delete', 'forceDelete');
-
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:payment-mode-force-delete');
         });
 
+        Route::prefix('payments')->controller(PaymentController::class)->group(function () {
 
-    Route::prefix('purchase-returns')
-        ->controller(PurchaseReturnController::class)
-        ->group(function () {
+            Route::get('/', 'index')->middleware('permission:payment-list');
 
-            Route::get('/', 'index');
+            Route::post('/', 'store')->middleware('permission:payment-create');
 
-            Route::post('/', 'store');
+            Route::get('/trashed', 'trashed')->middleware('permission:payment-list');
 
-            Route::get('/trash', 'trash');
+            Route::get('/{id}', 'show')->middleware('permission:payment-view');
 
-            Route::get('/{id}', 'show');
+            Route::put('/{id}', 'update')->middleware('permission:payment-update');
 
-            Route::put('/{id}', 'update');
+            Route::delete('/{id}', 'destroy')->middleware('permission:payment-delete');
 
-            Route::patch('/{id}/status', 'changeStatus');
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:payment-restore');
 
-            Route::delete('/{id}', 'destroy');
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:payment-force-delete');
 
-            Route::put('/{id}/restore', 'restore');
-
-            Route::delete('/{id}/force-delete', 'forceDelete');
-
+            Route::patch('/{id}/change-status', 'changeStatus')->middleware('permission:payment-change-status');
         });
 
+        Route::prefix('inventory')
+            ->group(function () {
 
-    Route::prefix('sale-returns')
-        ->controller(SaleReturnController::class)
-        ->group(function () {
+                /*
+                |--------------------------------------------------------------------------
+                | Stocks
+                |--------------------------------------------------------------------------
+                */
 
-            Route::get('/', 'index');
+                Route::get('/stocks', [StockController::class, 'index']);
+                Route::get('/stocks/{id}', [StockController::class, 'show']);
 
-            Route::post('/', 'store');
+                /*
+                |--------------------------------------------------------------------------
+                | Stock Movements
+                |--------------------------------------------------------------------------
+                */
 
-            Route::get('/trash', 'trash');
+                Route::get('/stock-movements', [StockMovementController::class, 'index']);
+                Route::get('/stock-movements/{id}', [StockMovementController::class, 'show']);
 
-            Route::get('/{id}', 'show');
+                /*
+                |--------------------------------------------------------------------------
+                | Stock Adjustments
+                |--------------------------------------------------------------------------
+                */
 
-            Route::put('/{id}', 'update');
+                Route::apiResource(
+                    'stock-adjustments',
+                    StockAdjustmentController::class
+                );
+            });
 
-            Route::patch('/{id}/status', 'changeStatus');
+        Route::prefix('pos')
+            ->controller(POSController::class)
+            ->group(function () {
 
-            Route::delete('/{id}', 'destroy');
+                Route::get('dashboard', 'dashboard');
 
-            Route::put('/{id}/restore', 'restore');
+                Route::post('open-session', 'openSession');
 
-            Route::delete('/{id}/force-delete', 'forceDelete');
+                Route::put('close-session/{id}', 'closeSession');
 
+                Route::post('checkout', 'checkout');
+
+                Route::post('cash-in', 'cashIn');
+
+                Route::post('cash-out', 'cashOut');
+
+                Route::get('summary/{id}', 'summary');
+
+                Route::get('barcode/{barcode}', 'barcode');
+
+                Route::get('search', 'search');
+
+                Route::post('hold', 'hold');
+
+                Route::put('hold/{id}', 'updateHold');
+
+                Route::get('hold/{id}', 'recall');
+
+                Route::patch('hold/{id}/cancel', 'cancel');
+            });
+
+        Route::prefix('general-settings')
+            ->controller(GeneralSettingController::class)
+            ->group(function () {
+
+                Route::get('/', 'show');
+
+                Route::put('/', 'update');
+            });
+
+        Route::prefix('barcode-templates')
+            ->controller(BarcodeTemplateController::class)
+            ->group(function () {
+
+                Route::get('/', 'index');
+
+                Route::get('/active', 'active');
+
+                Route::get('/{id}', 'show');
+
+                Route::post('/', 'store');
+
+                Route::put('/{id}', 'update');
+
+                Route::delete('/{id}', 'destroy');
+            });
+
+        Route::prefix('products')
+            ->controller(ProductBarcodeController::class)
+            ->group(function () {
+
+                Route::get('{id}/barcode', 'show');
+
+                Route::post('barcode/bulk', 'bulk');
+            });
+
+        Route::prefix('barcode')
+            ->controller(BarcodePrintController::class)
+            ->group(function () {
+
+                Route::post('preview', 'preview');
+
+                Route::post('pdf', 'pdf');
+            });
+
+        Route::prefix('website-banners')
+            ->controller(WebsiteBannerController::class)
+            ->group(function () {
+
+                Route::get('/', 'index');
+                Route::get('/active', 'active');
+                Route::get('/trash', 'trash');
+                Route::get('/{id}', 'show');
+
+                Route::post('/', 'store');
+
+                Route::put('/{id}', 'update');
+
+                Route::patch('/{id}/status', 'changeStatus');
+
+                Route::delete('/{id}', 'destroy');
+
+                Route::put('/{id}/restore', 'restore');
+
+                Route::delete('/{id}/force-delete', 'forceDelete');
+
+                Route::post('/bulk-delete', 'bulkDelete');
+            });
+
+        /*
+|--------------------------------------------------------------------------
+| Delivery Boys
+|--------------------------------------------------------------------------
+*/
+
+        Route::prefix('delivery-boys')->group(function () {
+
+            Route::get(
+                '/',
+                [DeliveryBoyController::class, 'index']
+            )->middleware('permission:delivery-boy-list');
+
+            Route::post(
+                '/',
+                [DeliveryBoyController::class, 'store']
+            )->middleware('permission:delivery-boy-create');
+
+            Route::get(
+                '/{id}',
+                [DeliveryBoyController::class, 'show']
+            )->middleware('permission:delivery-boy-view');
+
+            Route::put(
+                '/{id}',
+                [DeliveryBoyController::class, 'update']
+            )->middleware('permission:delivery-boy-edit');
+
+            Route::delete(
+                '/{id}',
+                [DeliveryBoyController::class, 'destroy']
+            )->middleware('permission:delivery-boy-delete');
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery Assignments
+        |--------------------------------------------------------------------------
+        */
 
-    Route::prefix('payment-modes')
-        ->controller(PaymentModeController::class)
-        ->group(function () {
+        Route::prefix('delivery-assignments')->group(function () {
 
-            Route::get('/', 'index');
+            Route::get(
+                '/',
+                [DeliveryAssignmentController::class, 'index']
+            )->middleware('permission:delivery-assignment-list');
 
-            Route::post('/', 'store');
+            Route::post(
+                '/assign',
+                [DeliveryAssignmentController::class, 'assign']
+            )->middleware('permission:delivery-assignment-create');
 
-            Route::get('/{id}', 'show');
+            Route::get(
+                '/{id}',
+                [DeliveryAssignmentController::class, 'show']
+            )->middleware('permission:delivery-assignment-view');
 
-            Route::put('/{id}', 'update');
+            Route::delete(
+                '/{id}',
+                [DeliveryAssignmentController::class, 'destroy']
+            )->middleware('permission:delivery-assignment-delete');
 
-            Route::delete('/{id}', 'destroy');
+            Route::patch(
+                '/{id}/accept',
+                [DeliveryAssignmentController::class, 'accept']
+            )->middleware('permission:delivery-assignment-update');
 
+            Route::patch(
+                '/{id}/reject',
+                [DeliveryAssignmentController::class, 'reject']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/pickup',
+                [DeliveryAssignmentController::class, 'pickup']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/out-for-delivery',
+                [DeliveryAssignmentController::class, 'outForDelivery']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::patch(
+                '/{id}/delivered',
+                [DeliveryAssignmentController::class, 'delivered']
+            )->middleware('permission:delivery-assignment-update');
+
+            Route::get(
+                '/history/{saleOrderId}',
+                [DeliveryAssignmentController::class, 'history']
+            )->middleware('permission:delivery-assignment-view');
         });
-
-
-    Route::prefix('payments')
-        ->controller(PaymentController::class)
-        ->group(function () {
-
-            Route::get('/', 'index');
-
-            Route::post('/', 'store');
-
-            Route::get('/{id}', 'show');
-
-            Route::put('/{id}', 'update');
-
-            Route::patch('/{id}/status', 'changeStatus');
-
-            Route::delete('/{id}', 'destroy');
-
-            Route::get('/trash', 'trash');
-
-            Route::put('/{id}/restore', 'restore');
-
-            Route::delete('/{id}/force-delete', 'forceDelete');
-
-        });
+    });
 
 
     /*
@@ -533,348 +873,194 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('website')
-        ->group(function () {
+    Route::prefix('website')->group(function () {
+        Route::get('/home', [HomeController::class, 'index']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Categories
-            |--------------------------------------------------------------------------
-            */
+        Route::get(
+            'products',
+            [ProductController::class, 'index']
+        );
 
-            Route::controller(WebsiteCategoryController::class)
+        Route::get(
+            'products/{slug}',
+            [ProductController::class, 'show']
+        );
 
-                ->prefix('categories')
+        Route::get(
+            'products/search/{keyword}',
+            [WebsiteProductController::class, 'searchSuggestions']
+        );
 
-                ->group(function () {
+        Route::get(
+            'products/{slug}/related',
+            [WebsiteProductController::class, 'relatedProducts']
+        );
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Category Listing
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Featured Categories
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/featured',
-                        'featured'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Category Details
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}',
-                        'show'
-                    );
-
-                });
-
-            /*
-   |--------------------------------------------------------------------------
-   | Products
-   |--------------------------------------------------------------------------
-   */
-
-            Route::controller(WebsiteProductController::class)
-                ->prefix('products')
-                ->group(function () {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Listing
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Search
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/search',
-                        'search'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Featured Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/featured',
-                        'featured'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | New Arrival Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/new-arrivals',
-                        'newArrivals'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Best Seller Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/best-sellers',
-                        'bestSellers'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Product Details
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}',
-                        'show'
-                    );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Related Products
-                    |--------------------------------------------------------------------------
-                    */
-
-                    Route::get(
-                        '/{slug}/related',
-                        'related'
-                    );
-
-                });
-
-            /*
+        /*
     |--------------------------------------------------------------------------
-    | Home
+    | Categories
     |--------------------------------------------------------------------------
     */
 
-            Route::controller(HomeController::class)
-                ->group(function () {
+        Route::controller(CategoryController::class)
 
-                    Route::get(
-                        'home',
-                        'index'
-                    );
+            ->prefix('categories')
 
-                });
+            ->group(function () {
 
+                /**
+                 * Category Listing
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-            /*
-    |--------------------------------------------------------------------------
-    | Cart
-    |--------------------------------------------------------------------------
-    */
+                /**
+                 * Category Details
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
+            });
 
-            Route::controller(CartController::class)->middleware('auth:sanctum')
-                ->prefix('cart')
-                ->group(function () {
+        /*
+|--------------------------------------------------------------------------
+| Website Brands
+|--------------------------------------------------------------------------
+*/
 
-                    /*
-       |--------------------------------------------------------------------------
-       | Cart
-       |--------------------------------------------------------------------------
-       */
+        Route::prefix('brands')
+            ->controller(BrandController::class)
+            ->group(function (): void {
 
-                    Route::get(
-                        '/',
-                        'index'
-                    );
+                /**
+                 * Brand Listing
+                 * GET /api/brands
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-                    Route::get(
-                        '/summary',
-                        'summary'
-                    );
+                /**
+                 * Brand Details
+                 * GET /api/brands/{slug}
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
+            });
 
-                    Route::post(
-                        '/items',
-                        'store'
-                    );
+        /*
+|--------------------------------------------------------------------------
+| Website Units
+|--------------------------------------------------------------------------
+*/
 
-                    Route::put(
-                        '/items/{item}',
-                        'update'
-                    );
+        Route::prefix('units')
+            ->controller(UnitController::class)
+            ->group(function (): void {
 
-                    Route::delete(
-                        '/items/{item}',
-                        'destroy'
-                    );
+                /**
+                 * Unit Listing
+                 * GET /api/units
+                 */
+                Route::get(
+                    '/',
+                    'index'
+                );
 
-                    Route::delete(
-                        '/clear',
-                        'clear'
-                    );
-                });
+                /**
+                 * Unit Details
+                 * GET /api/units/{slug}
+                 */
+                Route::get(
+                    '/{slug}',
+                    'show'
+                );
+            });
 
+        Route::middleware(['auth:sanctum', 'role:Customer'])->group(function () {
 
-            Route::middleware('auth:sanctum')
-                ->prefix('wishlist')
-                ->controller(WishlistController::class)
-                ->group(function () {
+            Route::get(
+                'wishlist',
+                [WishlistController::class, 'index']
+            );
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Wishlist
-                    |--------------------------------------------------------------------------
-                    */
+            Route::post(
+                'wishlist',
+                [WishlistController::class, 'store']
+            );
 
-                    Route::get(
-                        '/',
-                        'index'
-                    );
+            Route::delete(
+                'wishlist/{productId}',
+                [WishlistController::class, 'destroy']
+            );
 
-                    Route::get(
-                        '/count',
-                        'count'
-                    );
+            Route::delete(
+                'wishlist',
+                [WishlistController::class, 'clear']
+            );
 
-                    Route::post(
-                        '/',
-                        'store'
-                    );
+            Route::get(
+                'wishlist/count',
+                [WishlistController::class, 'count']
+            );
 
-                    Route::delete(
-                        '/{wishlist}',
-                        'destroy'
-                    );
-
-                    Route::delete(
-                        '/clear',
-                        'clear'
-                    );
-
-                });
-
-
-            Route::middleware('auth:sanctum')
-                ->prefix('customer-addresses')
-                ->controller(WebsiteCustomerAddressController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    Route::get(
-                        '/default',
-                        'default'
-                    );
-
-                    Route::post(
-                        '/',
-                        'store'
-                    );
-
-                    Route::put(
-                        '/{id}',
-                        'update'
-                    );
-
-                    Route::patch(
-                        '/{id}/default',
-                        'setDefault'
-                    );
-
-                    Route::delete(
-                        '/{id}',
-                        'destroy'
-                    );
-
-                });
-
-            Route::middleware('auth:sanctum')
-                ->prefix('orders')
-                ->controller(WebsiteSaleOrderController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/',
-                        'index'
-                    );
-
-                    Route::get(
-                        '/{id}',
-                        'show'
-                    );
-
-                    Route::post(
-                        '/place-order',
-                        'placeOrder'
-                    );
-
-                    Route::patch(
-                        '/{id}/cancel',
-                        'cancel'
-                    );
-
-                    Route::get('/{id}/invoice', 'downloadInvoice');
-
-                });
-
-            Route::middleware('auth:sanctum')
-                ->prefix('payments')
-                ->controller(WebsitePaymentController::class)
-                ->group(function () {
-
-                    Route::get(
-                        '/modes',
-                        'paymentModes'
-                    );
-
-                    Route::post(
-                        '/{orderId}',
-                        'pay'
-                    );
-
-                    Route::post(
-                        '/razorpay/create-order',
-                        'createRazorpayOrder'
-                    );
-
-                    Route::post(
-                        '/razorpay/verify',
-                        'verifyRazorpayPayment'
-                    );
-
-                    Route::post(
-                        '/razorpay/webhook',
-                        'razorpayWebhook'
-                    );
-
-                });
-
+            Route::get(
+                'wishlist/check/{productId}',
+                [WishlistController::class, 'check']
+            );
         });
 
+        Route::middleware(['auth:sanctum', 'role:Customer'])
+            ->prefix('cart')
+            ->controller(CartController::class)
+            ->group(function () {
 
+                Route::get('/', 'index');
+
+                Route::post('/', 'store');
+
+                Route::patch('/{productId}', 'update');
+
+                Route::delete('/{productId}', 'destroy');
+
+                Route::delete('/', 'clear');
+
+                Route::get('/count', 'count');
+
+                Route::post('/apply-coupon', 'applyCoupon');
+
+                Route::delete('/remove-coupon', 'removeCoupon');
+            });
+
+        Route::middleware(['auth:sanctum', 'role:Customer'])
+            ->prefix('checkout')
+            ->controller(CheckoutController::class)
+            ->group(function () {
+
+                Route::post('/', 'checkout');
+
+                Route::get('/orders', 'orders');
+
+                Route::get('/orders/{saleNo}', 'orderDetails');
+
+                Route::post('/orders/{saleNo}/cancel', 'cancelOrder');
+            });
+
+        Route::middleware(['auth:sanctum', 'role:Customer'])
+            ->prefix('payment')
+            ->controller(WebsitePaymentController::class)
+            ->group(function () {
+
+                Route::post(
+                    '/verify',
+                    'verifyPayment'
+                );
+            });
+    });
 });

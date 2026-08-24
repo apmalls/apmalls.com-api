@@ -16,8 +16,10 @@ return new class extends Migration {
             $table->string('last_name')->nullable();
             $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
+            $table->string('google_id')->nullable()->unique();
+            $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('mobile', 20)->unique();
+            $table->string('mobile', 20)->nullable()->unique();
             $table->timestamp('mobile_verified_at')->nullable();
             $table->string('password');
             $table->string('profile_photo')->nullable();

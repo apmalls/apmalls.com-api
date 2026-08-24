@@ -10,9 +10,9 @@ use App\Repositories\Contracts\CartRepositoryInterface;
 class CartRepository implements CartRepositoryInterface
 {
     /**
-     * Get Active Cart
+     * Get customer's active cart.
      */
-    public function active(
+    public function getActiveCart(
         int $customerId
     ): ?Cart {
 
@@ -21,9 +21,7 @@ class CartRepository implements CartRepositoryInterface
             ->with([
                 'items',
                 'items.product',
-                'items.product.images',
-                'items.product.brand',
-                'items.product.category',
+                'coupon',
             ])
 
             ->where(
@@ -41,7 +39,7 @@ class CartRepository implements CartRepositoryInterface
     }
 
     /**
-     * Find Cart
+     * Find cart.
      */
     public function find(
         int $id
@@ -52,37 +50,37 @@ class CartRepository implements CartRepositoryInterface
             ->with([
                 'items',
                 'items.product',
-                'items.product.images',
-                'items.product.brand',
-                'items.product.category',
+                'coupon',
             ])
 
-            ->findOrFail($id);
+            ->findOrFail(
+                $id
+            );
 
     }
 
     /**
-     * Create Cart
+     * Create cart.
      */
     public function create(
         array $data
     ): Cart {
 
-        return Cart::create($data);
+        return Cart::query()->create(
+            $data
+        );
 
     }
 
     /**
-     * Update Cart
+     * Update cart.
      */
     public function update(
         int $id,
         array $data
-    ): Cart {
+    ): bool {
 
-        $cart = $this->find($id);
-
-        $cart->update($data);
+        return $this->find($id)
 
         // refresh() drops eager loads — reload items + products for API consumers
         return $cart->fresh([
@@ -96,13 +94,13 @@ class CartRepository implements CartRepositoryInterface
     }
 
     /**
-     * Delete Cart
+     * Delete cart.
      */
     public function delete(
         int $id
     ): bool {
 
-        return (bool) $this->find($id)
+        return $this->find($id)
 
             ->delete();
 

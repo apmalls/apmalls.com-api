@@ -24,7 +24,14 @@ interface CartItemRepositoryInterface
     ): CartItem;
 
     /**
-     * Find product in cart.
+     * Find Item with row lock (must be called inside a transaction)
+     */
+    public function findForUpdate(
+        int $id
+    ): CartItem;
+
+    /**
+     * Find Product In Cart
      */
     public function findByProduct(
         int $cartId,

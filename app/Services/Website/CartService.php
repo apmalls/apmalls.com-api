@@ -454,19 +454,19 @@ class CartService implements CartServiceInterface
 
         return DB::transaction(function () use ($customerId, $productId, $quantity) {
 
-            if ($quantity < 1) {
+            // Serialize concurrent qty writes for the same line
+            $item = $this->cartItemRepository
+                ->findForUpdate($itemId);
+
+            $quantity = (int) $data['quantity'];
 
                 throw new \Exception(
                     'Quantity must be at least 1.'
                 );
 
-            }
+                        'quantity' => $quantity,
 
-            $cart = $this->getActiveCart(
-                $customerId
-            );
-
-            if (!$cart) {
+                        'subtotal' => $quantity * $item->price,
 
                 throw new \Exception(
                     'Cart not found.'

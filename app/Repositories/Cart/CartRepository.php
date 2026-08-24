@@ -82,9 +82,14 @@ class CartRepository implements CartRepositoryInterface
 
         return $this->find($id)
 
-            ->update(
-                $data
-            );
+        // refresh() drops eager loads — reload items + products for API consumers
+        return $cart->fresh([
+            'items',
+            'items.product',
+            'items.product.images',
+            'items.product.brand',
+            'items.product.category',
+        ]) ?? $cart;
 
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class WebsiteBanner extends Model
 {
@@ -20,6 +21,7 @@ class WebsiteBanner extends Model
         'desktop_image',
         'mobile_image',
         'type',
+        'banner_type',
         'video_url',
         'position',
         'button_text',
@@ -46,7 +48,17 @@ class WebsiteBanner extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->fileUrl($this->image);
+        $path = $this->desktop_image ?: $this->mobile_image;
+
+        if (!$path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return Storage::url($path);
     }
 
     /*

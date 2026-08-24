@@ -65,8 +65,13 @@ class StoreWebsiteBannerRequest extends FormRequest
                 Rule::in(['image', 'video'])
             ],
 
+            'banner_type' => [
+                'required',
+                Rule::in(['slider', 'offer'])
+            ],
+
             'video_url' => [
-                'nullable',
+                'required_if:type,video',
                 'url'
             ],
 

@@ -14,8 +14,8 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
     public function paginate(array $filters): LengthAwarePaginator
     {
         return WebsiteBanner::with([
-            'createdBy:id,name',
-            'updatedBy:id,name'
+            'createdBy:id,first_name,last_name',
+            'updatedBy:id,first_name,last_name'
         ])
             ->search($filters['search'] ?? null)
             ->ordered()
@@ -39,16 +39,16 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
     public function findTrashedById(int $id): WebsiteBanner
     {
         return WebsiteBanner::onlyTrashed()->with([
-            'createdBy:id,name',
-            'updatedBy:id,name',
+            'createdBy:id,first_name,last_name',
+            'updatedBy:id,first_name,last_name',
         ])->findOrFail($id);
     }
 
     public function findById(int $id): WebsiteBanner
     {
         return WebsiteBanner::with([
-            'createdBy:id,name',
-            'updatedBy:id,name'
+            'createdBy:id,first_name,last_name',
+            'updatedBy:id,first_name,last_name'
         ])->findOrFail($id);
 
     }
@@ -118,7 +118,7 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
         return WebsiteBanner::query()
 
             ->where(
-                'type',
+                'banner_type',
                 'slider'
             )
 
@@ -168,7 +168,7 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
         return WebsiteBanner::query()
 
             ->where(
-                'type',
+                'banner_type',
                 'offer'
             )
 

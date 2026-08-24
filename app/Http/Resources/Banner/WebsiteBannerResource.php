@@ -29,6 +29,8 @@ class WebsiteBannerResource extends JsonResource
 
             'type' => $this->type,
 
+            'banner_type' => $this->banner_type,
+
             'video_url' => $this->video_url,
 
             'position' => $this->position,
@@ -53,12 +55,12 @@ class WebsiteBannerResource extends JsonResource
 
             'created_by_name' => $this->whenLoaded(
                 'createdBy',
-                fn () => $this->createdBy?->name
+                fn () => $this->createdBy?->full_name
             ),
 
             'updated_by_name' => $this->whenLoaded(
                 'updatedBy',
-                fn () => $this->updatedBy?->name
+                fn () => $this->updatedBy?->full_name
             ),
 
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),

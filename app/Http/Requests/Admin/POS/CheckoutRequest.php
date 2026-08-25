@@ -21,7 +21,7 @@ class CheckoutRequest extends FormRequest
             ],
 
             'customer_id' => [
-                'required',
+                'nullable',
                 'exists:customers,id'
             ],
 
@@ -44,6 +44,18 @@ class CheckoutRequest extends FormRequest
             'items' => [
                 'required',
                 'array',
+                'min:1'
+            ],
+
+            'items.*.product_id' => [
+                'required',
+                'integer',
+                'exists:products,id'
+            ],
+
+            'items.*.quantity' => [
+                'required',
+                'integer',
                 'min:1'
             ],
 

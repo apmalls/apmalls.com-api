@@ -201,6 +201,27 @@ class POSController extends Controller
     }
 
     /**
+     * Current Held Bills
+     */
+    public function heldBills(Request $request): JsonResponse
+    {
+        $holds = $this->service->currentHolds(
+            (int) $request->get('per_page', 10)
+        );
+
+        $page = $holds->toArray();
+        $page['data'] = PosHoldResource::collection(
+            $holds->getCollection()
+        )->resolve();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Held bills fetched successfully.',
+            'data' => $page,
+        ]);
+    }
+
+    /**
      * Hold POS Bill
      */
     public function hold(

@@ -73,6 +73,10 @@ interface POSServiceInterface
         array $filters = []
     ): LengthAwarePaginator;
 
+    public function currentHolds(
+        int $perPage = 15
+    ): LengthAwarePaginator;
+
     public function hold(
         int $id
     ): PosHold;

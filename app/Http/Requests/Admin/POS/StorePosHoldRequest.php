@@ -16,7 +16,8 @@ class StorePosHoldRequest extends FormRequest
         return [
 
             'cash_register_session_id' => [
-                'required',
+                'nullable',
+                'integer',
                 'exists:cash_register_sessions,id'
             ],
 
@@ -26,7 +27,7 @@ class StorePosHoldRequest extends FormRequest
             ],
 
             'sub_total' => [
-                'required',
+                'nullable',
                 'numeric'
             ],
 
@@ -41,7 +42,7 @@ class StorePosHoldRequest extends FormRequest
             ],
 
             'grand_total' => [
-                'required',
+                'nullable',
                 'numeric'
             ],
 
@@ -68,7 +69,7 @@ class StorePosHoldRequest extends FormRequest
             ],
 
             'items.*.price' => [
-                'required',
+                'nullable',
                 'numeric'
             ],
 
@@ -83,7 +84,7 @@ class StorePosHoldRequest extends FormRequest
             ],
 
             'items.*.total' => [
-                'required',
+                'nullable',
                 'numeric'
             ],
 

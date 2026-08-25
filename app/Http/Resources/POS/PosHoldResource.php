@@ -15,6 +15,8 @@ class PosHoldResource extends JsonResource
 
             'hold_no' => $this->hold_no,
 
+            'cash_register_session_id' => $this->cash_register_session_id,
+
             'customer_id' => $this->customer_id,
 
             'customer' => new CustomerResource(

@@ -707,6 +707,8 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('search', 'search');
 
+                Route::get('holds', 'heldBills');
+
                 Route::post('hold', 'hold');
 
                 Route::put('hold/{id}', 'updateHold');

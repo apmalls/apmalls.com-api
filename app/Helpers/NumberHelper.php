@@ -26,7 +26,13 @@ class NumberHelper
 
         $year = now()->format('Y');
 
-        $last = $model::where($column, 'like', "{$prefix}-{$year}-%")
+        $query = $model::query();
+
+        if (in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($model), true)) {
+            $query->withTrashed();
+        }
+
+        $last = $query->where($column, 'like', "{$prefix}-{$year}-%")
             ->latest('id')
             ->first();
 

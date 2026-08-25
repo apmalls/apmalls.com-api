@@ -116,6 +116,8 @@ interface POSServiceInterface
         array $data
     );
 
+    public function sessionContext(): array;
+
     public function dashboard(): array;
 
     public function recallHold(

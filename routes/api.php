@@ -679,6 +679,18 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('dashboard', 'dashboard');
 
+                Route::get('session-context', 'sessionContext');
+
+                Route::get('registers', 'registers');
+
+                Route::post('registers', 'storeRegister');
+
+                Route::get('registers/{id}', 'showRegister');
+
+                Route::put('registers/{id}', 'updateRegister');
+
+                Route::delete('registers/{id}', 'deleteRegister');
+
                 Route::post('open-session', 'openSession');
 
                 Route::put('close-session/{id}', 'closeSession');

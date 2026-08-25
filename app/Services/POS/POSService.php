@@ -107,6 +107,12 @@ class POSService implements POSServiceInterface
                 );
             }
 
+            $data = $this->normalizeRegisterData($data);
+
+            $this->ensureSingleOpenRegisterAssignment($data);
+
+            $data['created_by'] = Auth::id();
+
             return $this->cashRegisterRepository
                 ->create($data);
 
@@ -126,10 +132,52 @@ class POSService implements POSServiceInterface
 
         return DB::transaction(function () use ($id, $data) {
 
+            $data = $this->normalizeRegisterData($data);
+
+            $this->ensureSingleOpenRegisterAssignment($data, $id);
+
+            $data['updated_by'] = Auth::id();
+
             return $this->cashRegisterRepository
                 ->update($id, $data);
 
         });
+    }
+
+    private function normalizeRegisterData(array $data): array
+    {
+        $data['opening_balance'] = $data['opening_balance'] ?? 0;
+
+        $data['opened_at'] = $data['opened_at'] ?? now();
+
+        // Some existing databases still have a non-null closed_at column.
+        $data['closed_at'] = $data['closed_at'] ?? $data['opened_at'];
+
+        return $data;
+    }
+
+    private function ensureSingleOpenRegisterAssignment(
+        array $data,
+        ?int $ignoreId = null
+    ): void {
+        if (
+            empty($data['user_id'])
+            || ($data['status'] ?? CashRegister::STATUS_OPEN) !== CashRegister::STATUS_OPEN
+        ) {
+            return;
+        }
+
+        $alreadyAssigned = CashRegister::query()
+            ->where('user_id', $data['user_id'])
+            ->where('status', CashRegister::STATUS_OPEN)
+            ->when($ignoreId, fn($query) => $query->where('id', '!=', $ignoreId))
+            ->exists();
+
+        if ($alreadyAssigned) {
+            throw ValidationException::withMessages([
+                'user_id' => 'This cashier is already assigned to another open register.',
+            ]);
+        }
     }
 
     /*
@@ -208,8 +256,34 @@ class POSService implements POSServiceInterface
 
         return DB::transaction(function () use ($data) {
 
+            $userId = (int) Auth::id();
+
+            $register = $this->cashRegisterRepository
+                ->getOpenRegisterByUser($userId);
+
+            if (!$register) {
+
+                throw ValidationException::withMessages([
+
+                    'cash_register_id' => 'No cash register assigned to this cashier.',
+
+                ]);
+            }
+
+            if (
+                !empty($data['cash_register_id'])
+                && (int) $data['cash_register_id'] !== (int) $register->id
+            ) {
+
+                throw ValidationException::withMessages([
+
+                    'cash_register_id' => 'Cashier can only open their assigned register.',
+
+                ]);
+            }
+
             $alreadyOpen = $this->cashRegisterSessionRepository
-                ->findOpenSession($data['register_id'] ?? 0, Auth::id());
+                ->current($userId);
 
             if ($alreadyOpen) {
 
@@ -229,12 +303,27 @@ class POSService implements POSServiceInterface
                 );
             }
 
+            $data['cash_register_id'] = $register->id;
+
+            $data['user_id'] = $userId;
+
+            $data['opening_balance'] = $register->opening_balance;
+
+            $data['expected_balance'] = $data['opening_balance'];
+
             $data['opened_at'] = now();
 
             $data['status'] = CashRegisterSession::STATUS_OPEN;
 
+            $data['created_by'] = $userId;
+
             return $this->cashRegisterSessionRepository
-                ->create($data);
+                ->create($data)
+                ->load([
+                    'register',
+                    'cashier',
+                    'transactions.paymentMode',
+                ]);
 
         });
     }
@@ -304,6 +393,23 @@ class POSService implements POSServiceInterface
             $closingBalance = $data['closing_balance'];
 
             $difference = $closingBalance - $expectedBalance;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Register Balance
+            |--------------------------------------------------------------------------
+            */
+
+            $this->cashRegisterRepository
+                ->update($session->cash_register_id, [
+
+                    'closing_balance' => $closingBalance,
+
+                    'closed_at' => now(),
+
+                    'updated_by' => Auth::id(),
+
+                ]);
 
             /*
             |--------------------------------------------------------------------------
@@ -597,6 +703,15 @@ class POSService implements POSServiceInterface
                     $data['cash_register_session_id']
                 );
 
+            if ((int) $session->user_id !== (int) Auth::id()) {
+
+                throw ValidationException::withMessages([
+
+                    'session' => 'Cashier can only bill on their own open session.',
+
+                ]);
+            }
+
             if ($session->status !== CashRegisterSession::STATUS_OPEN) {
 
                 throw ValidationException::withMessages([
@@ -735,11 +850,49 @@ class POSService implements POSServiceInterface
                 + $cashIn
                 - $cashOut,
 
+         ];
+     }
+
+    public function sessionContext(): array
+    {
+        $user = Auth::user();
+
+        $register = $this->cashRegisterRepository
+            ->getOpenRegisterByUser((int) $user->id);
+
+        $session = $this->cashRegisterSessionRepository
+            ->current((int) $user->id);
+
+        $message = 'Billing ready.';
+
+        if (!$register) {
+            $message = 'No cash register assigned to this cashier.';
+        } elseif (!$session) {
+            $message = 'Open a register session before billing.';
+        }
+
+        return [
+
+            'cashier' => $user,
+
+            'register' => $register,
+
+            'session' => $session,
+
+            'payment_modes' => $this->paymentModeRepository
+                ->active(),
+
+            'billing_allowed' => $register !== null && $session !== null,
+
+            'requires_session' => $register !== null && $session === null,
+
+            'message' => $message,
+
         ];
     }
 
-    public function dashboard(): array
-    {
+     public function dashboard(): array
+     {
         $userId = auth()->id();
 
         /*

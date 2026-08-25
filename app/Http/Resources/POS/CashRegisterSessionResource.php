@@ -32,7 +32,7 @@ class CashRegisterSessionResource extends JsonResource
             'remarks' => $this->remarks,
 
             'register' => new CashRegisterResource(
-                $this->whenLoaded('cashRegister')
+                $this->whenLoaded('register')
             ),
 
             'transactions' => CashRegisterTransactionResource::collection(

@@ -18,8 +18,8 @@ class CashRegisterTransaction extends Model
 
     protected $fillable = [
         'cash_register_session_id',
-        reference_type .
-        reference_id,
+        'reference_type',
+        'reference_id',
         'payment_mode_id',
         'type',
         'amount',

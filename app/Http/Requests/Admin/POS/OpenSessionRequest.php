@@ -15,9 +15,7 @@ class OpenSessionRequest extends FormRequest
     {
         return [
 
-            'cash_register_id' => ['required', 'integer', 'exists:cash_registers,id'],
-
-            'opening_balance' => ['required', 'numeric', 'min:0'],
+            'cash_register_id' => ['nullable', 'integer', 'exists:cash_registers,id'],
 
             'remarks' => ['nullable', 'string'],
 

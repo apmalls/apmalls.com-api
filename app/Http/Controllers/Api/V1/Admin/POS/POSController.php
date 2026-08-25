@@ -10,6 +10,8 @@ use App\Http\Requests\Admin\POS\CloseSessionRequest;
 use App\Http\Requests\Admin\POS\OpenSessionRequest;
 use App\Http\Requests\Admin\POS\StorePosHoldRequest;
 use App\Http\Requests\Admin\POS\UpdatePosHoldRequest;
+use App\Http\Resources\Payment\PaymentModeResource;
+use App\Http\Resources\POS\CashRegisterResource;
 use App\Http\Resources\POS\CashRegisterSessionResource;
 use App\Http\Resources\POS\POSCheckoutResource;
 use App\Http\Resources\POS\POSDashboardResource;
@@ -18,12 +20,148 @@ use App\Http\Resources\POS\ProductResource;
 use App\Services\Contracts\POSServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class POSController extends Controller
 {
     public function __construct(
         protected POSServiceInterface $service
     ) {
+    }
+
+    /**
+     * Cash Register Listing
+     */
+    public function registers(Request $request): JsonResponse
+    {
+        $filters = [
+            'status' => $request->input('status'),
+            'user_id' => $request->input('user_id'),
+            'register_no' => $request->input('register_no'),
+            'name' => $request->input('search', $request->input('name')),
+        ];
+
+        $registers = $this->service->registers(
+            (int) $request->get('per_page', 10),
+            array_filter($filters, fn($value) => $value !== null && $value !== '')
+        );
+
+        $page = $registers->toArray();
+        $page['data'] = CashRegisterResource::collection(
+            $registers->getCollection()
+        )->resolve();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash registers fetched successfully.',
+            'data' => $page,
+        ]);
+    }
+
+    /**
+     * Store Cash Register
+     */
+    public function storeRegister(Request $request): JsonResponse
+    {
+        $register = $this->service->createRegister(
+            $this->validatedRegisterData($request)
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash register created successfully.',
+            'data' => new CashRegisterResource($register->load('user')),
+        ], 201);
+    }
+
+    /**
+     * Show Cash Register
+     */
+    public function showRegister(int $id): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash register fetched successfully.',
+            'data' => new CashRegisterResource($this->service->register($id)),
+        ]);
+    }
+
+    /**
+     * Update Cash Register
+     */
+    public function updateRegister(Request $request, int $id): JsonResponse
+    {
+        $register = $this->service->updateRegister(
+            $id,
+            $this->validatedRegisterData($request, $id)
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash register updated successfully.',
+            'data' => new CashRegisterResource($register->load('user')),
+        ]);
+    }
+
+    /**
+     * Delete Cash Register
+     */
+    public function deleteRegister(int $id): JsonResponse
+    {
+        $this->service->deleteRegister($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash register deleted successfully.',
+        ]);
+    }
+
+    private function validatedRegisterData(Request $request, ?int $id = null): array
+    {
+        return $request->validate([
+            'register_no' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('cash_registers', 'register_no')->ignore($id),
+            ],
+            'name' => ['required', 'string', 'max:255'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'opening_balance' => ['required', 'numeric', 'min:0'],
+            'closing_balance' => ['nullable', 'numeric', 'min:0'],
+            'status' => ['required', 'string', Rule::in(['Open', 'Closed'])],
+            'opened_at' => ['nullable', 'date'],
+            'closed_at' => ['nullable', 'date'],
+            'remarks' => ['nullable', 'string'],
+        ]);
+    }
+
+    /**
+     * Session Context
+     */
+    public function sessionContext(): JsonResponse
+    {
+        $context = $this->service->sessionContext();
+
+        return response()->json([
+            'success' => true,
+            'message' => $context['message'],
+            'data' => [
+                'cashier' => $context['cashier'],
+                'register' => $context['register']
+                    ? new CashRegisterResource($context['register'])
+                    : null,
+                'session' => $context['session']
+                    ? new CashRegisterSessionResource($context['session'])
+                    : null,
+                'payment_modes' => PaymentModeResource::collection(
+                    $context['payment_modes']
+                ),
+                'billing_allowed' => $context['billing_allowed'],
+                'requires_session' => $context['requires_session'],
+                'message' => $context['message'],
+            ],
+        ]);
     }
 
     /**

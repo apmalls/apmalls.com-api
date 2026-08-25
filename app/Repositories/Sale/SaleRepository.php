@@ -86,7 +86,7 @@ class SaleRepository implements SaleRepositoryInterface
             'items.product',
             'items.unit',
             'saleReturns',
-            'payments',
+            'payments.paymentMode',
             'creator',
             'updater',
         ])->findOrFail($id);
@@ -219,6 +219,24 @@ class SaleRepository implements SaleRepositoryInterface
                 'creator',
                 'updater',
             ])
+
+            ->when(
+                $filters['search'] ?? null,
+                function ($q, $search) {
+                    $q->where(function ($query) use ($search) {
+                        $query
+                            ->where('sale_no', 'ILIKE', "%{$search}%")
+                            ->orWhere('invoice_no', 'ILIKE', "%{$search}%")
+                            ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                                $customerQuery
+                                    ->where('first_name', 'ILIKE', "%{$search}%")
+                                    ->orWhere('last_name', 'ILIKE', "%{$search}%")
+                                    ->orWhere('email', 'ILIKE', "%{$search}%")
+                                    ->orWhere('mobile', 'ILIKE', "%{$search}%");
+                            });
+                    });
+                }
+            )
 
             ->when(
                 $filters['status'] ?? null,

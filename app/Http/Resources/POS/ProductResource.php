@@ -14,6 +14,10 @@ class ProductResource extends JsonResource
             'sku' => $this->sku,
             'barcode' => $this->barcode,
             'selling_price' => $this->selling_price,
+            'purchase_price' => $this->purchase_price,
+            'unit_id' => $this->unit_id,
+            'tax_percent' => $this->tax_percent,
+            'discount_percent' => $this->discount_percent,
         ];
     }
 }

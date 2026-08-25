@@ -697,6 +697,10 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('checkout', 'checkout');
 
+                Route::get('orders/{id}', 'order');
+
+                Route::put('orders/{id}', 'updateOrder');
+
                 Route::post('cash-in', 'cashIn');
 
                 Route::post('cash-out', 'cashOut');

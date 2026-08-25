@@ -5,6 +5,7 @@ namespace App\Services\POS;
 use App\Helpers\NumberHelper;
 use App\Models\POS\CashRegister;
 use App\Models\POS\CashRegisterSession;
+use App\Models\POS\CashRegisterTransaction;
 use App\Models\POS\PosHold;
 use App\Models\Payment\Payment;
 use App\Models\Customer\Customer;
@@ -874,6 +875,178 @@ class POSService implements POSServiceInterface
         });
     }
 
+    public function order(int $id): SaleOrder
+    {
+        return $this->saleForCurrentCashierSession($id);
+    }
+
+    public function updateOrder(
+        int $id,
+        array $data
+    ): array {
+
+        return DB::transaction(function () use ($id, $data) {
+
+            $session = $this->currentCashierSession();
+
+            $sale = $this->saleForCurrentCashierSession($id, $session);
+
+            if ($sale->saleReturns()->exists()) {
+
+                throw ValidationException::withMessages([
+
+                    'sale' => 'Sale with return entries cannot be edited from POS.',
+
+                ]);
+            }
+
+            $cart = $this->buildPosCart($data['items'] ?? []);
+
+            $currentPaid = round((float) $sale->payments()
+                ->where('status', Payment::STATUS_COMPLETED)
+                ->sum('amount'), 2);
+
+            $targetPaid = array_key_exists('paid_amount', $data)
+                ? round((float) $data['paid_amount'], 2)
+                : round((float) $cart['grand_total'], 2);
+
+            $grandTotal = round((float) $cart['grand_total'], 2);
+
+            if ($grandTotal < $currentPaid) {
+
+                throw ValidationException::withMessages([
+
+                    'items' => 'Edited bill total cannot be less than the amount already collected.',
+
+                ]);
+            }
+
+            if ($targetPaid < $currentPaid) {
+
+                throw ValidationException::withMessages([
+
+                    'paid_amount' => 'Paid amount cannot be less than the amount already collected.',
+
+                ]);
+            }
+
+            if ($targetPaid > $grandTotal) {
+
+                $targetPaid = $grandTotal;
+            }
+
+            $additionalAmount = round($targetPaid - $currentPaid, 2);
+
+            if ($additionalAmount > 0 && empty($data['payment_mode_id'])) {
+
+                throw ValidationException::withMessages([
+
+                    'payment_mode_id' => 'Payment mode is required for additional payment.',
+
+                ]);
+            }
+
+            $paidAmount = $targetPaid;
+
+            $dueAmount = max(0, $grandTotal - $paidAmount);
+
+            $updatedSale = $this->saleService
+                ->update($sale->id, [
+
+                    'customer_id' => $sale->customer_id,
+
+                    'sale_date' => optional($sale->sale_date)->toDateString() ?? now()->toDateString(),
+
+                    'invoice_date' => optional($sale->invoice_date)->toDateString() ?? now()->toDateString(),
+
+                    'sub_total' => $cart['sub_total'],
+
+                    'discount_amount' => $cart['discount'],
+
+                    'tax_amount' => $cart['tax'],
+
+                    'shipping_amount' => 0,
+
+                    'other_amount' => 0,
+
+                    'round_off' => 0,
+
+                    'grand_total' => $grandTotal,
+
+                    'paid_amount' => $paidAmount,
+
+                    'due_amount' => $dueAmount,
+
+                    'refund_amount' => 0,
+
+                    'payment_status' => $dueAmount > 0
+                        ? SaleOrder::PAYMENT_PARTIAL
+                        : SaleOrder::PAYMENT_COMPLETED,
+
+                    'status' => SaleOrder::STATUS_COMPLETED,
+
+                    'remarks' => $data['remarks'] ?? $sale->remarks,
+
+                    'updated_by' => Auth::id(),
+
+                    'items' => $cart['sale_items'],
+
+                ]);
+
+            $payment = null;
+
+            if ($additionalAmount > 0) {
+
+                $payment = $this->paymentService
+                    ->createSalePayment(
+                        $updatedSale->id,
+                        [
+                            'payment_mode_id' => $data['payment_mode_id'],
+                            'payment_date' => now()->toDateString(),
+                            'amount' => $additionalAmount,
+                            'status' => Payment::STATUS_COMPLETED,
+                            'remarks' => $data['remarks'] ?? 'POS Sale Edit Payment',
+                        ]
+                    );
+
+                $this->cashRegisterTransactionService
+                    ->cashIn([
+
+                        'cash_register_session_id' => $session->id,
+
+                        'payment_mode_id' => $payment->payment_mode_id,
+
+                        'reference_type' => get_class($payment),
+
+                        'reference_id' => $payment->id,
+
+                        'amount' => $payment->amount,
+
+                        'transaction_at' => now(),
+
+                        'remarks' => 'POS Sale Edit Payment',
+
+                    ]);
+            }
+
+            return [
+
+                'sale' => $updatedSale->fresh([
+                    'customer',
+                    'items.product',
+                    'items.unit',
+                    'payments.paymentMode',
+                ]),
+
+                'payment' => $payment,
+
+                'message' => 'POS order updated successfully.',
+
+            ];
+
+        });
+    }
+
     private function currentCashierSession(): CashRegisterSession
     {
         $session = $this->cashRegisterSessionRepository
@@ -903,6 +1076,48 @@ class POSService implements POSServiceInterface
 
             ]);
         }
+    }
+
+    private function saleForCurrentCashierSession(
+        int $id,
+        ?CashRegisterSession $session = null
+    ): SaleOrder {
+
+        $session ??= $this->currentCashierSession();
+
+        $sale = SaleOrder::query()
+            ->with([
+                'customer',
+                'items.product',
+                'items.unit',
+                'payments.paymentMode',
+                'saleReturns',
+                'creator',
+                'updater',
+            ])
+            ->findOrFail($id);
+
+        $paymentIds = $sale->payments
+            ->pluck('id')
+            ->all();
+
+        $belongsToSession = !empty($paymentIds)
+            && CashRegisterTransaction::query()
+                ->where('cash_register_session_id', $session->id)
+                ->where('reference_type', Payment::class)
+                ->whereIn('reference_id', $paymentIds)
+                ->exists();
+
+        if (!$belongsToSession) {
+
+            throw ValidationException::withMessages([
+
+                'sale' => 'This POS order does not belong to the current cashier session.',
+
+            ]);
+        }
+
+        return $sale;
     }
 
     private function assertHoldBelongsToCurrentCashier(PosHold $hold): void
@@ -1190,8 +1405,29 @@ class POSService implements POSServiceInterface
         |--------------------------------------------------------------------------
         */
 
-        $recentSales = $this->saleRepository
-            ->recent(10);
+        $sessionPaymentIds = $session
+            ? CashRegisterTransaction::query()
+                ->where('cash_register_session_id', $session->id)
+                ->where('reference_type', Payment::class)
+                ->pluck('reference_id')
+                ->all()
+            : [];
+
+        $recentSales = empty($sessionPaymentIds)
+            ? collect()
+            : SaleOrder::query()
+                ->with([
+                    'customer',
+                    'items.product',
+                    'items.unit',
+                    'payments.paymentMode',
+                ])
+                ->whereHas('payments', function ($query) use ($sessionPaymentIds) {
+                    $query->whereIn('payments.id', $sessionPaymentIds);
+                })
+                ->latest()
+                ->limit(10)
+                ->get();
 
         /*
         |--------------------------------------------------------------------------

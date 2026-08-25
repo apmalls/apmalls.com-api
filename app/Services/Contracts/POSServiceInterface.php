@@ -104,6 +104,15 @@ interface POSServiceInterface
         array $data
     );
 
+    public function order(
+        int $id
+    );
+
+    public function updateOrder(
+        int $id,
+        array $data
+    );
+
     public function barcode(
         string $barcode
     );

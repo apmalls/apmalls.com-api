@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Sale;
 
+use App\Http\Resources\Payment\PaymentResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -66,6 +67,10 @@ class SaleResource extends JsonResource
 
             'items' => SaleOrderItemResource::collection(
                 $this->whenLoaded('items')
+            ),
+
+            'payments' => PaymentResource::collection(
+                $this->whenLoaded('payments')
             ),
 
             'returns' => SaleReturnResource::collection(

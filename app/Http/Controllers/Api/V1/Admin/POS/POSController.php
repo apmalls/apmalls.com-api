@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\POS\CloseSessionRequest;
 use App\Http\Requests\Admin\POS\OpenSessionRequest;
 use App\Http\Requests\Admin\POS\StorePosHoldRequest;
 use App\Http\Requests\Admin\POS\UpdatePosHoldRequest;
+use App\Http\Requests\Admin\POS\UpdatePosOrderRequest;
 use App\Http\Resources\Payment\PaymentModeResource;
 use App\Http\Resources\POS\CashRegisterResource;
 use App\Http\Resources\POS\CashRegisterSessionResource;
@@ -17,6 +18,7 @@ use App\Http\Resources\POS\POSCheckoutResource;
 use App\Http\Resources\POS\POSDashboardResource;
 use App\Http\Resources\POS\PosHoldResource;
 use App\Http\Resources\POS\ProductResource;
+use App\Http\Resources\Sale\SaleResource;
 use App\Services\Contracts\POSServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -323,6 +325,40 @@ class POSController extends Controller
             'success' => true,
             'data' => new POSCheckoutResource(
                 $this->service->checkout(
+                    $request->validated()
+                )
+            ),
+        ]);
+    }
+
+    /**
+     * POS Order Detail
+     */
+    public function order(int $id): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'POS order fetched successfully.',
+            'data' => new SaleResource(
+                $this->service->order($id)
+            ),
+        ]);
+    }
+
+    /**
+     * Update POS Order
+     */
+    public function updateOrder(
+        UpdatePosOrderRequest $request,
+        int $id
+    ): JsonResponse {
+
+        return response()->json([
+            'success' => true,
+            'message' => 'POS order updated successfully.',
+            'data' => new POSCheckoutResource(
+                $this->service->updateOrder(
+                    $id,
                     $request->validated()
                 )
             ),

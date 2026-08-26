@@ -351,7 +351,7 @@ class ProductRepository implements ProductRepositoryInterface
         string $barcode
     ): Product {
         return Product::where('barcode', $barcode)
-            ->where('status', 1)
+            ->where('is_active', 1)
             ->firstOrFail();
     }
 
@@ -373,7 +373,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             })
 
-            ->where('status', 1)
+            ->where('is_active', 1)
 
             ->limit(20)
 

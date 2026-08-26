@@ -679,11 +679,27 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('dashboard', 'dashboard');
 
+                Route::get('session-context', 'sessionContext');
+
+                Route::get('registers', 'registers');
+
+                Route::post('registers', 'storeRegister');
+
+                Route::get('registers/{id}', 'showRegister');
+
+                Route::put('registers/{id}', 'updateRegister');
+
+                Route::delete('registers/{id}', 'deleteRegister');
+
                 Route::post('open-session', 'openSession');
 
                 Route::put('close-session/{id}', 'closeSession');
 
                 Route::post('checkout', 'checkout');
+
+                Route::get('orders/{id}', 'order');
+
+                Route::put('orders/{id}', 'updateOrder');
 
                 Route::post('cash-in', 'cashIn');
 
@@ -694,6 +710,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('barcode/{barcode}', 'barcode');
 
                 Route::get('search', 'search');
+
+                Route::get('holds', 'heldBills');
 
                 Route::post('hold', 'hold');
 

@@ -307,6 +307,8 @@ class PaymentService implements PaymentServiceInterface
                 'PAY'
             );
 
+            $data['payment_date'] ??= now()->toDateString();
+
             $data['paymentable_type'] = SaleOrder::class;
             $data['paymentable_id'] = $sale->id;
             $data['customer_id'] = $sale->customer_id;

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin\POS;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CheckoutRequest extends FormRequest
+class UpdatePosOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,53 +15,38 @@ class CheckoutRequest extends FormRequest
     {
         return [
 
-            'cash_register_session_id' => [
-                'required',
-                'exists:cash_register_sessions,id'
-            ],
-
-            'customer_id' => [
-                'nullable',
-                'exists:customers,id'
-            ],
-
             'payment_mode_id' => [
-                'required',
-                'exists:payment_modes,id'
+                'nullable',
+                'exists:payment_modes,id',
             ],
 
             'paid_amount' => [
-                'required',
-                'numeric',
-                'gt:0'
-            ],
-
-            'hold_id' => [
                 'nullable',
-                'exists:pos_holds,id'
+                'numeric',
+                'min:0',
             ],
 
             'items' => [
                 'required',
                 'array',
-                'min:1'
+                'min:1',
             ],
 
             'items.*.product_id' => [
                 'required',
                 'integer',
-                'exists:products,id'
+                'exists:products,id',
             ],
 
             'items.*.quantity' => [
                 'required',
                 'integer',
-                'min:1'
+                'min:1',
             ],
 
             'remarks' => [
                 'nullable',
-                'string'
+                'string',
             ],
 
         ];

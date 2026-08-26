@@ -17,9 +17,9 @@ class POSCheckoutResource extends JsonResource
                 $this['sale']
             ),
 
-            'payment' => new PaymentResource(
-                $this['payment']
-            ),
+            'payment' => $this['payment']
+                ? new PaymentResource($this['payment'])
+                : null,
 
             'message' => $this['message'],
 

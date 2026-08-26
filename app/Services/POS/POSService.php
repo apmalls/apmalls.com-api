@@ -5,7 +5,10 @@ namespace App\Services\POS;
 use App\Helpers\NumberHelper;
 use App\Models\POS\CashRegister;
 use App\Models\POS\CashRegisterSession;
+use App\Models\POS\CashRegisterTransaction;
 use App\Models\POS\PosHold;
+use App\Models\Payment\Payment;
+use App\Models\Customer\Customer;
 use App\Models\Product\Product;
 use App\Models\Sale\SaleOrder;
 use App\Repositories\Contracts\CashRegisterRepositoryInterface;
@@ -107,6 +110,12 @@ class POSService implements POSServiceInterface
                 );
             }
 
+            $data = $this->normalizeRegisterData($data);
+
+            $this->ensureSingleOpenRegisterAssignment($data);
+
+            $data['created_by'] = Auth::id();
+
             return $this->cashRegisterRepository
                 ->create($data);
 
@@ -126,10 +135,52 @@ class POSService implements POSServiceInterface
 
         return DB::transaction(function () use ($id, $data) {
 
+            $data = $this->normalizeRegisterData($data);
+
+            $this->ensureSingleOpenRegisterAssignment($data, $id);
+
+            $data['updated_by'] = Auth::id();
+
             return $this->cashRegisterRepository
                 ->update($id, $data);
 
         });
+    }
+
+    private function normalizeRegisterData(array $data): array
+    {
+        $data['opening_balance'] = $data['opening_balance'] ?? 0;
+
+        $data['opened_at'] = $data['opened_at'] ?? now();
+
+        // Some existing databases still have a non-null closed_at column.
+        $data['closed_at'] = $data['closed_at'] ?? $data['opened_at'];
+
+        return $data;
+    }
+
+    private function ensureSingleOpenRegisterAssignment(
+        array $data,
+        ?int $ignoreId = null
+    ): void {
+        if (
+            empty($data['user_id'])
+            || ($data['status'] ?? CashRegister::STATUS_OPEN) !== CashRegister::STATUS_OPEN
+        ) {
+            return;
+        }
+
+        $alreadyAssigned = CashRegister::query()
+            ->where('user_id', $data['user_id'])
+            ->where('status', CashRegister::STATUS_OPEN)
+            ->when($ignoreId, fn($query) => $query->where('id', '!=', $ignoreId))
+            ->exists();
+
+        if ($alreadyAssigned) {
+            throw ValidationException::withMessages([
+                'user_id' => 'This cashier is already assigned to another open register.',
+            ]);
+        }
     }
 
     /*
@@ -208,8 +259,34 @@ class POSService implements POSServiceInterface
 
         return DB::transaction(function () use ($data) {
 
+            $userId = (int) Auth::id();
+
+            $register = $this->cashRegisterRepository
+                ->getOpenRegisterByUser($userId);
+
+            if (!$register) {
+
+                throw ValidationException::withMessages([
+
+                    'cash_register_id' => 'No cash register assigned to this cashier.',
+
+                ]);
+            }
+
+            if (
+                !empty($data['cash_register_id'])
+                && (int) $data['cash_register_id'] !== (int) $register->id
+            ) {
+
+                throw ValidationException::withMessages([
+
+                    'cash_register_id' => 'Cashier can only open their assigned register.',
+
+                ]);
+            }
+
             $alreadyOpen = $this->cashRegisterSessionRepository
-                ->findOpenSession($data['register_id'] ?? 0, Auth::id());
+                ->current($userId);
 
             if ($alreadyOpen) {
 
@@ -229,12 +306,27 @@ class POSService implements POSServiceInterface
                 );
             }
 
+            $data['cash_register_id'] = $register->id;
+
+            $data['user_id'] = $userId;
+
+            $data['opening_balance'] = $register->opening_balance;
+
+            $data['expected_balance'] = $data['opening_balance'];
+
             $data['opened_at'] = now();
 
             $data['status'] = CashRegisterSession::STATUS_OPEN;
 
+            $data['created_by'] = $userId;
+
             return $this->cashRegisterSessionRepository
-                ->create($data);
+                ->create($data)
+                ->load([
+                    'register',
+                    'cashier',
+                    'transactions.paymentMode',
+                ]);
 
         });
     }
@@ -307,6 +399,23 @@ class POSService implements POSServiceInterface
 
             /*
             |--------------------------------------------------------------------------
+            | Update Register Balance
+            |--------------------------------------------------------------------------
+            */
+
+            $this->cashRegisterRepository
+                ->update($session->cash_register_id, [
+
+                    'closing_balance' => $closingBalance,
+
+                    'closed_at' => now(),
+
+                    'updated_by' => Auth::id(),
+
+                ]);
+
+            /*
+            |--------------------------------------------------------------------------
             | Update Session
             |--------------------------------------------------------------------------
             */
@@ -345,6 +454,19 @@ class POSService implements POSServiceInterface
             ->paginate($perPage, $filters);
     }
 
+    public function currentHolds(
+        int $perPage = 15
+    ): LengthAwarePaginator {
+
+        $session = $this->currentCashierSession();
+
+        return $this->posHoldRepository
+            ->paginate($perPage, [
+                'cash_register_session_id' => $session->id,
+                'status' => PosHold::STATUS_HOLD,
+            ]);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Hold Find
@@ -371,9 +493,11 @@ class POSService implements POSServiceInterface
 
         return DB::transaction(function () use ($data) {
 
-            $items = $data['items'] ?? [];
+            $session = $this->currentCashierSession();
 
-            unset($data['items']);
+            $this->assertSessionMatchesCurrentCashier($data['cash_register_session_id'] ?? null, $session);
+
+            $cart = $this->buildPosCart($data['items'] ?? []);
 
             if (empty($data['hold_no'])) {
 
@@ -384,26 +508,25 @@ class POSService implements POSServiceInterface
                 );
             }
 
+            $data = [
+                'hold_no' => $data['hold_no'],
+                'cash_register_session_id' => $session->id,
+                'customer_id' => $data['customer_id'] ?? null,
+                'sub_total' => $cart['sub_total'],
+                'discount' => $cart['discount'],
+                'tax' => $cart['tax'],
+                'grand_total' => $cart['grand_total'],
+                'status' => PosHold::STATUS_HOLD,
+                'remarks' => $data['remarks'] ?? null,
+                'created_by' => Auth::id(),
+            ];
+
             $hold = $this->posHoldRepository
                 ->create($data);
 
-            foreach ($items as $item) {
+            foreach ($cart['hold_items'] as $item) {
 
-                $hold->items()->create([
-
-                    'product_id' => $item['product_id'],
-
-                    'quantity' => $item['quantity'],
-
-                    'price' => $item['price'],
-
-                    'discount' => $item['discount'] ?? 0,
-
-                    'tax' => $item['tax'] ?? 0,
-
-                    'total' => $item['total'],
-
-                ]);
+                $hold->items()->create($item);
             }
 
             return $hold->load([
@@ -435,32 +558,26 @@ class POSService implements POSServiceInterface
             $hold = $this->posHoldRepository
                 ->findOrFail($id);
 
-            $items = $data['items'] ?? [];
+            $this->assertHoldBelongsToCurrentCashier($hold);
 
-            unset($data['items']);
+            $cart = $this->buildPosCart($data['items'] ?? []);
 
             $hold = $this->posHoldRepository
-                ->update($id, $data);
+                ->update($id, [
+                    'customer_id' => $data['customer_id'] ?? null,
+                    'sub_total' => $cart['sub_total'],
+                    'discount' => $cart['discount'],
+                    'tax' => $cart['tax'],
+                    'grand_total' => $cart['grand_total'],
+                    'remarks' => $data['remarks'] ?? null,
+                    'updated_by' => Auth::id(),
+                ]);
 
             $hold->items()->delete();
 
-            foreach ($items as $item) {
+            foreach ($cart['hold_items'] as $item) {
 
-                $hold->items()->create([
-
-                    'product_id' => $item['product_id'],
-
-                    'quantity' => $item['quantity'],
-
-                    'price' => $item['price'],
-
-                    'discount' => $item['discount'] ?? 0,
-
-                    'tax' => $item['tax'] ?? 0,
-
-                    'total' => $item['total'],
-
-                ]);
+                $hold->items()->create($item);
             }
 
             return $hold->load([
@@ -507,14 +624,7 @@ class POSService implements POSServiceInterface
         $hold = $this->posHoldRepository
             ->findOrFail($id);
 
-        if ($hold->status !== PosHold::STATUS_HOLD) {
-
-            throw ValidationException::withMessages([
-
-                'hold' => 'This hold is no longer available.'
-
-            ]);
-        }
+        $this->assertHoldBelongsToCurrentCashier($hold);
 
         return $hold->load([
 
@@ -536,6 +646,11 @@ class POSService implements POSServiceInterface
     ): PosHold {
 
         return DB::transaction(function () use ($id) {
+
+            $hold = $this->posHoldRepository
+                ->findOrFail($id);
+
+            $this->assertHoldBelongsToCurrentCashier($hold);
 
             return $this->posHoldRepository
                 ->changeStatus(
@@ -592,19 +707,84 @@ class POSService implements POSServiceInterface
             |--------------------------------------------------------------------------
             */
 
-            $session = $this->cashRegisterSessionRepository
-                ->findOrFail(
-                    $data['cash_register_session_id']
-                );
+            $session = $this->currentCashierSession();
 
-            if ($session->status !== CashRegisterSession::STATUS_OPEN) {
+            $this->assertSessionMatchesCurrentCashier($data['cash_register_session_id'] ?? null, $session);
+
+            $cart = $this->buildPosCart($data['items'] ?? []);
+
+            $paymentModeId = $data['payment_mode_id'];
+
+            $holdId = $data['hold_id'] ?? null;
+
+            $remarks = $data['remarks'] ?? null;
+
+            $grandTotal = $cart['grand_total'];
+
+            $paidAmount = (float) $data['paid_amount'];
+
+            if ($paidAmount > $grandTotal) {
 
                 throw ValidationException::withMessages([
 
-                    'session' => 'Cash Register is closed.'
+                    'paid_amount' => 'Paid amount cannot exceed bill total.',
 
                 ]);
             }
+
+            if (!empty($holdId)) {
+
+                $hold = $this->posHoldRepository
+                    ->findOrFail($holdId);
+
+                $this->assertHoldBelongsToCurrentCashier($hold);
+            }
+
+            $customerId = $data['customer_id'] ?? $this->walkInCustomer()->id;
+
+            $dueAmount = max(0, $grandTotal - $paidAmount);
+
+            $saleData = [
+
+                'customer_id' => $customerId,
+
+                'paid_amount' => $paidAmount,
+
+                'sale_date' => now()->toDateString(),
+
+                'invoice_date' => now()->toDateString(),
+
+                'sub_total' => $cart['sub_total'],
+
+                'discount_amount' => $cart['discount'],
+
+                'tax_amount' => $cart['tax'],
+
+                'shipping_amount' => 0,
+
+                'other_amount' => 0,
+
+                'round_off' => 0,
+
+                'grand_total' => $grandTotal,
+
+                'due_amount' => $dueAmount,
+
+                'refund_amount' => 0,
+
+                'payment_status' => $dueAmount > 0
+                    ? SaleOrder::PAYMENT_PARTIAL
+                    : SaleOrder::PAYMENT_COMPLETED,
+
+                'status' => SaleOrder::STATUS_COMPLETED,
+
+                'remarks' => $remarks,
+
+                'created_by' => Auth::id(),
+
+                'items' => $cart['sale_items'],
+
+            ];
 
             /*
             |--------------------------------------------------------------------------
@@ -613,7 +793,7 @@ class POSService implements POSServiceInterface
             */
 
             $sale = $this->saleService
-                ->create($data);
+                ->create($saleData);
 
             /*
             |--------------------------------------------------------------------------
@@ -625,9 +805,11 @@ class POSService implements POSServiceInterface
                 ->createSalePayment(
                     $sale->id,
                     [
-                        'payment_mode_id' => $data['payment_mode_id'],
-                        'amount' => $data['paid_amount'],
-                        'remarks' => $data['remarks'] ?? null,
+                        'payment_mode_id' => $paymentModeId,
+                        'payment_date' => now()->toDateString(),
+                        'amount' => $paidAmount,
+                        'status' => Payment::STATUS_COMPLETED,
+                        'remarks' => $remarks,
                     ]
                 );
 
@@ -662,11 +844,11 @@ class POSService implements POSServiceInterface
             |--------------------------------------------------------------------------
             */
 
-            if (!empty($data['hold_id'])) {
+            if (!empty($holdId)) {
 
                 $this->posHoldRepository
                     ->complete(
-                        $data['hold_id']
+                        $holdId
                     );
             }
 
@@ -691,6 +873,392 @@ class POSService implements POSServiceInterface
             ];
 
         });
+    }
+
+    public function order(int $id): SaleOrder
+    {
+        return $this->saleForCurrentCashierSession($id);
+    }
+
+    public function updateOrder(
+        int $id,
+        array $data
+    ): array {
+
+        return DB::transaction(function () use ($id, $data) {
+
+            $session = $this->currentCashierSession();
+
+            $sale = $this->saleForCurrentCashierSession($id, $session);
+
+            if ($sale->saleReturns()->exists()) {
+
+                throw ValidationException::withMessages([
+
+                    'sale' => 'Sale with return entries cannot be edited from POS.',
+
+                ]);
+            }
+
+            $cart = $this->buildPosCart($data['items'] ?? []);
+
+            $currentPaid = round((float) $sale->payments()
+                ->where('status', Payment::STATUS_COMPLETED)
+                ->sum('amount'), 2);
+
+            $targetPaid = array_key_exists('paid_amount', $data)
+                ? round((float) $data['paid_amount'], 2)
+                : round((float) $cart['grand_total'], 2);
+
+            $grandTotal = round((float) $cart['grand_total'], 2);
+
+            if ($grandTotal < $currentPaid) {
+
+                throw ValidationException::withMessages([
+
+                    'items' => 'Edited bill total cannot be less than the amount already collected.',
+
+                ]);
+            }
+
+            if ($targetPaid < $currentPaid) {
+
+                throw ValidationException::withMessages([
+
+                    'paid_amount' => 'Paid amount cannot be less than the amount already collected.',
+
+                ]);
+            }
+
+            if ($targetPaid > $grandTotal) {
+
+                $targetPaid = $grandTotal;
+            }
+
+            $additionalAmount = round($targetPaid - $currentPaid, 2);
+
+            if ($additionalAmount > 0 && empty($data['payment_mode_id'])) {
+
+                throw ValidationException::withMessages([
+
+                    'payment_mode_id' => 'Payment mode is required for additional payment.',
+
+                ]);
+            }
+
+            $paidAmount = $targetPaid;
+
+            $dueAmount = max(0, $grandTotal - $paidAmount);
+
+            $updatedSale = $this->saleService
+                ->update($sale->id, [
+
+                    'customer_id' => $sale->customer_id,
+
+                    'sale_date' => optional($sale->sale_date)->toDateString() ?? now()->toDateString(),
+
+                    'invoice_date' => optional($sale->invoice_date)->toDateString() ?? now()->toDateString(),
+
+                    'sub_total' => $cart['sub_total'],
+
+                    'discount_amount' => $cart['discount'],
+
+                    'tax_amount' => $cart['tax'],
+
+                    'shipping_amount' => 0,
+
+                    'other_amount' => 0,
+
+                    'round_off' => 0,
+
+                    'grand_total' => $grandTotal,
+
+                    'paid_amount' => $paidAmount,
+
+                    'due_amount' => $dueAmount,
+
+                    'refund_amount' => 0,
+
+                    'payment_status' => $dueAmount > 0
+                        ? SaleOrder::PAYMENT_PARTIAL
+                        : SaleOrder::PAYMENT_COMPLETED,
+
+                    'status' => SaleOrder::STATUS_COMPLETED,
+
+                    'remarks' => $data['remarks'] ?? $sale->remarks,
+
+                    'updated_by' => Auth::id(),
+
+                    'items' => $cart['sale_items'],
+
+                ]);
+
+            $payment = null;
+
+            if ($additionalAmount > 0) {
+
+                $payment = $this->paymentService
+                    ->createSalePayment(
+                        $updatedSale->id,
+                        [
+                            'payment_mode_id' => $data['payment_mode_id'],
+                            'payment_date' => now()->toDateString(),
+                            'amount' => $additionalAmount,
+                            'status' => Payment::STATUS_COMPLETED,
+                            'remarks' => $data['remarks'] ?? 'POS Sale Edit Payment',
+                        ]
+                    );
+
+                $this->cashRegisterTransactionService
+                    ->cashIn([
+
+                        'cash_register_session_id' => $session->id,
+
+                        'payment_mode_id' => $payment->payment_mode_id,
+
+                        'reference_type' => get_class($payment),
+
+                        'reference_id' => $payment->id,
+
+                        'amount' => $payment->amount,
+
+                        'transaction_at' => now(),
+
+                        'remarks' => 'POS Sale Edit Payment',
+
+                    ]);
+            }
+
+            return [
+
+                'sale' => $updatedSale->fresh([
+                    'customer',
+                    'items.product',
+                    'items.unit',
+                    'payments.paymentMode',
+                ]),
+
+                'payment' => $payment,
+
+                'message' => 'POS order updated successfully.',
+
+            ];
+
+        });
+    }
+
+    private function currentCashierSession(): CashRegisterSession
+    {
+        $session = $this->cashRegisterSessionRepository
+            ->current((int) Auth::id());
+
+        if (!$session || $session->status !== CashRegisterSession::STATUS_OPEN) {
+
+            throw ValidationException::withMessages([
+
+                'session' => 'Open a register session before using POS billing.',
+
+            ]);
+        }
+
+        return $session;
+    }
+
+    private function assertSessionMatchesCurrentCashier(
+        mixed $sessionId,
+        CashRegisterSession $session
+    ): void {
+        if ($sessionId && (int) $sessionId !== (int) $session->id) {
+
+            throw ValidationException::withMessages([
+
+                'session' => 'Cashier can only use their own open session.',
+
+            ]);
+        }
+    }
+
+    private function saleForCurrentCashierSession(
+        int $id,
+        ?CashRegisterSession $session = null
+    ): SaleOrder {
+
+        $session ??= $this->currentCashierSession();
+
+        $sale = SaleOrder::query()
+            ->with([
+                'customer',
+                'items.product',
+                'items.unit',
+                'payments.paymentMode',
+                'saleReturns',
+                'creator',
+                'updater',
+            ])
+            ->findOrFail($id);
+
+        $paymentIds = $sale->payments
+            ->pluck('id')
+            ->all();
+
+        $belongsToSession = !empty($paymentIds)
+            && CashRegisterTransaction::query()
+                ->where('cash_register_session_id', $session->id)
+                ->where('reference_type', Payment::class)
+                ->whereIn('reference_id', $paymentIds)
+                ->exists();
+
+        if (!$belongsToSession) {
+
+            throw ValidationException::withMessages([
+
+                'sale' => 'This POS order does not belong to the current cashier session.',
+
+            ]);
+        }
+
+        return $sale;
+    }
+
+    private function assertHoldBelongsToCurrentCashier(PosHold $hold): void
+    {
+        $session = $this->currentCashierSession();
+
+        if ((int) $hold->cash_register_session_id !== (int) $session->id) {
+
+            throw ValidationException::withMessages([
+
+                'hold' => 'This held bill does not belong to the current session.',
+
+            ]);
+        }
+
+        if ($hold->status !== PosHold::STATUS_HOLD) {
+
+            throw ValidationException::withMessages([
+
+                'hold' => 'This hold is no longer available.',
+
+            ]);
+        }
+    }
+
+    private function buildPosCart(array $items): array
+    {
+        $requested = [];
+
+        foreach ($items as $item) {
+            $productId = (int) ($item['product_id'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+
+            if ($productId <= 0 || $quantity <= 0) {
+                throw ValidationException::withMessages([
+                    'items' => 'Each POS item must include a valid product and quantity.',
+                ]);
+            }
+
+            $requested[$productId] = ($requested[$productId] ?? 0) + $quantity;
+        }
+
+        $products = Product::query()
+            ->whereIn('id', array_keys($requested))
+            ->where('is_active', true)
+            ->get()
+            ->keyBy('id');
+
+        $subTotal = 0;
+        $discountTotal = 0;
+        $taxTotal = 0;
+        $grandTotal = 0;
+        $holdItems = [];
+        $saleItems = [];
+
+        foreach ($requested as $productId => $quantity) {
+            $product = $products->get($productId);
+
+            if (!$product) {
+                throw ValidationException::withMessages([
+                    'items' => 'One or more products are inactive or unavailable.',
+                ]);
+            }
+
+            if (!$product->unit_id) {
+                throw ValidationException::withMessages([
+                    'items' => "Product {$product->name} does not have a unit assigned.",
+                ]);
+            }
+
+            $price = (float) $product->selling_price;
+            $purchasePrice = (float) ($product->purchase_price ?? 0);
+            $taxPercent = (float) ($product->tax_percent ?? 0);
+            $discountPercent = (float) ($product->discount_percent ?? 0);
+            $lineSubTotal = round($price * $quantity, 2);
+            $discountAmount = round($lineSubTotal * $discountPercent / 100, 2);
+            $taxableAmount = max(0, $lineSubTotal - $discountAmount);
+            $taxAmount = round($taxableAmount * $taxPercent / 100, 2);
+            $lineTotal = round($taxableAmount + $taxAmount, 2);
+
+            $subTotal += $lineSubTotal;
+            $discountTotal += $discountAmount;
+            $taxTotal += $taxAmount;
+            $grandTotal += $lineTotal;
+
+            $holdItems[] = [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'price' => $price,
+                'discount' => $discountAmount,
+                'tax' => $taxAmount,
+                'total' => $lineTotal,
+            ];
+
+            $saleItems[] = [
+                'product_id' => $product->id,
+                'unit_id' => $product->unit_id,
+                'quantity' => $quantity,
+                'purchase_price' => $purchasePrice,
+                'selling_price' => $price,
+                'tax_percent' => $taxPercent,
+                'tax_amount' => $taxAmount,
+                'discount_percent' => $discountPercent,
+                'discount_amount' => $discountAmount,
+                'line_total' => $lineTotal,
+            ];
+        }
+
+        return [
+            'sub_total' => round($subTotal, 2),
+            'discount' => round($discountTotal, 2),
+            'tax' => round($taxTotal, 2),
+            'grand_total' => round($grandTotal, 2),
+            'hold_items' => $holdItems,
+            'sale_items' => $saleItems,
+        ];
+    }
+
+    private function walkInCustomer(): Customer
+    {
+        $customer = Customer::withTrashed()
+            ->where('customer_code', 'WALK-IN')
+            ->first();
+
+        if ($customer) {
+            if ($customer->trashed()) {
+                $customer->restore();
+            }
+
+            return $customer;
+        }
+
+        return Customer::create([
+            'customer_code' => 'WALK-IN',
+            'customer_type' => 'Walk-in',
+            'first_name' => 'Walk-in Customer',
+            'opening_balance' => 0,
+            'credit_limit' => 0,
+            'is_active' => true,
+            'created_by' => Auth::id(),
+        ]);
     }
 
     public function cashIn(
@@ -735,11 +1303,49 @@ class POSService implements POSServiceInterface
                 + $cashIn
                 - $cashOut,
 
+         ];
+     }
+
+    public function sessionContext(): array
+    {
+        $user = Auth::user();
+
+        $register = $this->cashRegisterRepository
+            ->getOpenRegisterByUser((int) $user->id);
+
+        $session = $this->cashRegisterSessionRepository
+            ->current((int) $user->id);
+
+        $message = 'Billing ready.';
+
+        if (!$register) {
+            $message = 'No cash register assigned to this cashier.';
+        } elseif (!$session) {
+            $message = 'Open a register session before billing.';
+        }
+
+        return [
+
+            'cashier' => $user,
+
+            'register' => $register,
+
+            'session' => $session,
+
+            'payment_modes' => $this->paymentModeRepository
+                ->active(),
+
+            'billing_allowed' => $register !== null && $session !== null,
+
+            'requires_session' => $register !== null && $session === null,
+
+            'message' => $message,
+
         ];
     }
 
-    public function dashboard(): array
-    {
+     public function dashboard(): array
+     {
         $userId = auth()->id();
 
         /*
@@ -799,8 +1405,29 @@ class POSService implements POSServiceInterface
         |--------------------------------------------------------------------------
         */
 
-        $recentSales = $this->saleRepository
-            ->recent(10);
+        $sessionPaymentIds = $session
+            ? CashRegisterTransaction::query()
+                ->where('cash_register_session_id', $session->id)
+                ->where('reference_type', Payment::class)
+                ->pluck('reference_id')
+                ->all()
+            : [];
+
+        $recentSales = empty($sessionPaymentIds)
+            ? collect()
+            : SaleOrder::query()
+                ->with([
+                    'customer',
+                    'items.product',
+                    'items.unit',
+                    'payments.paymentMode',
+                ])
+                ->whereHas('payments', function ($query) use ($sessionPaymentIds) {
+                    $query->whereIn('payments.id', $sessionPaymentIds);
+                })
+                ->latest()
+                ->limit(10)
+                ->get();
 
         /*
         |--------------------------------------------------------------------------

@@ -12,14 +12,14 @@ class CashRegisterTransaction extends Model
     public const TYPE_IN = 'In';
     public const TYPE_OUT = 'Out';
 
-    public const TYPE_CASH_IN = 'cash_in';
+    public const TYPE_CASH_IN = self::TYPE_IN;
 
-    public const TYPE_CASH_OUT = 'cash_out';
+    public const TYPE_CASH_OUT = self::TYPE_OUT;
 
     protected $fillable = [
         'cash_register_session_id',
-        reference_type .
-        reference_id,
+        'reference_type',
+        'reference_id',
         'payment_mode_id',
         'type',
         'amount',

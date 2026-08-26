@@ -89,7 +89,8 @@ class CashRegisterRepository implements CashRegisterRepositoryInterface
         int $userId
     ): ?CashRegister {
 
-        return CashRegister::where(
+        return CashRegister::with('user')
+            ->where(
                 'user_id',
                 $userId
             )

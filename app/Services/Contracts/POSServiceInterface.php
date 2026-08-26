@@ -73,6 +73,10 @@ interface POSServiceInterface
         array $filters = []
     ): LengthAwarePaginator;
 
+    public function currentHolds(
+        int $perPage = 15
+    ): LengthAwarePaginator;
+
     public function hold(
         int $id
     ): PosHold;
@@ -100,6 +104,15 @@ interface POSServiceInterface
         array $data
     );
 
+    public function order(
+        int $id
+    );
+
+    public function updateOrder(
+        int $id,
+        array $data
+    );
+
     public function barcode(
         string $barcode
     );
@@ -115,6 +128,8 @@ interface POSServiceInterface
     public function cashOut(
         array $data
     );
+
+    public function sessionContext(): array;
 
     public function dashboard(): array;
 

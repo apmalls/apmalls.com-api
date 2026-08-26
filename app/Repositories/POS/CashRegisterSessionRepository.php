@@ -85,6 +85,12 @@ class CashRegisterSessionRepository implements CashRegisterSessionRepositoryInte
 
         return CashRegisterSession::query()
 
+            ->with([
+                'register',
+                'cashier',
+                'transactions.paymentMode',
+            ])
+
             ->where('user_id', $userId)
 
             ->where('status', CashRegisterSession::STATUS_OPEN)

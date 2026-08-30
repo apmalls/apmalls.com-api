@@ -128,6 +128,12 @@ class AuthController extends Controller
 
                 'password' => Hash::make($request->password),
 
+                'terms_accepted' => $request->boolean('terms_accepted'),
+
+                'terms_accepted_at' => now(),
+
+                'terms_version' => $request->terms_version,
+
             ]);
 
             /**
@@ -264,6 +270,9 @@ class AuthController extends Controller
                     'mobile' => $user->mobile,
                     'profile_photo' => $user->profile_photo_url,
                     'is_active' => $user->is_active,
+                    'terms_accepted' => $user->terms_accepted,
+                    'terms_accepted_at' => optional($user->terms_accepted_at)->toISOString(),
+                    'terms_version' => $user->terms_version,
 
                 ],
 

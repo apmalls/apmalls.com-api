@@ -27,7 +27,10 @@ use Spatie\Activitylog\LogOptions;
     'mobile',
     'password',
     'profile_photo',
-    'is_active'
+    'is_active',
+    'terms_accepted',
+    'terms_accepted_at',
+    'terms_version'
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -52,7 +55,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'mobile_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'terms_accepted' => 'boolean',
+            'terms_accepted_at' => 'datetime',
         ];
     }
 
@@ -65,7 +70,10 @@ class User extends Authenticatable
                 'last_name',
                 'email',
                 'mobile',
-                'is_active'
+                'is_active',
+                'terms_accepted',
+                'terms_accepted_at',
+                'terms_version'
             ])
 
             ->logOnlyDirty();

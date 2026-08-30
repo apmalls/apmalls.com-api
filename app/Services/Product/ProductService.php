@@ -49,17 +49,29 @@ class ProductService implements ProductServiceInterface
     {
         return DB::transaction(function () use ($data) {
 
-            if (blank($data['barcode'])) {
+            if (blank($data['barcode'] ?? null)) {
 
                 $setting = $this->generalSettingRepository->getForUpdate();
 
-                $data['barcode'] = $setting->barcode_prefix .
-                    $setting->barcode_start_number;
+                $barcodeNumber = (int) $setting->barcode_start_number;
+
+                do {
+                    $barcode = $setting->barcode_prefix . $barcodeNumber;
+                    $barcodeNumber++;
+                } while (
+                    Product::withTrashed()
+                        ->where('barcode', $barcode)
+                        ->exists()
+                );
+
+                $data['barcode'] = $barcode;
 
                 $data['barcode_type'] = $setting->barcode_type;
                 $data['is_barcode_auto'] = true;
 
-                $setting->increment('barcode_start_number');
+                $setting->update([
+                    'barcode_start_number' => $barcodeNumber,
+                ]);
 
             } else {
 

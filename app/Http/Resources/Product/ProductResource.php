@@ -28,6 +28,10 @@ class ProductResource extends JsonResource
 
             'barcode' => $this->barcode,
 
+            'barcode_type' => $this->barcode_type,
+
+            'is_barcode_auto' => (bool) $this->is_barcode_auto,
+
             'short_description' => $this->short_description,
 
             'description' => $this->description,
@@ -41,6 +45,16 @@ class ProductResource extends JsonResource
             'discount_price' => $this->discount_price,
 
             'discount_percentage' => $this->discount_percentage,
+
+            'tax_percent' => $this->tax_percent,
+
+            'discount_percent' => $this->discount_percent,
+
+            'minimum_stock' => $this->minimum_stock,
+
+            'thumbnail' => $this->thumbnail,
+
+            'thumbnail_url' => $this->thumbnail_url,
 
             'stock' => $this->stock,
 
@@ -127,6 +141,8 @@ class ProductResource extends JsonResource
                         'id' => $image->id,
 
                         'image' => $image->image,
+
+                        'image_url' => $image->image_url,
 
                         'is_primary' => (bool) $image->is_primary,
 

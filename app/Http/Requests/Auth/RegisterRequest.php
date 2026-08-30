@@ -39,6 +39,10 @@ class RegisterRequest extends FormRequest
                 'confirmed',
                 Password::defaults(),
             ],
+
+            'terms_accepted' => ['required', 'accepted'],
+
+            'terms_version' => ['nullable', 'string', 'max:30'],
         ];
     }
 
@@ -47,6 +51,7 @@ class RegisterRequest extends FormRequest
         return [
             'email.unique' => 'Email already exists.',
             'mobile.unique' => 'Mobile number already exists.',
+            'terms_accepted.accepted' => 'You must accept the terms and conditions.',
         ];
     }
 }

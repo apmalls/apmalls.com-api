@@ -33,7 +33,7 @@ class ProductController extends Controller
                 'category_id' => $request->filled('category_id') ? $request->category_id : null,
                 'brand_id' => $request->filled('brand_id') ? $request->brand_id : null,
                 'unit_id' => $request->filled('unit_id') ? $request->unit_id : null,
-                'status' => $request->filled('status') ? $request->boolean('status') : null,
+                'is_active' => $request->filled('status') ? $request->boolean('status') : null,
                 'featured' => $request->filled('featured') ? $request->boolean('featured') : null,
                 'new_arrival' => $request->filled('new_arrival') ? $request->boolean('new_arrival') : null,
                 'best_seller' => $request->filled('best_seller') ? $request->boolean('best_seller') : null,
@@ -75,9 +75,7 @@ class ProductController extends Controller
                     ? Str::slug($request->slug)
                     : Str::slug($request->name),
                 'sku' => $this->productService->generateSku(),
-                'barcode' => $request->filled('barcode')
-                    ? $request->barcode
-                    : $this->productService->generateBarcode(),
+                'barcode' => $request->barcode,
                 'hsn_code' => $request->hsn_code,
                 'short_description' => $request->short_description,
                 'description' => $request->description,

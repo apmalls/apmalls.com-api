@@ -38,7 +38,16 @@ class CategoryResource extends JsonResource
 
             'is_featured' => (bool) $this->is_featured,
 
-            'products_count' => $this->whenCounted('products'),
+            'products_count' => $this->when(
+                array_key_exists('products_count', $this->resource->getAttributes()),
+                (int) ($this->products_count ?? 0) +
+                    (int) ($this->descendant_products_count ?? 0)
+            ),
+
+            'direct_products_count' => $this->when(
+                array_key_exists('products_count', $this->resource->getAttributes()),
+                (int) ($this->products_count ?? 0)
+            ),
 
             'parent' => $this->whenLoaded('parent', function () {
 
@@ -55,6 +64,11 @@ class CategoryResource extends JsonResource
                 ];
 
             }),
+
+            'children' => $this->whenLoaded(
+                'children',
+                fn() => CategoryResource::collection($this->children)
+            ),
 
             'created_at' => $this->created_at?->format('d-m-Y H:i:s'),
 

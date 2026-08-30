@@ -73,6 +73,27 @@ class CategoryController extends Controller
     }
 
     /**
+     * Active category hierarchy for website navigation.
+     */
+    public function tree(): JsonResponse
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'message' => 'Category tree fetched successfully.',
+                'data' => CategoryResource::collection(
+                    $this->categoryService->websiteTree()
+                ),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Category details.
      */
     public function show(

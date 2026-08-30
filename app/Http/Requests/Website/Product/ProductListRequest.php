@@ -47,6 +47,13 @@ class ProductListRequest extends FormRequest
                 'exists:categories,id',
             ],
 
+            'category' => [
+                'nullable',
+                'string',
+                'max:255',
+                'exists:categories,slug',
+            ],
+
             /*
             |--------------------------------------------------------------------------
             | Brand
@@ -154,13 +161,21 @@ class ProductListRequest extends FormRequest
 
             'category_id' => $this->input('category_id'),
 
+            'category' => $this->input('category'),
+
             'brand_id' => $this->input('brand_id'),
 
-            'featured' => $this->boolean('featured'),
+            'featured' => $this->has('featured')
+                ? $this->boolean('featured')
+                : null,
 
-            'new_arrival' => $this->boolean('new_arrival'),
+            'new_arrival' => $this->has('new_arrival')
+                ? $this->boolean('new_arrival')
+                : null,
 
-            'best_seller' => $this->boolean('best_seller'),
+            'best_seller' => $this->has('best_seller')
+                ? $this->boolean('best_seller')
+                : null,
 
             'min_price' => $this->input('min_price'),
 

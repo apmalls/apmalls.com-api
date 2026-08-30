@@ -44,8 +44,10 @@ use App\Http\Controllers\Api\V1\Admin\User\UserController;
 
 use App\Http\Controllers\Api\V1\Website\CartController;
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
+use App\Http\Controllers\Api\V1\Website\BrandController as WebsiteBrandController;
 use App\Http\Controllers\Api\V1\Website\HomeController;
 use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
+use App\Http\Controllers\Api\V1\Website\UnitController as WebsiteUnitController;
 use App\Http\Controllers\Api\V1\Website\CustomerAddressController as WebsiteCustomerAddressController;
 use App\Http\Controllers\Api\V1\Website\SaleOrderController as WebsiteSaleOrderController;
 use App\Http\Controllers\Api\V1\Website\WishlistController;
@@ -896,12 +898,12 @@ Route::prefix('v1')->group(function () {
 
         Route::get(
             'products',
-            [ProductController::class, 'index']
+            [WebsiteProductController::class, 'index']
         );
 
         Route::get(
             'products/{slug}',
-            [ProductController::class, 'show']
+            [WebsiteProductController::class, 'show']
         );
 
         Route::get(
@@ -920,11 +922,16 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-        Route::controller(CategoryController::class)
+        Route::controller(WebsiteCategoryController::class)
 
             ->prefix('categories')
 
             ->group(function () {
+
+                Route::get(
+                    '/tree',
+                    'tree'
+                );
 
                 /**
                  * Category Listing
@@ -950,7 +957,7 @@ Route::prefix('v1')->group(function () {
 */
 
         Route::prefix('brands')
-            ->controller(BrandController::class)
+            ->controller(WebsiteBrandController::class)
             ->group(function (): void {
 
                 /**
@@ -979,7 +986,7 @@ Route::prefix('v1')->group(function () {
 */
 
         Route::prefix('units')
-            ->controller(UnitController::class)
+            ->controller(WebsiteUnitController::class)
             ->group(function (): void {
 
                 /**

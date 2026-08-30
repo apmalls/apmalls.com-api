@@ -33,7 +33,7 @@ class CategoryRepository implements CategoryRepositoryInterface
                 'updater',
             ])
 
-            ->withCount('products')
+            ->withCount(['products', 'descendantProducts'])
 
             ->when(
 
@@ -250,6 +250,15 @@ class CategoryRepository implements CategoryRepositoryInterface
                 true
             )
 
+            ->where(function ($query) {
+                $query
+                    ->whereNull('parent_id')
+                    ->orWhereHas(
+                        'parent',
+                        fn($parent) => $parent->where('is_active', true)
+                    );
+            })
+
             ->orderBy('sort_order')
 
             ->get();
@@ -271,12 +280,21 @@ class CategoryRepository implements CategoryRepositoryInterface
 
         return Category::query()
 
-            ->withCount('products')
+            ->withCount(['products', 'descendantProducts'])
 
             ->where(
                 'is_active',
                 true
             )
+
+            ->where(function ($query) {
+                $query
+                    ->whereNull('parent_id')
+                    ->orWhereHas(
+                        'parent',
+                        fn($parent) => $parent->where('is_active', true)
+                    );
+            })
 
             ->when(
 
@@ -291,6 +309,8 @@ class CategoryRepository implements CategoryRepositoryInterface
                 )
 
             )
+
+            ->orderBy('sort_order')
 
             ->orderBy('name')
 
@@ -310,6 +330,18 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::query()
 
             ->with([
+
+                'parent',
+
+                'children' => function ($query) {
+
+                    $query
+                        ->where('is_active', true)
+                        ->withCount('products')
+                        ->orderBy('sort_order')
+                        ->orderBy('name');
+
+                },
 
                 'products' => function ($query) {
 
@@ -331,7 +363,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
             ])
 
-            ->withCount('products')
+            ->withCount(['products', 'descendantProducts'])
 
             ->where(
                 'slug',
@@ -342,6 +374,15 @@ class CategoryRepository implements CategoryRepositoryInterface
                 'is_active',
                 true
             )
+
+            ->where(function ($query) {
+                $query
+                    ->whereNull('parent_id')
+                    ->orWhereHas(
+                        'parent',
+                        fn($parent) => $parent->where('is_active', true)
+                    );
+            })
 
             ->firstOrFail();
 

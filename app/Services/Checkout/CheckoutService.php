@@ -6,6 +6,7 @@ namespace App\Services\Checkout;
 
 use App\Models\Cart\Cart;
 use App\Models\Sale\SaleOrder;
+use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CheckoutServiceInterface;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,8 @@ class CheckoutService implements CheckoutServiceInterface
     public function __construct(
 
         protected CartRepositoryInterface $cartRepository,
+
+        protected CartServiceInterface $cartService,
 
         protected ProductRepositoryInterface $productRepository,
 
@@ -71,10 +74,9 @@ class CheckoutService implements CheckoutServiceInterface
         int $customerId
     ): Cart {
 
-        $cart = $this->cartRepository
-            ->getActiveCart(
-                $customerId
-            );
+        $cart = $this->cartService->getActiveCart(
+            $customerId
+        );
 
         if (!$cart) {
 

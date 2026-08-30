@@ -40,9 +40,13 @@ class CartService implements CartServiceInterface
         int $customerId
     ): ?Cart {
 
-        return $this->cartRepository->getActiveCart(
+        $cart = $this->cartRepository->getActiveCart(
             $customerId
         );
+
+        return $cart
+            ? $this->recalculate($cart->id)
+            : null;
 
     }
 
@@ -119,7 +123,10 @@ class CartService implements CartServiceInterface
 
         foreach ($cart->items as $item) {
 
-            $subtotal += $item->subtotal;
+            $subtotal +=
+                (float) $item->price
+                *
+                (int) $item->quantity;
 
             $discount += $item->discount_amount;
 
@@ -131,16 +138,24 @@ class CartService implements CartServiceInterface
 
         $couponDiscount = 0;
 
+        $discountableSubtotal = max(
+            0,
+            $subtotal - $discount
+        );
+
         if ($cart->coupon) {
 
             if ($cart->coupon->discount_type === 'Fixed') {
 
-                $couponDiscount = $cart->coupon->discount_value;
+                $couponDiscount = min(
+                    (float) $cart->coupon->discount_value,
+                    $discountableSubtotal
+                );
 
             } else {
 
                 $couponDiscount = (
-                    $subtotal
+                    $discountableSubtotal
                     *
                     $cart->coupon->discount_value
                 ) / 100;
@@ -170,6 +185,10 @@ class CartService implements CartServiceInterface
 
             $subtotal
 
+            -
+
+            $discount
+
             +
 
             $tax
@@ -182,21 +201,44 @@ class CartService implements CartServiceInterface
 
             $couponDiscount;
 
+        $totals = [
+
+            'subtotal' => round($subtotal, 2),
+
+            'discount_amount' => round(
+                $discount + $couponDiscount,
+                2
+            ),
+
+            'tax_amount' => round($tax, 2),
+
+            'grand_total' => round(
+                max(0, $grandTotal),
+                2
+            ),
+
+        ];
+
+        $totalsChanged =
+            round((float) $cart->subtotal, 2) !== $totals['subtotal']
+            ||
+            round((float) $cart->discount_amount, 2) !== $totals['discount_amount']
+            ||
+            round((float) $cart->tax_amount, 2) !== $totals['tax_amount']
+            ||
+            round((float) $cart->grand_total, 2) !== $totals['grand_total'];
+
+        if (!$totalsChanged) {
+
+            return $cart;
+
+        }
+
         $this->cartRepository->update(
 
             $cart->id,
 
-            [
-
-                'subtotal' => $subtotal,
-
-                'discount_amount' => $discount + $couponDiscount,
-
-                'tax_amount' => $tax,
-
-                'grand_total' => $grandTotal,
-
-            ]
+            $totals
 
         );
 

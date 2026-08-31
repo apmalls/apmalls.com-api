@@ -49,6 +49,18 @@ class RolePermissionSeeder extends Seeder
 
             'sale-order.view',
             'sale-order.invoice',
+
+            'delivery-boy.list',
+            'delivery-boy.view',
+            'delivery-boy.create',
+            'delivery-boy.update',
+            'delivery-boy.change-status',
+
+            'delivery-assignment.list',
+            'delivery-assignment.view',
+            'delivery-assignment.create',
+            'delivery-assignment.update',
+            'delivery-assignment.delete',
         ]);
 
         /**
@@ -75,10 +87,9 @@ class RolePermissionSeeder extends Seeder
         $deliveryBoy->syncPermissions([
             'dashboard.view',
 
-            'delivery-boy.view',
-            'delivery-boy.complete',
-
-            'sale-order.view',
+            'delivery-assignment.list',
+            'delivery-assignment.view',
+            'delivery-assignment.update',
         ]);
 
         /**

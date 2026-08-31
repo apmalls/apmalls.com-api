@@ -14,6 +14,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 {
@@ -49,6 +50,21 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
         return DB::transaction(function () use ($data) {
 
+            $order = SaleOrder::query()->lockForUpdate()->findOrFail($data['sale_order_id']);
+            $deliveryBoy = \App\Models\Delivery\DeliveryBoy::query()->findOrFail($data['delivery_boy_id']);
+
+            if ($order->status !== SaleOrder::STATUS_CONFIRMED || ! $order->shipping_address_id) {
+                throw ValidationException::withMessages(['sale_order_id' => ['Only confirmed orders with a shipping address can be assigned.']]);
+            }
+
+            if (! $deliveryBoy->is_active || ! $deliveryBoy->is_available || ! $deliveryBoy->user?->is_active) {
+                throw ValidationException::withMessages(['delivery_boy_id' => ['Select an active and available delivery person.']]);
+            }
+
+            if ($this->deliveryAssignmentRepository->findActiveAssignment($order->id)) {
+                throw ValidationException::withMessages(['sale_order_id' => ['This order already has an active delivery assignment.']]);
+            }
+
             $assignment = $this->deliveryAssignmentRepository
                 ->create([
                     ...$data,
@@ -62,7 +78,10 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
                     DeliveryAssignment::STATUS_ASSIGNED
                 );
 
-            return $assignment;
+            return $assignment->load([
+                'saleOrder.customer', 'saleOrder.shippingAddress', 'saleOrder.items.product',
+                'deliveryBoy.user', 'assignedBy',
+            ]);
 
         });
 
@@ -89,6 +108,14 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
             $assignment = $this->getAssignment($assignmentId);
 
+            if ($assignment->status !== DeliveryAssignment::STATUS_ASSIGNED) {
+                throw ValidationException::withMessages(['status' => ['Only an assigned delivery can be rejected.']]);
+            }
+
+            if (blank($remarks)) {
+                throw ValidationException::withMessages(['remarks' => ['Remarks are required when rejecting an assignment.']]);
+            }
+
             $assignment = $this->deliveryAssignmentRepository
                 ->update(
                     $assignment,
@@ -102,7 +129,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
             $this->saleOrderRepository
                 ->updateDeliveryStatus(
                     $assignment->sale_order_id,
-                    DeliveryAssignment::STATUS_ASSIGNED
+                    null
                 );
 
             return $assignment;
@@ -141,7 +168,29 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
         return DB::transaction(function () use ($assignmentId) {
 
-            $assignment = $this->getAssignment($assignmentId);
+            $assignment = DeliveryAssignment::query()
+                ->lockForUpdate()
+                ->findOrFail($assignmentId);
+
+            if ($assignment->status === DeliveryAssignment::STATUS_DELIVERED) {
+                return $this->getAssignment($assignmentId);
+            }
+
+            if ($assignment->status !== DeliveryAssignment::STATUS_OUT_FOR_DELIVERY) {
+                throw ValidationException::withMessages([
+                    'status' => ['Only an out-for-delivery assignment can be completed.'],
+                ]);
+            }
+
+            $order = SaleOrder::query()
+                ->lockForUpdate()
+                ->findOrFail($assignment->sale_order_id);
+
+            if ((float) $order->due_amount > 0) {
+                throw ValidationException::withMessages([
+                    'payment' => ['Outstanding Cash on Delivery must be confirmed by the assigned delivery person.'],
+                ]);
+            }
 
             $assignment = $this->deliveryAssignmentRepository
                 ->update(
@@ -152,12 +201,11 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
                     ]
                 );
 
-            $this->saleOrderRepository
-                ->updateDeliveryStatus(
-                    $assignment->sale_order_id,
-                    DeliveryAssignment::STATUS_DELIVERED,
-                    now()->toDateTimeString()
-                );
+            $order->update([
+                'status' => SaleOrder::STATUS_COMPLETED,
+                'delivery_status' => DeliveryAssignment::STATUS_DELIVERED,
+                'delivered_at' => now(),
+            ]);
 
             return $assignment;
 
@@ -177,11 +225,31 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
     public function delete(
         int $assignmentId
     ): bool {
+        return DB::transaction(function () use ($assignmentId) {
+            $assignment = DeliveryAssignment::query()
+                ->lockForUpdate()
+                ->findOrFail($assignmentId);
 
-        $assignment = $this->getAssignment($assignmentId);
+            if ($assignment->status === DeliveryAssignment::STATUS_DELIVERED) {
+                throw ValidationException::withMessages(['status' => ['A delivered assignment cannot be cancelled.']]);
+            }
 
-        return $this->deliveryAssignmentRepository
-            ->delete($assignment);
+            if ($assignment->status === DeliveryAssignment::STATUS_REJECTED) {
+                throw ValidationException::withMessages(['status' => ['A rejected assignment is already closed.']]);
+            }
+
+            if ($assignment->status === DeliveryAssignment::STATUS_CANCELLED) {
+                return true;
+            }
+
+            $this->deliveryAssignmentRepository->update($assignment, [
+                'status' => DeliveryAssignment::STATUS_CANCELLED,
+                'cancelled_at' => now(),
+            ]);
+            $this->saleOrderRepository->updateDeliveryStatus($assignment->sale_order_id, null);
+
+            return true;
+        });
 
     }
 
@@ -218,7 +286,20 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
         return DB::transaction(function () use ($assignmentId, $status, $timestampColumn) {
 
-            $assignment = $this->getAssignment($assignmentId);
+            $assignment = DeliveryAssignment::query()
+                ->lockForUpdate()
+                ->findOrFail($assignmentId);
+
+            $expected = match ($status) {
+                DeliveryAssignment::STATUS_ACCEPTED => DeliveryAssignment::STATUS_ASSIGNED,
+                DeliveryAssignment::STATUS_PICKED => DeliveryAssignment::STATUS_ACCEPTED,
+                DeliveryAssignment::STATUS_OUT_FOR_DELIVERY => DeliveryAssignment::STATUS_PICKED,
+                default => DeliveryAssignment::STATUS_OUT_FOR_DELIVERY,
+            };
+
+            if ($assignment->status !== $expected) {
+                throw ValidationException::withMessages(['status' => ['Invalid delivery status transition.']]);
+            }
 
             $assignment = $this->deliveryAssignmentRepository
                 ->update(

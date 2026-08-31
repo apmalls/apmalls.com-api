@@ -18,7 +18,9 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
 
         $query = DeliveryAssignment::query()
             ->with([
-                'saleOrder',
+                'saleOrder.customer',
+                'saleOrder.shippingAddress',
+                'saleOrder.items.product',
                 'deliveryBoy.user',
                 'assignedBy',
             ]);
@@ -79,7 +81,9 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
     ): ?DeliveryAssignment {
 
         return DeliveryAssignment::with([
-            'saleOrder',
+            'saleOrder.customer',
+            'saleOrder.shippingAddress',
+            'saleOrder.items.product',
             'deliveryBoy.user',
             'assignedBy',
         ])->find($id);
@@ -127,7 +131,9 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
     ): Collection {
 
         $query = DeliveryAssignment::with([
-                'saleOrder',
+                'saleOrder.customer',
+                'saleOrder.shippingAddress',
+                'saleOrder.items.product',
             ])
             ->where(
                 'delivery_boy_id',

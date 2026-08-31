@@ -23,6 +23,11 @@ interface CheckoutServiceInterface
         array $data
     ): SaleOrder;
 
+    /**
+     * Confirm an unpaid order for cash collection on delivery.
+     */
+    public function confirmCashOnDelivery(int $saleOrderId): SaleOrder;
+
     /*
     |--------------------------------------------------------------------------
     | Payment

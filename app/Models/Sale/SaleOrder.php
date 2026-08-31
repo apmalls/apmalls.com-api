@@ -40,8 +40,6 @@ class SaleOrder extends Model
 
     # Delivery status
 
-    public const DELIVERY_PENDING = 'pending';
-
     public const DELIVERY_ASSIGNED = 'assigned';
 
     public const DELIVERY_ACCEPTED = 'accepted';
@@ -96,6 +94,12 @@ class SaleOrder extends Model
 
         'status',
 
+        'delivery_status',
+
+        'expected_delivery_at',
+
+        'delivered_at',
+
         'remarks',
 
         'billing_address_id',
@@ -139,6 +143,10 @@ class SaleOrder extends Model
         'due_amount' => 'decimal:2',
 
         'refund_amount' => 'decimal:2',
+
+        'expected_delivery_at' => 'datetime',
+
+        'delivered_at' => 'datetime',
 
     ];
 
@@ -304,6 +312,6 @@ class SaleOrder extends Model
 
     public function deliveryAssignment(): HasOne
     {
-        return $this->hasOne(DeliveryAssignment::class);
+        return $this->hasOne(DeliveryAssignment::class)->latestOfMany();
     }
 }

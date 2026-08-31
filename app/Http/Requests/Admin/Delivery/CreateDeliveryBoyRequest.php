@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\Delivery;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateDeliveryBoyRequest extends FormRequest
 {
@@ -23,14 +24,18 @@ class CreateDeliveryBoyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'max:100'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id', 'unique:delivery_boys,user_id'],
+            'first_name' => ['required_without:user_id', 'nullable', 'string', 'max:100'],
             'last_name' => ['nullable', 'string', 'max:100'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'email' => ['required_without:user_id', 'nullable', 'email', 'unique:users,email'],
+            'password' => ['required_without:user_id', 'nullable', 'string', 'min:8', 'confirmed'],
 
             'employee_code' => ['required', 'string', 'max:50', 'unique:delivery_boys,employee_code'],
 
-            'phone' => ['required', 'string', 'max:20', 'unique:delivery_boys,phone'],
+            'phone' => [
+                'required', 'string', 'max:20', 'unique:delivery_boys,phone',
+                Rule::unique('users', 'mobile')->ignore($this->integer('user_id')),
+            ],
             'alternate_phone' => ['nullable', 'string', 'max:20'],
 
             'vehicle_type' => ['required', 'string', 'max:50'],

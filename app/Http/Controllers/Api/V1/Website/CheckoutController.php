@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Website;
 
 use App\Http\Requests\Website\Checkout\CheckoutRequest;
+use App\Models\Payment\Payment;
+use App\Models\Payment\PaymentMode;
 use App\Services\Contracts\PaymentServiceInterface;
 use Throwable;
 use Illuminate\Http\JsonResponse;
@@ -43,13 +45,25 @@ class CheckoutController extends Controller
                     $request->validated()
                 );
 
+            $paymentMode = PaymentMode::query()
+                ->active()
+                ->findOrFail($request->integer('payment_mode_id'));
+
+            $payment = null;
+            $gatewayOrder = null;
+
+            if (! $paymentMode->is_online) {
+                $saleOrder = $this->checkoutService
+                    ->confirmCashOnDelivery($saleOrder->id);
+            } else {
+
             /*
             |--------------------------------------------------------------------------
             | Create Payment
             |--------------------------------------------------------------------------
             */
 
-            $payment = $this->paymentService
+                $payment = $this->paymentService
                 ->createSalePayment(
 
                     $saleOrder->id,
@@ -60,7 +74,7 @@ class CheckoutController extends Controller
 
                         'payment_mode_id' => $request->payment_mode_id,
 
-                        'status' => \App\Models\Payment\Payment::STATUS_PENDING,
+                        'status' => Payment::STATUS_PENDING,
 
                     ]
 
@@ -72,16 +86,19 @@ class CheckoutController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $gatewayOrder = $this->paymentService
-                ->createGatewayOrder(
-                    $payment->id
-                );
+                $gatewayOrder = $this->paymentService
+                    ->createGatewayOrder(
+                        $payment->id
+                    );
+            }
 
             return response()->json([
 
                 'success' => true,
 
-                'message' => 'Checkout created successfully.',
+                'message' => $paymentMode->is_online
+                    ? 'Checkout created successfully.'
+                    : 'Order placed successfully.',
 
                 'data' => [
 

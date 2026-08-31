@@ -30,11 +30,6 @@ class AssignDeliveryBoyRequest extends FormRequest
                 'exists:delivery_boys,id',
             ],
 
-            'assigned_by' => [
-                'required',
-                'exists:users,id',
-            ],
-
             'remarks' => [
                 'nullable',
                 'string',

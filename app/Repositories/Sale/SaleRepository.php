@@ -87,6 +87,8 @@ class SaleRepository implements SaleRepositoryInterface
             'items.unit',
             'saleReturns',
             'payments.paymentMode',
+            'deliveryAssignment.deliveryBoy.user',
+            'deliveryAssignment.assignedBy',
             'creator',
             'updater',
         ])->findOrFail($id);
@@ -428,7 +430,7 @@ class SaleRepository implements SaleRepositoryInterface
 
     public function updateDeliveryStatus(
         int $saleOrderId,
-        string $status,
+        ?string $status,
         ?string $deliveredAt = null
     ): bool {
 

@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\Customer\CustomerController;
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
 
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\V1\Delivery\DeliveryPortalController;
 
 
 use App\Http\Controllers\Api\V1\Admin\Product\BrandController;
@@ -68,6 +69,20 @@ Route::prefix('v1')->group(function () {
         'auth:sanctum',
         'permission:dashboard.view'
     ])->get('/dashboard', DashboardController::class);
+
+    Route::middleware(['auth:sanctum', 'role:Delivery Boy'])
+        ->prefix('delivery')
+        ->group(function () {
+            Route::get('/assignments', [DeliveryPortalController::class, 'index'])
+                ->middleware('permission:delivery-assignment.list');
+            Route::patch('/profile/availability', [DeliveryPortalController::class, 'availability'])
+                ->middleware('permission:delivery-assignment.update');
+            Route::get('/assignments/{id}', [DeliveryPortalController::class, 'show'])
+                ->middleware('permission:delivery-assignment.view');
+            Route::patch('/assignments/{id}/{action}', [DeliveryPortalController::class, 'action'])
+                ->whereIn('action', ['accept', 'reject', 'pickup', 'out-for-delivery', 'out_for_delivery', 'delivered'])
+                ->middleware('permission:delivery-assignment.update');
+        });
 
     Route::middleware('auth:sanctum')
         ->prefix('permissions')
@@ -801,29 +816,34 @@ Route::prefix('v1')->group(function () {
         Route::prefix('delivery-boys')->group(function () {
 
             Route::get(
+                '/unlinked-users',
+                [DeliveryBoyController::class, 'unlinkedUsers']
+            )->middleware('permission:delivery-boy.create');
+
+            Route::get(
                 '/',
                 [DeliveryBoyController::class, 'index']
-            )->middleware('permission:delivery-boy-list');
+            )->middleware('permission:delivery-boy.list');
 
             Route::post(
                 '/',
                 [DeliveryBoyController::class, 'store']
-            )->middleware('permission:delivery-boy-create');
+            )->middleware('permission:delivery-boy.create');
 
             Route::get(
                 '/{id}',
                 [DeliveryBoyController::class, 'show']
-            )->middleware('permission:delivery-boy-view');
+            )->middleware('permission:delivery-boy.view');
 
             Route::put(
                 '/{id}',
                 [DeliveryBoyController::class, 'update']
-            )->middleware('permission:delivery-boy-edit');
+            )->middleware('permission:delivery-boy.update');
 
             Route::delete(
                 '/{id}',
                 [DeliveryBoyController::class, 'destroy']
-            )->middleware('permission:delivery-boy-delete');
+            )->middleware('permission:delivery-boy.delete');
         });
 
         /*
@@ -837,52 +857,52 @@ Route::prefix('v1')->group(function () {
             Route::get(
                 '/',
                 [DeliveryAssignmentController::class, 'index']
-            )->middleware('permission:delivery-assignment-list');
+            )->middleware('permission:delivery-assignment.list');
 
             Route::post(
                 '/assign',
                 [DeliveryAssignmentController::class, 'assign']
-            )->middleware('permission:delivery-assignment-create');
+            )->middleware('permission:delivery-assignment.create');
 
             Route::get(
                 '/{id}',
                 [DeliveryAssignmentController::class, 'show']
-            )->middleware('permission:delivery-assignment-view');
+            )->middleware('permission:delivery-assignment.view');
 
             Route::delete(
                 '/{id}',
                 [DeliveryAssignmentController::class, 'destroy']
-            )->middleware('permission:delivery-assignment-delete');
+            )->middleware('permission:delivery-assignment.delete');
 
             Route::patch(
                 '/{id}/accept',
                 [DeliveryAssignmentController::class, 'accept']
-            )->middleware('permission:delivery-assignment-update');
+            )->middleware('permission:delivery-assignment.update');
 
             Route::patch(
                 '/{id}/reject',
                 [DeliveryAssignmentController::class, 'reject']
-            )->middleware('permission:delivery-assignment-update');
+            )->middleware('permission:delivery-assignment.update');
 
             Route::patch(
                 '/{id}/pickup',
                 [DeliveryAssignmentController::class, 'pickup']
-            )->middleware('permission:delivery-assignment-update');
+            )->middleware('permission:delivery-assignment.update');
 
             Route::patch(
                 '/{id}/out-for-delivery',
                 [DeliveryAssignmentController::class, 'outForDelivery']
-            )->middleware('permission:delivery-assignment-update');
+            )->middleware('permission:delivery-assignment.update');
 
             Route::patch(
                 '/{id}/delivered',
                 [DeliveryAssignmentController::class, 'delivered']
-            )->middleware('permission:delivery-assignment-update');
+            )->middleware('permission:delivery-assignment.update');
 
             Route::get(
                 '/history/{saleOrderId}',
                 [DeliveryAssignmentController::class, 'history']
-            )->middleware('permission:delivery-assignment-view');
+            )->middleware('permission:delivery-assignment.view');
         });
     });
 
@@ -1009,6 +1029,17 @@ Route::prefix('v1')->group(function () {
             });
 
         Route::middleware(['auth:sanctum', 'role:Customer'])->group(function () {
+
+            Route::prefix('customer-addresses')
+                ->controller(WebsiteCustomerAddressController::class)
+                ->group(function () {
+                    Route::get('/', 'index');
+                    Route::post('/', 'store');
+                    Route::get('/default', 'default');
+                    Route::put('/{id}', 'update');
+                    Route::delete('/{id}', 'destroy');
+                    Route::patch('/{id}/default', 'setDefault');
+                });
 
             Route::get(
                 'wishlist',

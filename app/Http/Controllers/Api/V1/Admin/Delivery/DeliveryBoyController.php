@@ -10,12 +10,27 @@ use App\Http\Resources\Delivery\DeliveryBoyResource;
 use App\Services\Contracts\DeliveryBoyServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class DeliveryBoyController extends Controller
 {
     public function __construct(
         protected DeliveryBoyServiceInterface $deliveryBoyService
     ) {
+    }
+
+    /**
+     * Delivery Boy role users without an operational profile.
+     */
+    public function unlinkedUsers(): JsonResponse
+    {
+        $users = User::role('Delivery Boy')
+            ->whereDoesntHave('deliveryBoy', fn ($query) => $query->withTrashed())
+            ->where('is_active', true)
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name', 'email', 'mobile']);
+
+        return response()->json(['success' => true, 'data' => $users]);
     }
 
     /**
@@ -67,6 +82,10 @@ class DeliveryBoyController extends Controller
 
         $deliveryBoy = $this->deliveryBoyService
             ->findById($id);
+
+        if (! $deliveryBoy) {
+            abort(404, 'Delivery profile not found.');
+        }
 
         return response()->json([
             'success' => true,

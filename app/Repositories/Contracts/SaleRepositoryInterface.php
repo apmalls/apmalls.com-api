@@ -91,7 +91,7 @@ interface SaleRepositoryInterface
 
     public function updateDeliveryStatus(
         int $saleOrderId,
-        string $status,
+        ?string $status,
         ?string $deliveredAt = null
     ): bool;
 

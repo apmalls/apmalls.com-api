@@ -26,6 +26,11 @@ interface UserServiceInterface
     public function find(int $id): User;
 
     /**
+     * Find a soft-deleted user by id.
+     */
+    public function findTrashed(int $id): User;
+
+    /**
      * Create a user.
      */
     public function create(array $data): User;

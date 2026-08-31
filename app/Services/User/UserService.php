@@ -31,6 +31,11 @@ class UserService implements UserServiceInterface
         return $this->userRepository->findOrFail($id);
     }
 
+    public function findTrashed(int $id): \App\Models\User
+    {
+        return $this->userRepository->findTrashedOrFail($id);
+    }
+
     public function create(array $data): \App\Models\User
     {
         return $this->userRepository->create($data);

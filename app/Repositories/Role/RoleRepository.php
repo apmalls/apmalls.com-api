@@ -2,12 +2,11 @@
 
 namespace App\Repositories\Role;
 
-
-
+use App\Models\User;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RoleRepository implements RoleRepositoryInterface
 {
@@ -17,7 +16,8 @@ class RoleRepository implements RoleRepositoryInterface
     public function index(Request $request)
     {
         $query = Role::query()
-            ->withCount('permissions');
+            ->withCount('permissions')
+            ->selectSub($this->assignedUserCountQuery(), 'users_count');
 
         // Search
         if ($request->filled('search')) {
@@ -61,6 +61,7 @@ class RoleRepository implements RoleRepositoryInterface
     public function show(int $id)
     {
         return Role::with('permissions')
+            ->selectSub($this->assignedUserCountQuery(), 'users_count')
             ->findOrFail($id);
     }
 
@@ -72,6 +73,10 @@ class RoleRepository implements RoleRepositoryInterface
         return DB::transaction(function () use ($id, $data) {
 
             $role = Role::findOrFail($id);
+
+            if ($role->name === 'Super Admin') {
+                throw new \Exception('Super Admin role cannot be modified.', 403);
+            }
 
             $role->update([
                 'name' => $data['name'],
@@ -96,12 +101,39 @@ class RoleRepository implements RoleRepositoryInterface
 
             // Prevent deleting Super Admin
             if ($role->name === 'Super Admin') {
-                throw new \Exception('Super Admin role cannot be deleted.');
+                throw new \Exception('Super Admin role cannot be deleted.', 403);
+            }
+
+            if ($this->assignedUserCount($role->id) > 0) {
+                throw new \Exception('Roles assigned to users cannot be deleted.', 409);
             }
 
             $role->delete();
 
             return true;
         });
+    }
+
+    private function assignedUserCountQuery()
+    {
+        $table = config('permission.table_names.model_has_roles', 'model_has_roles');
+        $roleKey = config('permission.column_names.role_pivot_key') ?: 'role_id';
+        $modelType = (new User())->getMorphClass();
+
+        return DB::table($table)
+            ->selectRaw('COUNT(*)')
+            ->whereColumn("{$table}.{$roleKey}", 'roles.id')
+            ->where("{$table}.model_type", $modelType);
+    }
+
+    private function assignedUserCount(int $roleId): int
+    {
+        $table = config('permission.table_names.model_has_roles', 'model_has_roles');
+        $roleKey = config('permission.column_names.role_pivot_key') ?: 'role_id';
+
+        return DB::table($table)
+            ->where($roleKey, $roleId)
+            ->where('model_type', (new User())->getMorphClass())
+            ->count();
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Customer\Customer;
 use App\Models\Customer\CustomerAddress;
+use App\Models\Delivery\DeliveryBoy;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -140,6 +141,18 @@ class DefaultUsersSeeder extends Seeder
                         'created_by'      => 1,
                     ]
 
+                );
+            }
+
+            if ($data['role'] === 'Delivery Boy') {
+                DeliveryBoy::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'employee_code' => 'DEL' . str_pad((string) $user->id, 6, '0', STR_PAD_LEFT),
+                        'phone' => $user->mobile,
+                        'is_available' => true,
+                        'is_active' => true,
+                    ]
                 );
             }
         }

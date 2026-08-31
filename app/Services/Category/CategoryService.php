@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Category;
 
 use App\Models\Category\Category;
+use Illuminate\Validation\ValidationException;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Services\Contracts\CategoryServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -32,10 +33,12 @@ class CategoryService implements CategoryServiceInterface
         return Category::with([
             'children' => function ($query) {
                 $query->where('is_active', true)
+                    ->withCount('products')
                     ->orderBy('sort_order')
                     ->orderBy('name');
             }
         ])
+            ->withCount(['products', 'descendantProducts'])
             ->whereNull('parent_id')
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -55,12 +58,57 @@ class CategoryService implements CategoryServiceInterface
 
     public function create(array $data): Category
     {
+        $this->validateHierarchy($data);
+
         return $this->categoryRepository->create($data);
     }
 
     public function update(int $id, array $data): Category
     {
+        $this->validateHierarchy($data, $id);
+
         return $this->categoryRepository->update($id, $data);
+    }
+
+    private function validateHierarchy(array $data, ?int $categoryId = null): void
+    {
+        $parentId = !empty($data['parent_id'])
+            ? (int) $data['parent_id']
+            : null;
+
+        if ($categoryId !== null && $parentId === $categoryId) {
+            throw ValidationException::withMessages([
+                'parent_id' => ['A category cannot be its own parent.'],
+            ]);
+        }
+
+        if ($categoryId !== null && $parentId !== null) {
+            $category = Category::withCount('children')->findOrFail($categoryId);
+
+            if ($category->children_count > 0) {
+                throw ValidationException::withMessages([
+                    'parent_id' => ['A category with subcategories must remain top level.'],
+                ]);
+            }
+        }
+
+        if ($parentId === null) {
+            return;
+        }
+
+        $parent = Category::withCount('products')->findOrFail($parentId);
+
+        if ($parent->parent_id !== null) {
+            throw ValidationException::withMessages([
+                'parent_id' => ['Only top-level categories can contain subcategories.'],
+            ]);
+        }
+
+        if ($parent->products_count > 0) {
+            throw ValidationException::withMessages([
+                'parent_id' => ['Move products out of this category before adding subcategories.'],
+            ]);
+        }
     }
 
     public function delete(int $id): bool
@@ -124,6 +172,26 @@ class CategoryService implements CategoryServiceInterface
 
         return $this->categoryRepository->websitePaginate($filters);
 
+    }
+
+    public function websiteTree(): Collection
+    {
+        return Category::query()
+            ->with([
+                'children' => function ($query) {
+                    $query
+                        ->where('is_active', true)
+                        ->withCount('products')
+                        ->orderBy('sort_order')
+                        ->orderBy('name');
+                },
+            ])
+            ->withCount(['products', 'descendantProducts'])
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
     }
 
     /**

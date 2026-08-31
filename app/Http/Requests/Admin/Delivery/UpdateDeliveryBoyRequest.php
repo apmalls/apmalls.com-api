@@ -23,7 +23,7 @@ class UpdateDeliveryBoyRequest extends FormRequest
      */
     public function rules(): array
     {
-        $deliveryBoyId = (int) $this->route('deliveryBoy');
+        $deliveryBoyId = (int) $this->route('id');
 
         return [
 

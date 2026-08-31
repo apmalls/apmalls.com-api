@@ -84,6 +84,11 @@ interface CategoryServiceInterface
     ): LengthAwarePaginator;
 
     /**
+     * Active website category tree.
+     */
+    public function websiteTree(): Collection;
+
+    /**
      * Find category by slug.
      */
     public function findBySlug(

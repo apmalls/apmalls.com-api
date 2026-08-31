@@ -36,6 +36,11 @@ interface UserRepositoryInterface
     public function findOrFail(int $id): User;
 
     /**
+     * Find a soft-deleted user by id or fail.
+     */
+    public function findTrashedOrFail(int $id): User;
+
+    /**
      * Create a user.
      */
     public function create(array $data): User;

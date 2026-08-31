@@ -4,6 +4,7 @@ namespace App\Http\Requests\Website\Checkout;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CheckoutRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class CheckoutRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->customer()->exists() ?? false;
     }
 
     /**
@@ -22,24 +23,33 @@ class CheckoutRequest extends FormRequest
      */
     public function rules(): array
     {
+        $customerId = (int) ($this->user()?->customer?->id ?? 0);
+        $ownedAddress = Rule::exists('customer_addresses', 'id')
+            ->where(fn ($query) => $query
+                ->where('customer_id', $customerId)
+                ->whereNull('deleted_at'));
+
         return [
 
             'billing_address_id' => [
                 'required',
                 'integer',
-                'exists:customer_addresses,id',
+                $ownedAddress,
             ],
 
             'shipping_address_id' => [
                 'required',
                 'integer',
-                'exists:customer_addresses,id',
+                $ownedAddress,
             ],
 
             'payment_mode_id' => [
                 'required',
                 'integer',
-                'exists:payment_modes,id',
+                Rule::exists('payment_modes', 'id')
+                    ->where(fn ($query) => $query
+                        ->where('is_active', true)
+                        ->whereNull('deleted_at')),
             ],
 
             'remarks' => [

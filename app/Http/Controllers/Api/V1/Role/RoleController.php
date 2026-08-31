@@ -59,10 +59,14 @@ class RoleController extends Controller
 
         } catch (Exception $exception) {
 
+            $status = in_array($exception->getCode(), [403, 409, 422], true)
+                ? $exception->getCode()
+                : 500;
+
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),
-            ], 500);
+            ], $status);
 
         }
     }
@@ -86,10 +90,14 @@ class RoleController extends Controller
 
         } catch (Exception $exception) {
 
+            $status = in_array($exception->getCode(), [403, 409, 422], true)
+                ? $exception->getCode()
+                : 500;
+
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),
-            ], 500);
+            ], $status);
 
         }
     }
@@ -139,10 +147,14 @@ class RoleController extends Controller
 
         } catch (Exception $exception) {
 
+            $status = in_array($exception->getCode(), [403, 409, 422], true)
+                ? $exception->getCode()
+                : 500;
+
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),
-            ], 500);
+            ], $status);
 
         }
     }
@@ -163,10 +175,14 @@ class RoleController extends Controller
 
         } catch (Exception $exception) {
 
+            $status = in_array($exception->getCode(), [403, 409, 422], true)
+                ? $exception->getCode()
+                : 500;
+
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),
-            ], 500);
+            ], $status);
 
         }
     }

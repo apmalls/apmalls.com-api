@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\Product;
 
+use App\Models\Category\Category;
 use App\Models\Product\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,24 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductRepository implements ProductRepositoryInterface
 {
+    private function applyWebsiteVisibility(Builder $query): Builder
+    {
+        return $query
+            ->where('is_active', true)
+            ->whereHas('category', function ($query) {
+                $query
+                    ->where('is_active', true)
+                    ->where(function ($query) {
+                        $query
+                            ->whereNull('parent_id')
+                            ->orWhereHas(
+                                'parent',
+                                fn($parent) => $parent->where('is_active', true)
+                            );
+                    });
+            });
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Base Query
@@ -400,6 +419,29 @@ class ProductRepository implements ProductRepositoryInterface
         array $filters = []
     ): LengthAwarePaginator {
 
+        $categoryIds = null;
+
+        if (!empty($filters['category']) || !empty($filters['category_id'])) {
+            $category = Category::query()
+                ->where('is_active', true)
+                ->when(
+                    !empty($filters['category']),
+                    fn($query) => $query->where('slug', $filters['category']),
+                    fn($query) => $query->where('id', $filters['category_id'])
+                )
+                ->first();
+
+            $categoryIds = $category
+                ? collect([$category->id])
+                    ->merge(
+                        $category->children()
+                            ->where('is_active', true)
+                            ->pluck('id')
+                    )
+                    ->all()
+                : [];
+        }
+
         return Product::query()
 
             ->with([
@@ -409,10 +451,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'images',
             ])
 
-            ->where(
-                'is_active',
-                true
-            )
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
 
             ->when(
 
@@ -450,13 +489,13 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->when(
 
-                !empty($filters['category_id']),
+                $categoryIds !== null,
 
                 fn($query) =>
 
-                $query->where(
+                $query->whereIn(
                     'category_id',
-                    $filters['category_id']
+                    $categoryIds
                 )
 
             )
@@ -476,7 +515,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->when(
 
-                isset($filters['featured']),
+                ($filters['featured'] ?? null) !== null,
 
                 fn($query) =>
 
@@ -489,7 +528,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->when(
 
-                isset($filters['new_arrival']),
+                ($filters['new_arrival'] ?? null) !== null,
 
                 fn($query) =>
 
@@ -502,7 +541,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->when(
 
-                isset($filters['best_seller']),
+                ($filters['best_seller'] ?? null) !== null,
 
                 fn($query) =>
 
@@ -602,6 +641,8 @@ class ProductRepository implements ProductRepositoryInterface
                 true
             )
 
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
+
             ->firstOrFail();
 
     }
@@ -645,6 +686,8 @@ class ProductRepository implements ProductRepositoryInterface
                 true
             )
 
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
+
             ->latest()
 
             ->limit($limit)
@@ -683,6 +726,8 @@ class ProductRepository implements ProductRepositoryInterface
                 'is_active',
                 true
             )
+
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
 
             ->latest()
 
@@ -723,6 +768,8 @@ class ProductRepository implements ProductRepositoryInterface
                 true
             )
 
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
+
             ->latest()
 
             ->limit($limit)
@@ -762,6 +809,8 @@ class ProductRepository implements ProductRepositoryInterface
                 true
             )
 
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
+
             ->orderByDesc(
                 'sale_count'
             )
@@ -786,6 +835,8 @@ class ProductRepository implements ProductRepositoryInterface
                 'is_active',
                 true
             )
+
+            ->tap(fn($query) => $this->applyWebsiteVisibility($query))
 
             ->where(function ($query) use ($keyword) {
 

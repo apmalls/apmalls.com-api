@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Sale;
 
+use App\Http\Resources\Delivery\DeliveryAssignmentResource;
 use App\Http\Resources\Payment\PaymentResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -60,6 +61,16 @@ class SaleResource extends JsonResource
             'payment_status' => $this->payment_status,
 
             'status' => $this->status,
+
+            'delivery_status' => $this->delivery_status,
+
+            'expected_delivery_at' => $this->expected_delivery_at,
+
+            'delivered_at' => $this->delivered_at,
+
+            'delivery_assignment' => new DeliveryAssignmentResource(
+                $this->whenLoaded('deliveryAssignment')
+            ),
 
             'remarks' => $this->remarks,
 

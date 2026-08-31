@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Product;
 
+use App\Models\Category\Category;
 use App\Models\Product\Product;
 use App\Repositories\Contracts\GeneralSettingRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
@@ -11,6 +12,7 @@ use App\Services\Contracts\ProductServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ProductService implements ProductServiceInterface
 {
@@ -47,6 +49,8 @@ class ProductService implements ProductServiceInterface
 
     public function create(array $data): Product
     {
+        $this->validateProductCategory((int) $data['category_id']);
+
         return DB::transaction(function () use ($data) {
 
             if (blank($data['barcode'] ?? null)) {
@@ -88,7 +92,36 @@ class ProductService implements ProductServiceInterface
 
     public function update(int $id, array $data): Product
     {
+        if (isset($data['category_id'])) {
+            $this->validateProductCategory((int) $data['category_id']);
+        }
+
         return $this->productRepository->update($id, $data);
+    }
+
+    private function validateProductCategory(int $categoryId): void
+    {
+        $category = Category::query()
+            ->withCount('children')
+            ->find($categoryId);
+
+        if (!$category || !$category->is_active) {
+            throw ValidationException::withMessages([
+                'category_id' => ['Select an active category.'],
+            ]);
+        }
+
+        if ($category->children_count > 0) {
+            throw ValidationException::withMessages([
+                'category_id' => ['Products must be assigned to a subcategory.'],
+            ]);
+        }
+
+        if ($category->parent_id !== null && !$category->parent?->is_active) {
+            throw ValidationException::withMessages([
+                'category_id' => ['The parent category must be active.'],
+            ]);
+        }
     }
 
     public function delete(int $id): bool

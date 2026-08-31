@@ -77,4 +77,14 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function descendantProducts()
+    {
+        return $this->hasManyThrough(
+            Product::class,
+            Category::class,
+            'parent_id',
+            'category_id'
+        );
+    }
 }

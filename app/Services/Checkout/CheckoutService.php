@@ -532,9 +532,23 @@ class CheckoutService implements CheckoutServiceInterface
         array $paymentData = []
     ): SaleOrder {
 
-        return DB::transaction(function () use ($saleOrderId, $paymentData) {
+        return $this->confirmOrder($saleOrderId);
 
-            $saleOrder = $this->saleRepository
+    }
+
+    public function confirmCashOnDelivery(int $saleOrderId): SaleOrder
+    {
+        return $this->confirmOrder($saleOrderId);
+    }
+
+    private function confirmOrder(int $saleOrderId): SaleOrder
+    {
+
+        return DB::transaction(function () use ($saleOrderId) {
+
+            $saleOrder = SaleOrder::query()
+                ->with('items')
+                ->lockForUpdate()
                 ->findOrFail($saleOrderId);
 
             /*
@@ -545,13 +559,20 @@ class CheckoutService implements CheckoutServiceInterface
 
             if (
 
-                $saleOrder->payment_status ===
-                SaleOrder::PAYMENT_COMPLETED
+                in_array(
+                    $saleOrder->status,
+                    [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED],
+                    true
+                )
 
             ) {
 
                 return $saleOrder;
 
+            }
+
+            if ($saleOrder->status !== SaleOrder::STATUS_DRAFT) {
+                throw new \Exception('Only a draft order can be confirmed.');
             }
 
             /*
@@ -563,46 +584,6 @@ class CheckoutService implements CheckoutServiceInterface
             $this->deductProductStock(
                 $saleOrder
             );
-            foreach ($saleOrder->items as $item) {
-
-                $product = $this->productRepository
-                    ->find($item->product_id);
-
-                if (!$product) {
-
-                    throw new \Exception(
-                        'Product not found.'
-                    );
-
-                }
-
-                if ($product->stock < $item->quantity) {
-
-                    throw new \Exception(
-                        "{$product->name} stock unavailable."
-                    );
-
-                }
-
-                $this->productRepository->update(
-
-                    $product->id,
-
-                    [
-
-                        'stock' =>
-
-                            $product->stock
-
-                            -
-
-                            $item->quantity,
-
-                    ]
-
-                );
-
-            }
 
             /*
             |--------------------------------------------------------------------------
@@ -623,15 +604,6 @@ class CheckoutService implements CheckoutServiceInterface
                 ]
 
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Payment Record
-            |--------------------------------------------------------------------------
-            */
-
-            // TODO:
-            // Update Payment table using paymentData.
 
             /*
             |--------------------------------------------------------------------------

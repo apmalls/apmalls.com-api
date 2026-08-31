@@ -28,7 +28,13 @@ class DeliveryAssignmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => DeliveryAssignmentResource::collection($assignments),
+            'data' => DeliveryAssignmentResource::collection($assignments->items()),
+            'meta' => [
+                'current_page' => $assignments->currentPage(),
+                'last_page' => $assignments->lastPage(),
+                'per_page' => $assignments->perPage(),
+                'total' => $assignments->total(),
+            ],
         ]);
     }
 
@@ -40,7 +46,7 @@ class DeliveryAssignmentController extends Controller
     ): JsonResponse {
 
         $assignment = $this->deliveryAssignmentService
-            ->assignOrder($request->validated());
+            ->assignOrder([...$request->validated(), 'assigned_by' => $request->user()->id]);
 
         return response()->json([
             'success' => true,
@@ -57,6 +63,10 @@ class DeliveryAssignmentController extends Controller
         $assignment = $this->deliveryAssignmentService
             ->findById($id);
 
+        if (! $assignment) {
+            abort(404, 'Delivery assignment not found.');
+        }
+
         return response()->json([
             'success' => true,
             'data' => new DeliveryAssignmentResource($assignment),
@@ -72,7 +82,7 @@ class DeliveryAssignmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Assignment deleted successfully.',
+            'message' => 'Assignment cancelled successfully.',
         ]);
     }
 

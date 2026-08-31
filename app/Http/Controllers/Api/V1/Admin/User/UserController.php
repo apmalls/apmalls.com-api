@@ -29,6 +29,7 @@ class UserController extends Controller
             $filters = [
                 'search' => $request->filled('search') ? $request->search : null,
                 'status' => $request->filled('status') ? $request->boolean('status') : null,
+                'role' => $request->filled('role') ? $request->string('role')->toString() : null,
                 'per_page' => $request->get('per_page', 10),
             ];
 
@@ -140,6 +141,17 @@ class UserController extends Controller
         try {
             $user = $this->userService->find($id);
 
+            if ($user->hasRole('Super Admin') && (
+                $request->role !== 'Super Admin' || !$request->boolean('is_active')
+            )) {
+                $this->rollback();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Super Admin users cannot be demoted or deactivated.'
+                ], 403);
+            }
+
             $data = [
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -212,15 +224,21 @@ class UserController extends Controller
 
             // Prevent deletion of Super Admin
             if ($user->hasRole('Super Admin')) {
+                $this->rollback();
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Super Admin cannot be deleted.'
                 ], 403);
             }
 
-            // Delete Profile Photo
-            if (!empty($user->profile_photo)) {
-                $this->cleanupUploadedFile($user->profile_photo);
+            if ((int) $request->user()->id === (int) $user->id) {
+                $this->rollback();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot delete your own account.'
+                ], 403);
             }
 
             // Soft Delete User
@@ -252,7 +270,24 @@ class UserController extends Controller
     public function changeStatus(ChangeUserStatusRequest $request, $id): JsonResponse
     {
         try {
-            $user = $this->userService->changeStatus($id, $request->boolean('is_active'));
+            $user = $this->userService->find($id);
+            $isActive = $request->boolean('is_active');
+
+            if (!$isActive && $user->hasRole('Super Admin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Super Admin users cannot be deactivated.'
+                ], 403);
+            }
+
+            if (!$isActive && (int) $request->user()->id === (int) $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot deactivate your own account.'
+                ], 403);
+            }
+
+            $user = $this->userService->changeStatus($id, $isActive);
 
             return response()->json([
                 'success' => true,
@@ -335,10 +370,12 @@ class UserController extends Controller
         $this->beginTransaction();
 
         try {
-            $user = $this->userService->find($id);
+            $user = $this->userService->findTrashed($id);
 
             // Prevent force deletion of Super Admin
             if ($user->hasRole('Super Admin')) {
+                $this->rollback();
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Super Admin cannot be permanently deleted.'

@@ -39,6 +39,10 @@ class UserRepository implements UserRepositoryInterface
             $query->where('is_active', (bool) $filters['status']);
         }
 
+        if (!empty($filters['role'])) {
+            $query->role($filters['role']);
+        }
+
         return $query->paginate($filters['per_page'] ?? 10);
     }
 
@@ -71,6 +75,11 @@ class UserRepository implements UserRepositoryInterface
     public function findOrFail(int $id): User
     {
         return User::findOrFail($id);
+    }
+
+    public function findTrashedOrFail(int $id): User
+    {
+        return User::onlyTrashed()->findOrFail($id);
     }
 
     public function create(array $data): User

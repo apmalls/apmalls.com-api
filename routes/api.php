@@ -77,7 +77,7 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:permission.view');
 
             Route::get('/grouped', [PermissionController::class, 'grouped'])
-                ->middleware('permission:permission.view');
+                ->middleware('permission:permission.view|role.view');
 
             Route::get('/{id}', [PermissionController::class, 'show'])
                 ->middleware('permission:permission.view');
@@ -177,23 +177,23 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('users')->controller(UserController::class)->group(function () {
 
-            Route::get('/', 'index');                   // User List
+            Route::get('/', 'index')->middleware('permission:user.view');
 
-            Route::post('/', 'store');                  // Create User
+            Route::post('/', 'store')->middleware('permission:user.create');
 
-            Route::get('/{id}', 'show');              // User Details
+            Route::get('/trash', 'trash')->middleware('permission:user.view');
 
-            Route::put('/{id}', 'update');            // Update User
+            Route::get('/{id}', 'show')->middleware('permission:user.view');
 
-            Route::delete('/{id}', 'destroy');        // Delete User
+            Route::put('/{id}', 'update')->middleware('permission:user.update');
 
-            Route::patch('/{id}/status', 'changeStatus'); // Change Status
+            Route::delete('/{id}', 'destroy')->middleware('permission:user.delete');
 
-            Route::get('/trash', 'trash');
+            Route::patch('/{id}/status', 'changeStatus')->middleware('permission:user.change-status');
 
-            Route::put('/{id}/restore', 'restore');
+            Route::put('/{id}/restore', 'restore')->middleware('permission:user.restore');
 
-            Route::delete('/{id}/force-delete', 'forceDelete');
+            Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:user.force-delete');
         });
 
 

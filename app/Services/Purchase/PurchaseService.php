@@ -136,13 +136,6 @@ class PurchaseService implements PurchaseServiceInterface
                     'line_total' => $item['line_total'],
                 ]);
 
-                StockHelper::increase(
-                    productId: $item['product_id'],
-                    quantity: $item['quantity'] + ($item['free_quantity'] ?? 0),
-                    referenceType: PurchaseOrder::class,
-                    referenceId: $purchase->id,
-                    remarks: 'Purchase Stock'
-                );
             }
 
             return $purchase->load([
@@ -175,22 +168,23 @@ class PurchaseService implements PurchaseServiceInterface
 
             $purchase = $this->purchaseRepository->findOrFail($id);
 
+            if (in_array($purchase->status, [PurchaseOrder::STATUS_RECEIVED, PurchaseOrder::STATUS_COMPLETED], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'Received purchases are immutable. Create a purchase return for corrections.',
+                ]);
+            }
+
+            if (isset($data['status']) && $data['status'] !== $purchase->status) {
+                throw ValidationException::withMessages([
+                    'status' => 'Use the purchase status action to change status.',
+                ]);
+            }
+
             $items = $data['items'] ?? [];
 
             unset($data['items']);
 
             $purchase = $this->purchaseRepository->update($id, $data);
-
-            foreach ($purchase->items as $oldItem) {
-
-                StockHelper::decrease(
-                    productId: $oldItem->product_id,
-                    quantity: $oldItem->quantity + $oldItem->free_quantity,
-                    referenceType: PurchaseOrder::class,
-                    referenceId: $purchase->id,
-                    remarks: 'Purchase Update Rollback'
-                );
-            }
 
             $purchase->items()->delete();
 
@@ -216,13 +210,6 @@ class PurchaseService implements PurchaseServiceInterface
                     'line_total' => $item['line_total'],
                 ]);
 
-                StockHelper::increase(
-                    productId: $item['product_id'],
-                    quantity: $item['quantity'] + ($item['free_quantity'] ?? 0),
-                    referenceType: PurchaseOrder::class,
-                    referenceId: $purchase->id,
-                    remarks: 'Purchase Updated'
-                );
             }
 
             return $purchase->load([
@@ -265,15 +252,10 @@ class PurchaseService implements PurchaseServiceInterface
                 ]);
             }
 
-            foreach ($purchase->items as $item) {
-
-                StockHelper::decrease(
-                    productId: $item->product_id,
-                    quantity: $item->quantity + $item->free_quantity,
-                    referenceType: PurchaseOrder::class,
-                    referenceId: $purchase->id,
-                    remarks: 'Purchase Deleted'
-                );
+            if (in_array($purchase->status, [PurchaseOrder::STATUS_RECEIVED, PurchaseOrder::STATUS_COMPLETED], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'Received purchases cannot be deleted. Create a purchase return instead.',
+                ]);
             }
 
             return $this->purchaseRepository->delete($id);
@@ -322,10 +304,41 @@ class PurchaseService implements PurchaseServiceInterface
     ): PurchaseOrder {
 
         return DB::transaction(function () use ($id, $status) {
+            $purchase = $this->purchaseRepository->findOrFail($id);
+            $wasReceived = in_array($purchase->status, [PurchaseOrder::STATUS_RECEIVED, PurchaseOrder::STATUS_COMPLETED], true);
+            $willBeReceived = in_array($status, [PurchaseOrder::STATUS_RECEIVED, PurchaseOrder::STATUS_COMPLETED], true);
 
-            return $this->purchaseRepository
-                ->changeStatus($id, $status);
+            if ($status === $purchase->status) {
+                return $purchase;
+            }
 
+            if ($purchase->status === PurchaseOrder::STATUS_CANCELLED || $purchase->status === PurchaseOrder::STATUS_COMPLETED) {
+                throw ValidationException::withMessages([
+                    'status' => "A {$purchase->status} purchase cannot be reopened.",
+                ]);
+            }
+
+            if ($wasReceived && ! $willBeReceived) {
+                throw ValidationException::withMessages([
+                    'status' => 'A received purchase cannot be reopened. Create a purchase return instead.',
+                ]);
+            }
+
+            if (! $wasReceived && $willBeReceived) {
+                foreach ($purchase->items as $item) {
+                    $quantity = (int) ($item->received_quantity ?: $item->quantity) + (int) $item->free_quantity;
+                    StockHelper::increase(
+                        $item->product_id,
+                        $quantity,
+                        PurchaseOrder::class,
+                        $purchase->id,
+                        'Purchase received',
+                        "purchase:{$purchase->id}:product:{$item->product_id}:received"
+                    );
+                }
+            }
+
+            return $this->purchaseRepository->changeStatus($id, $status);
         });
     }
 

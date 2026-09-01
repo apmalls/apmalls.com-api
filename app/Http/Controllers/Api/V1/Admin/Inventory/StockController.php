@@ -20,11 +20,12 @@ class StockController extends Controller
             $request->all()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Stock list fetched successfully.',
-            'data' => StockResource::collection($stocks),
-        ]);
+        return StockResource::collection($stocks)
+            ->additional([
+                'success' => true,
+                'message' => 'Stock list fetched successfully.',
+            ])
+            ->response();
     }
 
     public function show(int $id): JsonResponse

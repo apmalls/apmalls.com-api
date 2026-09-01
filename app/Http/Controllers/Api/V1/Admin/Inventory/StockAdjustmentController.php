@@ -14,6 +14,7 @@ use App\Services\Contracts\StockAdjustmentServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class StockAdjustmentController extends Controller
 {
@@ -27,35 +28,38 @@ class StockAdjustmentController extends Controller
             $request->all()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Stock adjustment list fetched successfully.',
-            'data' => StockAdjustmentResource::collection($adjustments),
-        ]);
+        return StockAdjustmentResource::collection($adjustments)
+            ->additional([
+                'success' => true,
+                'message' => 'Stock adjustment list fetched successfully.',
+            ])
+            ->response();
     }
 
     public function store(StoreStockAdjustmentRequest $request): JsonResponse
     {
-        $stock = StockHelper::currentStock(
-            $request->product_id
-        );
+        $adjustment = DB::transaction(function () use ($request) {
+            $stock = StockHelper::lockForUpdate($request->product_id)->current_stock;
+            $adjustment = $this->adjustmentService->create([
+                'product_id' => $request->product_id,
+                'system_stock' => $stock,
+                'physical_stock' => $request->physical_stock,
+                'difference' => $request->physical_stock - $stock,
+                'reason' => $request->reason,
+                'created_by' => Auth::id(),
+            ]);
 
-        $adjustment = $this->adjustmentService->create([
-            'product_id'     => $request->product_id,
-            'system_stock'   => $stock,
-            'physical_stock' => $request->physical_stock,
-            'difference'     => $request->physical_stock - $stock,
-            'reason'         => $request->reason,
-            'created_by'     => Auth::id(),
-        ]);
+            StockHelper::adjust(
+                $request->product_id,
+                $request->physical_stock,
+                StockAdjustment::class,
+                $adjustment->id,
+                $request->reason,
+                "stock-adjustment:{$adjustment->id}"
+            );
 
-        StockHelper::adjust(
-            $request->product_id,
-            $request->physical_stock,
-            StockAdjustment::class,
-            $adjustment->id,
-            $request->reason
-        );
+            return $adjustment;
+        });
 
         return response()->json([
             'success' => true,

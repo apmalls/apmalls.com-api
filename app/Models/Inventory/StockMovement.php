@@ -19,6 +19,8 @@ class StockMovement extends Model
 
         'reference_id',
 
+        'idempotency_key',
+
         'movement_type',
 
         'quantity',

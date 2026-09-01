@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Delivery;
 
-use App\Helpers\NumberHelper;
 use App\Models\Delivery\DeliveryAssignment;
 use App\Models\Delivery\DeliveryBoy;
-use App\Models\Payment\Payment;
-use App\Models\Payment\PaymentMode;
 use App\Models\Sale\SaleOrder;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -18,6 +15,10 @@ use Illuminate\Validation\ValidationException;
 
 class DeliveryPortalService
 {
+    public function __construct(private readonly DeliveryConfirmationService $confirmationService)
+    {
+    }
+
     private const ACTIVE_STATUSES = [
         DeliveryAssignment::STATUS_ASSIGNED,
         DeliveryAssignment::STATUS_ACCEPTED,
@@ -110,66 +111,16 @@ class DeliveryPortalService
 
     public function delivered(User $user, int $id, bool $cashCollected, ?string $remarks = null): DeliveryAssignment
     {
-        return DB::transaction(function () use ($user, $id, $cashCollected, $remarks) {
-            $profile = $this->requireProfile($user);
-            $assignment = DeliveryAssignment::query()->lockForUpdate()->findOrFail($id);
-            $this->assertOwnership($assignment, $profile);
+        $this->confirmationService->reportHandover($user, $id, $cashCollected, $remarks);
 
-            if ($assignment->status === DeliveryAssignment::STATUS_DELIVERED) {
-                return $assignment->fresh($this->relations());
-            }
+        return $this->assignment($user, $id);
+    }
 
-            if ($assignment->status !== DeliveryAssignment::STATUS_OUT_FOR_DELIVERY) {
-                throw ValidationException::withMessages(['status' => ['Only an out-for-delivery assignment can be completed.']]);
-            }
+    public function confirmOtp(User $user, int $id, string $otp): DeliveryAssignment
+    {
+        $this->confirmationService->confirmByOtp($user, $id, $otp);
 
-            $order = SaleOrder::query()->lockForUpdate()->findOrFail($assignment->sale_order_id);
-            $due = round((float) $order->due_amount, 2);
-
-            if ($due > 0 && ! $cashCollected) {
-                throw ValidationException::withMessages(['cash_collected' => ['Confirm that the outstanding cash was collected.']]);
-            }
-
-            if ($due > 0) {
-                $cashMode = PaymentMode::query()->where('code', 'CASH')->where('is_active', true)->first();
-                if (! $cashMode) {
-                    throw ValidationException::withMessages(['payment_mode' => ['The active CASH payment mode is not configured.']]);
-                }
-
-                Payment::create([
-                    'payment_no' => NumberHelper::generate(Payment::class, 'payment_no', 'PAY'),
-                    'payment_date' => today(),
-                    'paymentable_type' => SaleOrder::class,
-                    'paymentable_id' => $order->id,
-                    'customer_id' => $order->customer_id,
-                    'payment_mode_id' => $cashMode->id,
-                    'amount' => $due,
-                    'paid_amount' => $due,
-                    'reference_no' => "DELIVERY-{$assignment->id}",
-                    'status' => Payment::STATUS_COMPLETED,
-                    'remarks' => 'Cash collected on delivery.',
-                    'created_by' => $user->id,
-                    'updated_by' => $user->id,
-                ]);
-            }
-
-            $assignment->update(array_filter([
-                'status' => DeliveryAssignment::STATUS_DELIVERED,
-                'delivered_at' => now(),
-                'remarks' => $remarks,
-            ], fn ($value) => $value !== null));
-
-            $order->forceFill([
-                'status' => SaleOrder::STATUS_COMPLETED,
-                'delivery_status' => DeliveryAssignment::STATUS_DELIVERED,
-                'delivered_at' => now(),
-                'paid_amount' => round((float) $order->paid_amount + $due, 2),
-                'due_amount' => 0,
-                'payment_status' => SaleOrder::PAYMENT_COMPLETED,
-            ])->save();
-
-            return $assignment->fresh($this->relations());
-        });
+        return $this->assignment($user, $id);
     }
 
     private function requireProfile(User $user): DeliveryBoy
@@ -193,6 +144,11 @@ class DeliveryPortalService
 
     private function relations(): array
     {
-        return ['saleOrder.customer', 'saleOrder.shippingAddress', 'saleOrder.items.product', 'deliveryBoy.user', 'assignedBy'];
+        return [
+            'saleOrder.customer', 'saleOrder.shippingAddress', 'saleOrder.items.product',
+            'deliveryBoy.user', 'assignedBy',
+            'confirmation.deliveryReportedBy', 'confirmation.customerConfirmedBy',
+            'confirmation.disputedBy', 'confirmation.resolvedBy',
+        ];
     }
 }

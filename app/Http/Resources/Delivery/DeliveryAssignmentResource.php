@@ -22,11 +22,13 @@ class DeliveryAssignmentResource extends JsonResource
         $order = $this->saleOrder;
         $address = $order?->shippingAddress;
         $customer = $order?->customer;
-        $nextActions = match ($this->status) {
-            'assigned' => ['accept', 'reject'],
-            'accepted' => ['pickup'],
-            'picked' => ['out_for_delivery'],
-            'out_for_delivery' => ['delivered'],
+        $confirmation = $this->confirmation;
+        $nextActions = match (true) {
+            $confirmation && in_array($confirmation->status, ['awaiting_customer', 'disputed'], true) => [],
+            $this->status === 'assigned' => ['accept', 'reject'],
+            $this->status === 'accepted' => ['pickup'],
+            $this->status === 'picked' => ['out_for_delivery'],
+            $this->status === 'out_for_delivery' => ['delivered'],
             default => [],
         };
 
@@ -95,6 +97,10 @@ class DeliveryAssignmentResource extends JsonResource
             ],
 
             'status' => $this->status,
+
+            'delivery_confirmation' => new DeliveryConfirmationResource(
+                $this->whenLoaded('confirmation')
+            ),
 
             'next_actions' => $nextActions,
 

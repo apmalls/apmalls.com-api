@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Checkout;
 
+use App\Helpers\StockHelper;
 use App\Models\Cart\Cart;
 use App\Models\Sale\SaleOrder;
 use App\Services\Contracts\CartServiceInterface;
@@ -51,7 +52,7 @@ class CheckoutService implements CheckoutServiceInterface
         do {
 
             $saleNo = 'SAL-'
-                . now()->format('Ymd')
+                . now(config('app.business_timezone'))->format('Ymd')
                 . '-'
                 . strtoupper(
                     Str::random(6)
@@ -150,13 +151,7 @@ class CheckoutService implements CheckoutServiceInterface
 
             }
 
-            if (
-
-                $product->stock
-                <
-                $item->quantity
-
-            ) {
+            if (StockHelper::availableStock($product->id) < $item->quantity) {
 
                 throw new \Exception(
 
@@ -185,7 +180,7 @@ class CheckoutService implements CheckoutServiceInterface
 
                 'sale_no' => $this->generateSaleNo(),
 
-                'sale_date' => now()->toDateString(),
+                'sale_date' => now(config('app.business_timezone'))->toDateString(),
 
                 'sub_total' => $cart->subtotal,
 
@@ -285,41 +280,13 @@ class CheckoutService implements CheckoutServiceInterface
 
         foreach ($saleOrder->items as $item) {
 
-            $product = $this->productRepository
-                ->find($item->product_id);
-
-            if (!$product) {
-
-                throw new \Exception(
-                    'Product not found.'
-                );
-
-            }
-
-            if ($product->stock < $item->quantity) {
-
-                throw new \Exception(
-                    "{$product->name} stock unavailable."
-                );
-
-            }
-
-            $this->productRepository->update(
-
-                $product->id,
-
-                [
-
-                    'stock' =>
-
-                        $product->stock
-
-                        -
-
-                        $item->quantity,
-
-                ]
-
+            StockHelper::decrease(
+                productId: $item->product_id,
+                quantity: $item->quantity,
+                referenceType: SaleOrder::class,
+                referenceId: $saleOrder->id,
+                remarks: 'Website checkout',
+                idempotencyKey: "sale:{$saleOrder->id}:product:{$item->product_id}:checkout"
             );
 
         }

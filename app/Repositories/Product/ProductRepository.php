@@ -55,6 +55,8 @@ class ProductRepository implements ProductRepositoryInterface
 
                 'images',
 
+                'inventoryStock',
+
                 'creator',
 
                 'updater',
@@ -449,6 +451,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'brand',
                 'unit',
                 'images',
+                'inventoryStock',
             ])
 
             ->tap(fn($query) => $this->applyWebsiteVisibility($query))
@@ -625,6 +628,8 @@ class ProductRepository implements ProductRepositoryInterface
 
                 'images',
 
+                'inventoryStock',
+
                 'creator',
 
                 'updater',
@@ -667,6 +672,8 @@ class ProductRepository implements ProductRepositoryInterface
                 'unit',
 
                 'images',
+
+                'inventoryStock',
 
             ])
 
@@ -715,6 +722,8 @@ class ProductRepository implements ProductRepositoryInterface
 
                 'images',
 
+                'inventoryStock',
+
             ])
 
             ->where(
@@ -755,6 +764,8 @@ class ProductRepository implements ProductRepositoryInterface
                 'unit',
 
                 'images',
+
+                'inventoryStock',
 
             ])
 

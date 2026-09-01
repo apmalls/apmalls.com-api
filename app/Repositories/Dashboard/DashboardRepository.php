@@ -6,11 +6,16 @@ namespace App\Repositories\Dashboard;
 use App\Models\Category\Category;
 use App\Models\Customer\Customer;
 use App\Models\Delivery\DeliveryAssignment;
+use App\Models\Delivery\DeliveryConfirmation;
 use App\Models\Product\Brand;
 use App\Models\Product\Product;
+use App\Models\Inventory\Stock;
+use App\Models\Inventory\StockMovement;
 use App\Models\Sale\SaleOrder;
 use App\Models\User;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardRepository implements DashboardRepositoryInterface
 {
@@ -61,11 +66,19 @@ class DashboardRepository implements DashboardRepositoryInterface
 
                 'orders' => SaleOrder::count(),
 
-                'pending_orders' => SaleOrder::where('status', 'Pending')->count(),
+                'pending_orders' => SaleOrder::where('status', SaleOrder::STATUS_DRAFT)->count(),
 
-                'completed_orders' => SaleOrder::where('status', 'Completed')->count(),
+                'completed_orders' => SaleOrder::where('status', SaleOrder::STATUS_COMPLETED)->count(),
 
-                'cancelled_orders' => SaleOrder::where('status', 'Cancelled')->count(),
+                'cancelled_orders' => SaleOrder::where('status', SaleOrder::STATUS_CANCELLED)->count(),
+
+                'pending_delivery_confirmations' => DeliveryConfirmation::query()
+                    ->where('status', DeliveryConfirmation::STATUS_AWAITING_CUSTOMER)
+                    ->count(),
+
+                'delivery_disputes' => DeliveryConfirmation::query()
+                    ->where('status', DeliveryConfirmation::STATUS_DISPUTED)
+                    ->count(),
 
                 'revenue' => SaleOrder::sum('grand_total'),
 
@@ -85,20 +98,65 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     private function storeManagerDashboard(): array
     {
+        $today = Carbon::today(config('app.business_timezone'));
+        $saleStatuses = [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED];
+        $todaySales = SaleOrder::query()
+            ->whereDate('sale_date', $today)
+            ->whereIn('status', $saleStatuses);
+
+        $todayRevenue = (float) (clone $todaySales)->sum('grand_total');
+        $todayCost = (float) DB::table('sale_order_items')
+            ->join('sale_orders', 'sale_orders.id', '=', 'sale_order_items.sale_order_id')
+            ->whereNull('sale_orders.deleted_at')
+            ->whereDate('sale_orders.sale_date', $today)
+            ->whereIn('sale_orders.status', $saleStatuses)
+            ->sum(DB::raw('sale_order_items.purchase_price * sale_order_items.quantity'));
+
         return [
-
             'role' => 'Store Manager',
-
             'cards' => [
-
                 'products' => Product::count(),
-
-                'orders' => SaleOrder::count(),
-
-                'pending_orders' => SaleOrder::where('status', 'Pending')->count(),
-
+                'low_stock' => Stock::query()
+                    ->where('available_stock', '>', 0)
+                    ->whereColumn('available_stock', '<=', 'minimum_stock')
+                    ->count(),
+                'out_of_stock' => Stock::where('available_stock', '<=', 0)->count(),
+                'today_orders' => SaleOrder::whereDate('sale_date', $today)->count(),
+                'pending_fulfillment' => SaleOrder::where('status', SaleOrder::STATUS_CONFIRMED)->count(),
+                'unassigned_deliveries' => SaleOrder::query()
+                    ->where('status', SaleOrder::STATUS_CONFIRMED)
+                    ->whereDoesntHave('deliveryAssignment', fn ($query) => $query->where('status', '!=', 'cancelled'))
+                    ->count(),
+                'pending_delivery_confirmations' => DeliveryConfirmation::query()
+                    ->where('status', DeliveryConfirmation::STATUS_AWAITING_CUSTOMER)
+                    ->count(),
+                'delivery_disputes' => DeliveryConfirmation::query()
+                    ->where('status', DeliveryConfirmation::STATUS_DISPUTED)
+                    ->count(),
+                'today_revenue' => $todayRevenue,
+                'cost_of_goods' => $todayCost,
+                'gross_margin' => $todayRevenue - $todayCost,
             ],
-
+            'recent_orders' => SaleOrder::query()
+                ->with([
+                    'customer.user',
+                    'deliveryAssignment.deliveryBoy.user',
+                    'deliveryAssignment.confirmation',
+                ])
+                ->latest('id')
+                ->limit(8)
+                ->get(),
+            'low_stock_products' => Stock::query()
+                ->with('product:id,name,sku,thumbnail,minimum_stock')
+                ->whereColumn('available_stock', '<=', 'minimum_stock')
+                ->orderBy('available_stock')
+                ->limit(8)
+                ->get(),
+            'recent_stock_movements' => StockMovement::query()
+                ->with(['product:id,name,sku', 'creator:id,first_name,last_name'])
+                ->latest('id')
+                ->limit(8)
+                ->get(),
         ];
     }
 
@@ -191,11 +249,11 @@ class DashboardRepository implements DashboardRepositoryInterface
                 'orders' => SaleOrder::where('customer_id', $customer->id)->count(),
 
                 'pending_orders' => SaleOrder::where('customer_id', $customer->id)
-                    ->where('status', 'Pending')
+                    ->where('status', SaleOrder::STATUS_DRAFT)
                     ->count(),
 
                 'completed_orders' => SaleOrder::where('customer_id', $customer->id)
-                    ->where('status', 'Completed')
+                    ->where('status', SaleOrder::STATUS_COMPLETED)
                     ->count(),
 
             ],

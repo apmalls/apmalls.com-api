@@ -21,9 +21,27 @@ class StockAdjustmentRepository implements StockAdjustmentRepositoryInterface
             $query->where('product_id', $filters['product_id']);
         }
 
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($query) use ($search) {
+                $query->where('reason', 'ILIKE', "%{$search}%")
+                    ->orWhereHas('product', fn ($product) => $product
+                        ->where('name', 'ILIKE', "%{$search}%")
+                        ->orWhere('sku', 'ILIKE', "%{$search}%"));
+            });
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
         return $query
             ->latest()
-            ->paginate($filters['paginate'] ?? 15);
+            ->paginate(min((int) ($filters['per_page'] ?? $filters['paginate'] ?? 15), 100));
     }
 
     public function findById(int $id): ?StockAdjustment

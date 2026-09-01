@@ -100,16 +100,6 @@ class PurchaseReturnService implements PurchaseReturnServiceInterface
                     $data['items']
                 );
 
-                foreach ($data['items'] as $item) {
-
-                    StockHelper::decrease(
-                        productId: $item['product_id'],
-                        quantity: $item['quantity'] + ($item['free_quantity'] ?? 0),
-                        referenceType: PurchaseReturn::class,
-                        referenceId: $purchaseReturn->id,
-                        remarks: 'Purchase Return'
-                    );
-                }
             }
 
             return $this->purchaseReturnRepository->findOrFail(
@@ -128,21 +118,24 @@ class PurchaseReturnService implements PurchaseReturnServiceInterface
 
         return DB::transaction(function () use ($id, $data) {
 
+            $purchaseReturn = $this->purchaseReturnRepository->findOrFail($id);
+
+            if ($purchaseReturn->status === PurchaseReturn::STATUS_COMPLETED) {
+                throw ValidationException::withMessages([
+                    'status' => 'Completed purchase returns are immutable.',
+                ]);
+            }
+
+            if (isset($data['status']) && $data['status'] !== $purchaseReturn->status) {
+                throw ValidationException::withMessages([
+                    'status' => 'Use the purchase return status action to change status.',
+                ]);
+            }
+
             $purchaseReturn = $this->purchaseReturnRepository->update(
                 $id,
                 $data
             );
-
-            foreach ($purchaseReturn->items as $oldItem) {
-
-                StockHelper::increase(
-                    productId: $oldItem->product_id,
-                    quantity: $oldItem->quantity + $oldItem->free_quantity,
-                    referenceType: PurchaseReturn::class,
-                    referenceId: $purchaseReturn->id,
-                    remarks: 'Purchase Return Rollback'
-                );
-            }
 
             if (array_key_exists('items', $data)) {
 
@@ -154,16 +147,6 @@ class PurchaseReturnService implements PurchaseReturnServiceInterface
                         $data['items']
                     );
 
-                    foreach ($data['items'] as $item) {
-
-                        StockHelper::decrease(
-                            productId: $item['product_id'],
-                            quantity: $item['quantity'] + ($item['free_quantity'] ?? 0),
-                            referenceType: PurchaseReturn::class,
-                            referenceId: $purchaseReturn->id,
-                            remarks: 'Purchase Return Updated'
-                        );
-                    }
                 }
             }
 
@@ -188,17 +171,6 @@ class PurchaseReturnService implements PurchaseReturnServiceInterface
             throw ValidationException::withMessages([
                 'status' => 'Completed purchase return cannot be deleted.',
             ]);
-        }
-
-        foreach ($purchaseReturn->items as $item) {
-
-            StockHelper::increase(
-                productId: $item->product_id,
-                quantity: $item->quantity + $item->free_quantity,
-                referenceType: PurchaseReturn::class,
-                referenceId: $purchaseReturn->id,
-                remarks: 'Purchase Return Deleted'
-            );
         }
 
         return $this->purchaseReturnRepository->delete($id);
@@ -231,11 +203,42 @@ class PurchaseReturnService implements PurchaseReturnServiceInterface
         int $id,
         string $status
     ): PurchaseReturn {
+        return DB::transaction(function () use ($id, $status) {
+            $purchaseReturn = $this->purchaseReturnRepository->findOrFail($id);
 
-        return $this->purchaseReturnRepository->changeStatus(
-            $id,
-            $status
-        );
+            if ($status === $purchaseReturn->status) {
+                return $purchaseReturn;
+            }
+
+            $allowedTransitions = [
+                PurchaseReturn::STATUS_DRAFT => [PurchaseReturn::STATUS_APPROVED, PurchaseReturn::STATUS_CANCELLED],
+                PurchaseReturn::STATUS_APPROVED => [PurchaseReturn::STATUS_COMPLETED, PurchaseReturn::STATUS_CANCELLED],
+                PurchaseReturn::STATUS_COMPLETED => [],
+                PurchaseReturn::STATUS_CANCELLED => [],
+            ];
+
+            if (! in_array($status, $allowedTransitions[$purchaseReturn->status] ?? [], true)) {
+                throw ValidationException::withMessages([
+                    'status' => "Purchase return status cannot change from {$purchaseReturn->status} to {$status}.",
+                ]);
+            }
+
+            if ($purchaseReturn->status !== PurchaseReturn::STATUS_COMPLETED
+                && $status === PurchaseReturn::STATUS_COMPLETED) {
+                foreach ($purchaseReturn->items as $item) {
+                    StockHelper::decrease(
+                        $item->product_id,
+                        (int) $item->quantity,
+                        PurchaseReturn::class,
+                        $purchaseReturn->id,
+                        'Purchase return completed',
+                        "purchase-return:{$purchaseReturn->id}:product:{$item->product_id}:completed"
+                    );
+                }
+            }
+
+            return $this->purchaseReturnRepository->changeStatus($id, $status);
+        });
     }
 
     /**

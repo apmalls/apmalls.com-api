@@ -15,6 +15,9 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        $permissionRegistrar = app(PermissionRegistrar::class);
+        $permissionRegistrar->forgetCachedPermissions();
+
         $modules = [
 
             'dashboard',
@@ -30,6 +33,10 @@ class PermissionSeeder extends Seeder
             'product',
             'product-image',
 
+            'barcode-template',
+            'barcode-print',
+
+            'stock',
             'stock-movement',
             'stock-adjustment',
 
@@ -54,7 +61,7 @@ class PermissionSeeder extends Seeder
             'payment-mode',
             'payment',
 
-            'delivery-boy','delivery-assignment',
+            'delivery-boy','delivery-assignment','delivery-confirmation',
 
             'company-setting',
             'invoice-setting',
@@ -126,6 +133,7 @@ class PermissionSeeder extends Seeder
             // Delivery
             'delivery.assign',
             'delivery-boy.complete',
+            'delivery-confirmation.resolve',
 
             // Payment
             'payment.refund',
@@ -146,6 +154,8 @@ class PermissionSeeder extends Seeder
             ]);
 
         }
+
+        $permissionRegistrar->forgetCachedPermissions();
 
     }
 }

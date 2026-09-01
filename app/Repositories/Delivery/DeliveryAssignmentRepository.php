@@ -23,6 +23,10 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
                 'saleOrder.items.product',
                 'deliveryBoy.user',
                 'assignedBy',
+                'confirmation.deliveryReportedBy',
+                'confirmation.customerConfirmedBy',
+                'confirmation.disputedBy',
+                'confirmation.resolvedBy',
             ]);
 
         if (! empty($filters['status'])) {
@@ -50,6 +54,11 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
                 $filters['sale_order_id']
             );
 
+        }
+
+        if (! empty($filters['confirmation_status'])) {
+            $query->whereHas('confirmation', fn ($confirmation) => $confirmation
+                ->where('status', $filters['confirmation_status']));
         }
 
         return $query
@@ -86,6 +95,10 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
             'saleOrder.items.product',
             'deliveryBoy.user',
             'assignedBy',
+            'confirmation.deliveryReportedBy',
+            'confirmation.customerConfirmedBy',
+            'confirmation.disputedBy',
+            'confirmation.resolvedBy',
         ])->find($id);
 
     }
@@ -115,6 +128,10 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
         return DeliveryAssignment::with([
                 'deliveryBoy.user',
                 'assignedBy',
+                'confirmation.deliveryReportedBy',
+                'confirmation.customerConfirmedBy',
+                'confirmation.disputedBy',
+                'confirmation.resolvedBy',
             ])
             ->where(
                 'sale_order_id',
@@ -134,6 +151,10 @@ class DeliveryAssignmentRepository implements DeliveryAssignmentRepositoryInterf
                 'saleOrder.customer',
                 'saleOrder.shippingAddress',
                 'saleOrder.items.product',
+                'confirmation.deliveryReportedBy',
+                'confirmation.customerConfirmedBy',
+                'confirmation.disputedBy',
+                'confirmation.resolvedBy',
             ])
             ->where(
                 'delivery_boy_id',

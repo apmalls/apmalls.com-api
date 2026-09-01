@@ -3,7 +3,6 @@
 namespace App\Services\Inventory;
 
 use App\Models\Inventory\Stock;
-use Illuminate\Database\Eloquent\Collection;
 use App\Repositories\Contracts\StockRepositoryInterface;
 use App\Services\Contracts\StockServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -14,7 +13,7 @@ class StockService implements StockServiceInterface
         protected StockRepositoryInterface $stockRepository
     ) {}
 
-    public function getAll(array $filters = []): Collection|LengthAwarePaginator
+    public function getAll(array $filters = []): LengthAwarePaginator
     {
         return $this->stockRepository->getAll($filters);
     }

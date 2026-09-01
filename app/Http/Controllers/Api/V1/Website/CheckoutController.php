@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Website;
 
+use App\Http\Resources\Sale\SaleResource;
 use App\Http\Requests\Website\Checkout\CheckoutRequest;
 use App\Models\Payment\Payment;
 use App\Models\Payment\PaymentMode;
@@ -146,7 +147,14 @@ class CheckoutController extends Controller
 
                 'message' => 'Orders fetched successfully.',
 
-                'data' => $orders,
+                'data' => SaleResource::collection($orders->items())->resolve(),
+
+                'meta' => [
+                    'current_page' => $orders->currentPage(),
+                    'last_page' => $orders->lastPage(),
+                    'per_page' => $orders->perPage(),
+                    'total' => $orders->total(),
+                ],
 
             ]);
 
@@ -193,7 +201,7 @@ class CheckoutController extends Controller
 
                 'message' => 'Order fetched successfully.',
 
-                'data' => $order,
+                'data' => new SaleResource($order),
 
             ]);
 

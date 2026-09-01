@@ -25,9 +25,27 @@ class StockMovementRepository implements StockMovementRepositoryInterface
             $query->where('reference_type', $filters['reference_type']);
         }
 
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($query) use ($search) {
+                $query->where('remarks', 'ILIKE', "%{$search}%")
+                    ->orWhereHas('product', fn ($product) => $product
+                        ->where('name', 'ILIKE', "%{$search}%")
+                        ->orWhere('sku', 'ILIKE', "%{$search}%"));
+            });
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
         return $query
             ->latest()
-            ->paginate($filters['paginate'] ?? 15);
+            ->paginate(min((int) ($filters['per_page'] ?? $filters['paginate'] ?? 15), 100));
     }
 
     public function findById(int $id): ?StockMovement

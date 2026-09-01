@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Delivery;
 
 use App\Models\Delivery\DeliveryAssignment;
+use App\Models\Delivery\DeliveryConfirmation;
 use App\Models\Sale\SaleOrder;
 
 use App\Repositories\Contracts\DeliveryAssignmentRepositoryInterface;
@@ -165,51 +166,9 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
     public function delivered(
         int $assignmentId
     ): DeliveryAssignment {
-
-        return DB::transaction(function () use ($assignmentId) {
-
-            $assignment = DeliveryAssignment::query()
-                ->lockForUpdate()
-                ->findOrFail($assignmentId);
-
-            if ($assignment->status === DeliveryAssignment::STATUS_DELIVERED) {
-                return $this->getAssignment($assignmentId);
-            }
-
-            if ($assignment->status !== DeliveryAssignment::STATUS_OUT_FOR_DELIVERY) {
-                throw ValidationException::withMessages([
-                    'status' => ['Only an out-for-delivery assignment can be completed.'],
-                ]);
-            }
-
-            $order = SaleOrder::query()
-                ->lockForUpdate()
-                ->findOrFail($assignment->sale_order_id);
-
-            if ((float) $order->due_amount > 0) {
-                throw ValidationException::withMessages([
-                    'payment' => ['Outstanding Cash on Delivery must be confirmed by the assigned delivery person.'],
-                ]);
-            }
-
-            $assignment = $this->deliveryAssignmentRepository
-                ->update(
-                    $assignment,
-                    [
-                        'status' => DeliveryAssignment::STATUS_DELIVERED,
-                        'delivered_at' => now(),
-                    ]
-                );
-
-            $order->update([
-                'status' => SaleOrder::STATUS_COMPLETED,
-                'delivery_status' => DeliveryAssignment::STATUS_DELIVERED,
-                'delivered_at' => now(),
-            ]);
-
-            return $assignment;
-
-        });
+        throw ValidationException::withMessages([
+            'delivery' => ['Customer or manager confirmation is required to complete delivery.'],
+        ]);
 
     }
 
@@ -240,6 +199,18 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
             if ($assignment->status === DeliveryAssignment::STATUS_CANCELLED) {
                 return true;
+            }
+
+            $confirmation = DeliveryConfirmation::query()
+                ->where('delivery_assignment_id', $assignment->id)
+                ->first();
+            if ($confirmation && in_array($confirmation->status, [
+                DeliveryConfirmation::STATUS_AWAITING_CUSTOMER,
+                DeliveryConfirmation::STATUS_DISPUTED,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'status' => ['Resolve the delivery confirmation before cancelling this assignment.'],
+                ]);
             }
 
             $this->deliveryAssignmentRepository->update($assignment, [

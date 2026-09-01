@@ -5,11 +5,10 @@ namespace App\Repositories\Inventory;
 use App\Models\Inventory\Stock;
 use App\Repositories\Contracts\StockRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class StockRepository implements StockRepositoryInterface
 {
-    public function getAll(array $filters = []): Collection|LengthAwarePaginator
+    public function getAll(array $filters = []): LengthAwarePaginator
     {
         $query = Stock::query()
             ->with('product');
@@ -26,11 +25,26 @@ class StockRepository implements StockRepositoryInterface
             });
         }
 
-        if (!empty($filters['paginate'])) {
-            return $query->latest()->paginate($filters['paginate']);
+        if (!empty($filters['product_id'])) {
+            $query->where('product_id', $filters['product_id']);
         }
 
-        return $query->latest()->get();
+        if (!empty($filters['stock_status'])) {
+            match ($filters['stock_status']) {
+                'out_of_stock' => $query->where('available_stock', '<=', 0),
+                'low_stock' => $query
+                    ->where('available_stock', '>', 0)
+                    ->whereColumn('available_stock', '<=', 'minimum_stock'),
+                'in_stock' => $query->whereColumn('available_stock', '>', 'minimum_stock'),
+                'reconciliation_required' => $query->where('reconciliation_required', true),
+                default => null,
+            };
+        }
+
+        return $query
+            ->orderBy('available_stock')
+            ->orderBy('id')
+            ->paginate(min((int) ($filters['per_page'] ?? $filters['paginate'] ?? 15), 100));
     }
 
     public function findById(int $id): ?Stock

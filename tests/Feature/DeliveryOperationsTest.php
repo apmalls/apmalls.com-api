@@ -6,6 +6,7 @@ use App\Models\Customer\Customer;
 use App\Models\Customer\CustomerAddress;
 use App\Models\Delivery\DeliveryAssignment;
 use App\Models\Delivery\DeliveryBoy;
+use App\Models\Delivery\DeliveryConfirmation;
 use App\Models\Payment\Payment;
 use App\Models\Payment\PaymentMode;
 use App\Models\Sale\SaleOrder;
@@ -31,6 +32,10 @@ class DeliveryOperationsTest extends TestCase
             Permission::create(['name' => $name, 'guard_name' => 'web']);
         }
         $role->syncPermissions(Permission::all());
+        Role::create(['name' => 'Customer', 'guard_name' => 'web']);
+        $manager = Role::create(['name' => 'Store Manager', 'guard_name' => 'web']);
+        $resolve = Permission::create(['name' => 'delivery-confirmation.resolve', 'guard_name' => 'web']);
+        $manager->givePermissionTo($resolve);
     }
 
     public function test_delivery_person_cannot_view_another_persons_assignment(): void
@@ -111,19 +116,35 @@ class DeliveryOperationsTest extends TestCase
         ]);
     }
 
-    public function test_cod_completion_requires_collection_confirmation(): void
+    public function test_handover_report_does_not_complete_order_or_create_payment(): void
     {
         [$user, $profile] = $this->deliveryPerson('confirmer');
         $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 450);
         PaymentMode::create(['name' => 'Cash', 'code' => 'CASH', 'is_online' => false, 'is_active' => true]);
         Sanctum::actingAs($user);
 
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered")
-            ->assertUnprocessable();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", [
+            'cash_collected' => true,
+            'remarks' => 'Handed to customer.',
+        ])->assertOk()->assertJsonPath('data.delivery_confirmation.status', 'awaiting_customer');
 
         $this->assertDatabaseMissing('payments', [
             'reference_no' => "DELIVERY-{$assignment->id}",
         ]);
+        $this->assertDatabaseHas('sale_orders', [
+            'id' => $assignment->sale_order_id,
+            'status' => SaleOrder::STATUS_CONFIRMED,
+            'delivery_status' => DeliveryAssignment::STATUS_OUT_FOR_DELIVERY,
+        ]);
+        $this->assertNull($assignment->saleOrder->fresh()->delivered_at);
+
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->getJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}")
+            ->assertOk()
+            ->assertJsonPath(
+                'data.delivery_assignment.delivery_confirmation.status',
+                DeliveryConfirmation::STATUS_AWAITING_CUSTOMER
+            );
     }
 
     public function test_cod_completion_is_idempotent(): void
@@ -133,9 +154,11 @@ class DeliveryOperationsTest extends TestCase
         PaymentMode::create(['name' => 'Cash', 'code' => 'CASH', 'is_online' => false, 'is_active' => true]);
         Sanctum::actingAs($user);
 
-        $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/delivered";
-        $this->patchJson($endpoint, ['cash_collected' => true])->assertOk();
-        $this->patchJson($endpoint, ['cash_collected' => true])->assertOk();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $endpoint = "/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/confirm";
+        $this->postJson($endpoint, ['amount_paid' => 450])->assertOk();
+        $this->postJson($endpoint, ['amount_paid' => 450])->assertOk();
 
         $this->assertSame(1, Payment::where('reference_no', "DELIVERY-{$assignment->id}")->count());
         $this->assertDatabaseHas('sale_orders', [
@@ -144,6 +167,107 @@ class DeliveryOperationsTest extends TestCase
             'delivery_status' => DeliveryAssignment::STATUS_DELIVERED,
             'due_amount' => 0,
         ]);
+    }
+
+    public function test_customer_cannot_confirm_another_customers_delivery(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('owner-check');
+        $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 200);
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
+
+        $other = $this->customerUser('other-customer');
+        Customer::create([
+            'user_id' => $other->id,
+            'customer_code' => 'CUS-' . uniqid(),
+            'customer_type' => 'Retail',
+            'first_name' => 'Other',
+            'mobile' => $other->mobile,
+            'is_active' => true,
+        ]);
+        Sanctum::actingAs($other);
+        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/confirm", ['amount_paid' => 200])
+            ->assertNotFound();
+    }
+
+    public function test_customer_otp_confirms_delivery_and_cannot_be_reused(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('otp-driver');
+        $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 0);
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered")->assertOk();
+
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $otp = $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/otp")
+            ->assertOk()
+            ->json('data.otp');
+
+        Sanctum::actingAs($driver);
+        $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
+        $this->postJson($endpoint, ['otp' => $otp])->assertOk();
+        $this->postJson($endpoint, ['otp' => $otp])->assertUnprocessable();
+        $this->assertDatabaseHas('delivery_confirmations', [
+            'delivery_assignment_id' => $assignment->id,
+            'status' => DeliveryConfirmation::STATUS_CONFIRMED,
+            'confirmation_method' => DeliveryConfirmation::METHOD_OTP,
+        ]);
+    }
+
+    public function test_invalid_otp_attempts_are_persisted_and_limited(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('otp-limit');
+        $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 0);
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered")->assertOk();
+
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/otp")->assertOk();
+
+        Sanctum::actingAs($driver);
+        $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->postJson($endpoint, ['otp' => '000000'])->assertUnprocessable();
+        }
+        $this->assertDatabaseHas('delivery_confirmations', [
+            'delivery_assignment_id' => $assignment->id,
+            'otp_attempts' => 5,
+        ]);
+        $this->postJson($endpoint, ['otp' => '000000'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('otp');
+    }
+
+    public function test_dispute_can_only_be_reopened_through_manager_resolution(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('dispute-driver');
+        $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 200);
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
+
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/dispute", [
+            'reason' => 'The order was not handed to me.',
+        ])->assertOk();
+
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])
+            ->assertUnprocessable();
+
+        $manager = User::create([
+            'first_name' => 'Store', 'last_name' => 'Manager', 'email' => 'manager-delivery@example.com',
+            'password' => Hash::make('password'), 'is_active' => true,
+        ]);
+        $manager->assignRole('Store Manager');
+        Sanctum::actingAs($manager);
+        $confirmation = DeliveryConfirmation::where('delivery_assignment_id', $assignment->id)->firstOrFail();
+        $this->patchJson("/api/v1/admin/delivery-confirmations/{$confirmation->id}/resolve", [
+            'resolution' => 'reopen',
+            'remarks' => 'Customer report accepted after review.',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('delivery_assignments', ['id' => $assignment->id, 'status' => 'cancelled']);
+        $this->assertDatabaseHas('sale_orders', ['id' => $assignment->sale_order_id, 'status' => 'confirmed', 'delivery_status' => null]);
+        $this->assertDatabaseMissing('payments', ['reference_no' => "DELIVERY-{$assignment->id}"]);
     }
 
     private function deliveryPerson(string $key): array
@@ -170,7 +294,9 @@ class DeliveryOperationsTest extends TestCase
 
     private function assignment(DeliveryBoy $profile, string $status = DeliveryAssignment::STATUS_ASSIGNED, float $due = 0): DeliveryAssignment
     {
+        $customerUser = $this->customerUser('buyer-' . uniqid());
         $customer = Customer::create([
+            'user_id' => $customerUser->id,
             'customer_code' => 'CUS-' . uniqid(),
             'customer_type' => 'Retail',
             'first_name' => 'Test',
@@ -205,5 +331,20 @@ class DeliveryOperationsTest extends TestCase
             'status' => $status,
             'assigned_at' => now(),
         ]);
+    }
+
+    private function customerUser(string $key): User
+    {
+        $user = User::create([
+            'first_name' => 'Test',
+            'last_name' => 'Customer',
+            'email' => "{$key}@example.com",
+            'mobile' => '7' . str_pad((string) random_int(0, 999999999), 9, '0', STR_PAD_LEFT),
+            'password' => Hash::make('password'),
+            'is_active' => true,
+        ]);
+        $user->assignRole('Customer');
+
+        return $user;
     }
 }

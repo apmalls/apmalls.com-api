@@ -20,11 +20,12 @@ class StockMovementController extends Controller
             $request->all()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Stock movement list fetched successfully.',
-            'data' => StockMovementResource::collection($movements),
-        ]);
+        return StockMovementResource::collection($movements)
+            ->additional([
+                'success' => true,
+                'message' => 'Stock movement list fetched successfully.',
+            ])
+            ->response();
     }
 
     public function show(int $id): JsonResponse

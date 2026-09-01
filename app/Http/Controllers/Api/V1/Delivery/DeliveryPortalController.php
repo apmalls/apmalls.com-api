@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\Delivery;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Delivery\DeliveryActionRequest;
+use App\Http\Requests\Admin\Delivery\ConfirmDeliveryOtpRequest;
 use App\Http\Requests\Admin\Delivery\UpdateDeliveryAvailabilityRequest;
 use App\Http\Resources\Delivery\DeliveryAssignmentResource;
 use App\Http\Resources\Delivery\DeliveryBoyResource;
@@ -77,8 +78,21 @@ class DeliveryPortalController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Delivery assignment updated.',
+            'message' => $action === 'delivered'
+                ? 'Handover reported. Awaiting customer confirmation.'
+                : 'Delivery assignment updated.',
             'data' => new DeliveryAssignmentResource($assignment),
+        ]);
+    }
+
+    public function confirmOtp(ConfirmDeliveryOtpRequest $request, int $id): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Delivery confirmed with customer code.',
+            'data' => new DeliveryAssignmentResource(
+                $this->service->confirmOtp($request->user(), $id, $request->validated('otp'))
+            ),
         ]);
     }
 }

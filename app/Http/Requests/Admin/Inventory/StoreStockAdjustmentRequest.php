@@ -33,8 +33,9 @@ class StoreStockAdjustmentRequest extends FormRequest
             ],
 
             'reason' => [
-                'nullable',
+                'required',
                 'string',
+                'min:3',
                 'max:1000',
             ],
 
@@ -57,6 +58,8 @@ class StoreStockAdjustmentRequest extends FormRequest
             'physical_stock.integer' => 'Physical stock must be an integer.',
 
             'physical_stock.min' => 'Physical stock cannot be negative.',
+
+            'reason.required' => 'A reason is required for every stock adjustment.',
 
         ];
     }

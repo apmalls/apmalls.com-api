@@ -24,6 +24,12 @@ class Stock extends Model
 
         'maximum_stock',
 
+        'legacy_product_stock',
+
+        'reconciliation_required',
+
+        'reconciled_at',
+
     ];
 
     protected $casts = [
@@ -37,6 +43,12 @@ class Stock extends Model
         'minimum_stock' => 'integer',
 
         'maximum_stock' => 'integer',
+
+        'legacy_product_stock' => 'integer',
+
+        'reconciliation_required' => 'boolean',
+
+        'reconciled_at' => 'datetime',
 
     ];
 

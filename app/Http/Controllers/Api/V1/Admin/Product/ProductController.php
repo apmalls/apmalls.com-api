@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\ChangeProductStatusRequest;
+use App\Http\Resources\Product\ProductResource;
 use App\Services\Contracts\ProductServiceInterface;
 use App\Models\Product\Product;
 use App\Models\Product\ProductImage;
@@ -43,11 +44,13 @@ class ProductController extends Controller
             ];
 
             $products = $this->productService->paginate($filters);
+            $page = $products->toArray();
+            $page['data'] = ProductResource::collection($products->getCollection())->resolve();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Products fetched successfully.',
-                'data' => $products,
+                'data' => $page,
             ]);
 
         } catch (\Exception $e) {
@@ -121,12 +124,13 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product created successfully.',
-                'data' => $product->load([
+                'data' => new ProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
                     'images',
-                ])
+                    'inventoryStock',
+                ])),
             ], 201);
 
         } catch (\Exception $e) {
@@ -148,14 +152,15 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product fetched successfully.',
-                'data' => $product->load([
+                'data' => new ProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
                     'images',
                     'creator',
                     'updater',
-                ]),
+                    'inventoryStock',
+                ])),
             ]);
 
         } catch (\Exception $e) {
@@ -196,7 +201,6 @@ class ProductController extends Controller
                 'mrp' => $request->mrp,
                 'tax_percent' => $request->tax_percent,
                 'discount_percent' => $request->discount_percent,
-                'stock' => $request->stock,
                 'minimum_stock' => $request->minimum_stock,
                 'featured' => $request->boolean('featured'),
                 'new_arrival' => $request->boolean('new_arrival'),
@@ -236,12 +240,13 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product updated successfully.',
-                'data' => $product->fresh()->load([
+                'data' => new ProductResource($product->fresh()->load([
                     'category',
                     'brand',
                     'unit',
                     'images',
-                ])
+                    'inventoryStock',
+                ])),
             ]);
 
         } catch (\Exception $e) {

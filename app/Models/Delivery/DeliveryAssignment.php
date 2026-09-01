@@ -63,4 +63,9 @@ class DeliveryAssignment extends Model
     {
         return $this->belongsTo(User::class, 'assigned_by');
     }
+
+    public function confirmation()
+    {
+        return $this->hasOne(DeliveryConfirmation::class, 'delivery_assignment_id');
+    }
 }

@@ -50,13 +50,26 @@ class ProductResource extends JsonResource
 
             'discount_percent' => $this->discount_percent,
 
-            'minimum_stock' => $this->minimum_stock,
+            'minimum_stock' => $this->whenLoaded(
+                'inventoryStock',
+                fn () => $this->inventoryStock?->minimum_stock ?? $this->minimum_stock,
+                $this->minimum_stock
+            ),
 
             'thumbnail' => $this->thumbnail,
 
             'thumbnail_url' => $this->thumbnail_url,
 
-            'stock' => $this->stock,
+            'stock' => $this->whenLoaded(
+                'inventoryStock',
+                fn () => $this->inventoryStock?->available_stock ?? 0,
+                $this->stock
+            ),
+
+            'current_stock' => $this->whenLoaded(
+                'inventoryStock',
+                fn () => $this->inventoryStock?->current_stock
+            ),
 
             'featured' => (bool) $this->featured,
 

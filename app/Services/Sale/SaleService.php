@@ -2,6 +2,7 @@
 
 namespace App\Services\Sale;
 
+use App\Models\Delivery\DeliveryConfirmation;
 use App\Helpers\NumberHelper;
 use App\Helpers\StockHelper;
 use App\Models\Sale\SaleOrder;
@@ -128,13 +129,16 @@ class SaleService implements SaleServiceInterface
                     'line_total' => $item['line_total'],
                 ]);
 
-                StockHelper::decrease(
-                    productId: $item['product_id'],
-                    quantity: $item['quantity'],
-                    referenceType: SaleOrder::class,
-                    referenceId: $sale->id,
-                    remarks: 'Sale'
-                );
+                if (in_array($sale->status, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true)) {
+                    StockHelper::decrease(
+                        productId: $item['product_id'],
+                        quantity: $item['quantity'],
+                        referenceType: SaleOrder::class,
+                        referenceId: $sale->id,
+                        remarks: 'Sale',
+                        idempotencyKey: "sale:{$sale->id}:product:{$item['product_id']}:created"
+                    );
+                }
             }
 
             return $sale->load([
@@ -155,6 +159,18 @@ class SaleService implements SaleServiceInterface
         return DB::transaction(function () use ($id, $data) {
 
             $sale = $this->saleRepository->findOrFail($id);
+            $oldStatus = $sale->status;
+
+            if (isset($data['status']) && $data['status'] !== $oldStatus) {
+                throw ValidationException::withMessages([
+                    'status' => 'Use the sale status action to change status.',
+                ]);
+            }
+
+            $oldItems = $sale->items->map(fn($item) => [
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+            ])->values()->all();
 
             $items = $data['items'] ?? [];
 
@@ -163,15 +179,22 @@ class SaleService implements SaleServiceInterface
             $sale = $this->saleRepository
                 ->update($id, $data);
 
+            $oldStockApplied = in_array($oldStatus, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true);
+            $newStockApplied = in_array($sale->status, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true);
+            $version = hash('sha256', json_encode([$oldStatus, $oldItems, $sale->status, $items]));
+
             foreach ($sale->items as $oldItem) {
 
-                StockHelper::increase(
+                if ($oldStockApplied) {
+                    StockHelper::increase(
                     productId: $oldItem->product_id,
                     quantity: $oldItem->quantity,
                     referenceType: SaleOrder::class,
                     referenceId: $sale->id,
-                    remarks: 'Sale Update Rollback'
-                );
+                    remarks: 'Sale update rollback',
+                    idempotencyKey: "sale:{$sale->id}:product:{$oldItem->product_id}:update:{$version}:rollback"
+                    );
+                }
             }
 
             $this->saleOrderItemRepository
@@ -207,13 +230,16 @@ class SaleService implements SaleServiceInterface
 
                 ]);
 
-                StockHelper::decrease(
+                if ($newStockApplied) {
+                    StockHelper::decrease(
                     productId: $item['product_id'],
                     quantity: $item['quantity'],
                     referenceType: SaleOrder::class,
                     referenceId: $sale->id,
-                    remarks: 'Sale Updated'
-                );
+                    remarks: 'Sale updated',
+                    idempotencyKey: "sale:{$sale->id}:product:{$item['product_id']}:update:{$version}:apply"
+                    );
+                }
             }
 
             return $sale->load([
@@ -251,13 +277,16 @@ class SaleService implements SaleServiceInterface
 
             foreach ($sale->items as $item) {
 
-                StockHelper::increase(
-                    productId: $item->product_id,
-                    quantity: $item->quantity,
-                    referenceType: SaleOrder::class,
-                    referenceId: $sale->id,
-                    remarks: 'Sale Deleted'
-                );
+                if (in_array($sale->status, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true)) {
+                    StockHelper::increase(
+                        productId: $item->product_id,
+                        quantity: $item->quantity,
+                        referenceType: SaleOrder::class,
+                        referenceId: $sale->id,
+                        remarks: 'Sale deleted',
+                        idempotencyKey: "sale:{$sale->id}:product:{$item->product_id}:deleted"
+                    );
+                }
             }
 
             return $this->saleRepository
@@ -275,10 +304,25 @@ class SaleService implements SaleServiceInterface
         int $id
     ): bool {
 
-        return DB::transaction(
-            fn() =>
-            $this->saleRepository->restore($id)
-        );
+        return DB::transaction(function () use ($id) {
+            $restored = $this->saleRepository->restore($id);
+            $sale = $this->saleRepository->findOrFail($id);
+
+            if (in_array($sale->status, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true)) {
+                foreach ($sale->items as $item) {
+                    StockHelper::decrease(
+                        $item->product_id,
+                        $item->quantity,
+                        SaleOrder::class,
+                        $sale->id,
+                        'Sale restored',
+                        "sale:{$sale->id}:product:{$item->product_id}:restored"
+                    );
+                }
+            }
+
+            return $restored;
+        });
     }
 
     public function forceDelete(
@@ -302,11 +346,74 @@ class SaleService implements SaleServiceInterface
         string $status
     ): SaleOrder {
 
-        return DB::transaction(
-            fn() =>
-            $this->saleRepository
-                ->changeStatus($id, $status)
-        );
+        return DB::transaction(function () use ($id, $status) {
+            $sale = $this->saleRepository->findOrFail($id);
+            $oldStatus = $sale->status;
+            $wasApplied = in_array($oldStatus, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true);
+            $willApply = in_array($status, [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_COMPLETED], true);
+
+            if ($status === $oldStatus) {
+                return $sale;
+            }
+
+            $allowedTransitions = [
+                SaleOrder::STATUS_DRAFT => [SaleOrder::STATUS_CONFIRMED, SaleOrder::STATUS_CANCELLED],
+                SaleOrder::STATUS_CONFIRMED => [SaleOrder::STATUS_COMPLETED, SaleOrder::STATUS_CANCELLED],
+                SaleOrder::STATUS_COMPLETED => [],
+                SaleOrder::STATUS_CANCELLED => [],
+            ];
+
+            if (! in_array($status, $allowedTransitions[$oldStatus] ?? [], true)) {
+                throw ValidationException::withMessages([
+                    'status' => "Sale status cannot change from {$oldStatus} to {$status}.",
+                ]);
+            }
+
+            $confirmationStatus = $sale->deliveryAssignment?->confirmation?->status;
+            if (in_array($confirmationStatus, [
+                DeliveryConfirmation::STATUS_AWAITING_CUSTOMER,
+                DeliveryConfirmation::STATUS_DISPUTED,
+            ], true) && in_array($status, [
+                SaleOrder::STATUS_COMPLETED,
+                SaleOrder::STATUS_CANCELLED,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'status' => ['Resolve the delivery confirmation before completing or cancelling this order.'],
+                ]);
+            }
+
+            if ($status === SaleOrder::STATUS_COMPLETED && $sale->deliveryAssignment) {
+                throw ValidationException::withMessages([
+                    'status' => ['Delivered orders must be completed through customer or manager confirmation.'],
+                ]);
+            }
+
+            if (! $wasApplied && $willApply) {
+                foreach ($sale->items as $item) {
+                    StockHelper::decrease(
+                        $item->product_id,
+                        $item->quantity,
+                        SaleOrder::class,
+                        $sale->id,
+                        "Sale status changed to {$status}",
+                        "sale:{$sale->id}:product:{$item->product_id}:status:stock-out"
+                    );
+                }
+            } elseif ($wasApplied && $status === SaleOrder::STATUS_CANCELLED) {
+                foreach ($sale->items as $item) {
+                    StockHelper::increase(
+                        $item->product_id,
+                        $item->quantity,
+                        SaleOrder::class,
+                        $sale->id,
+                        'Sale cancelled',
+                        "sale:{$sale->id}:product:{$item->product_id}:status:cancelled"
+                    );
+                }
+            }
+
+            return $this->saleRepository->changeStatus($id, $status);
+        });
     }
 
     /*

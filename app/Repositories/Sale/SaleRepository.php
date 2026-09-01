@@ -33,6 +33,11 @@ class SaleRepository implements SaleRepositoryInterface
                 'customer',
                 'billingAddress',
                 'shippingAddress',
+                'deliveryAssignment.deliveryBoy.user',
+                'deliveryAssignment.confirmation.deliveryReportedBy',
+                'deliveryAssignment.confirmation.customerConfirmedBy',
+                'deliveryAssignment.confirmation.disputedBy',
+                'deliveryAssignment.confirmation.resolvedBy',
                 'creator',
                 'updater',
             ])
@@ -89,6 +94,10 @@ class SaleRepository implements SaleRepositoryInterface
             'payments.paymentMode',
             'deliveryAssignment.deliveryBoy.user',
             'deliveryAssignment.assignedBy',
+            'deliveryAssignment.confirmation.deliveryReportedBy',
+            'deliveryAssignment.confirmation.customerConfirmedBy',
+            'deliveryAssignment.confirmation.disputedBy',
+            'deliveryAssignment.confirmation.resolvedBy',
             'creator',
             'updater',
         ])->findOrFail($id);
@@ -218,6 +227,11 @@ class SaleRepository implements SaleRepositoryInterface
                 'customer',
                 'billingAddress',
                 'shippingAddress',
+                'deliveryAssignment.deliveryBoy.user',
+                'deliveryAssignment.confirmation.deliveryReportedBy',
+                'deliveryAssignment.confirmation.customerConfirmedBy',
+                'deliveryAssignment.confirmation.disputedBy',
+                'deliveryAssignment.confirmation.resolvedBy',
                 'creator',
                 'updater',
             ])
@@ -251,6 +265,35 @@ class SaleRepository implements SaleRepositoryInterface
             )
 
             ->when(
+                $filters['delivery_status'] ?? null,
+                fn($q, $status) => $q->where('delivery_status', $status)
+            )
+
+            ->when(
+                ($filters['assignment_state'] ?? null) === 'assigned',
+                fn($q) => $q->whereHas(
+                    'deliveryAssignment',
+                    fn($assignment) => $assignment->where('status', '!=', 'cancelled')
+                )
+            )
+
+            ->when(
+                ($filters['assignment_state'] ?? null) === 'unassigned',
+                fn($q) => $q->whereDoesntHave(
+                    'deliveryAssignment',
+                    fn($assignment) => $assignment->where('status', '!=', 'cancelled')
+                )
+            )
+
+            ->when(
+                $filters['confirmation_status'] ?? null,
+                fn($q, $status) => $q->whereHas(
+                    'deliveryAssignment.confirmation',
+                    fn($confirmation) => $confirmation->where('status', $status)
+                )
+            )
+
+            ->when(
                 $filters['customer_id'] ?? null,
                 fn($q, $customer) => $q->where('customer_id', $customer)
             )
@@ -274,7 +317,7 @@ class SaleRepository implements SaleRepositoryInterface
             )
 
             ->when(
-                $filters['from_date'] ?? null,
+                $filters['date_from'] ?? $filters['from_date'] ?? null,
                 fn($q, $date) => $q->whereDate(
                     'sale_date',
                     '>=',
@@ -283,7 +326,7 @@ class SaleRepository implements SaleRepositoryInterface
             )
 
             ->when(
-                $filters['to_date'] ?? null,
+                $filters['date_to'] ?? $filters['to_date'] ?? null,
                 fn($q, $date) => $q->whereDate(
                     'sale_date',
                     '<=',
@@ -366,6 +409,11 @@ class SaleRepository implements SaleRepositoryInterface
             ->with([
                 'items.product',
                 'payments',
+                'deliveryAssignment.deliveryBoy.user',
+                'deliveryAssignment.confirmation.deliveryReportedBy',
+                'deliveryAssignment.confirmation.customerConfirmedBy',
+                'deliveryAssignment.confirmation.disputedBy',
+                'deliveryAssignment.confirmation.resolvedBy',
             ])
 
             ->latest()
@@ -403,6 +451,11 @@ class SaleRepository implements SaleRepositoryInterface
                 'billingAddress',
 
                 'shippingAddress',
+                'deliveryAssignment.deliveryBoy.user',
+                'deliveryAssignment.confirmation.deliveryReportedBy',
+                'deliveryAssignment.confirmation.customerConfirmedBy',
+                'deliveryAssignment.confirmation.disputedBy',
+                'deliveryAssignment.confirmation.resolvedBy',
 
             ])
 

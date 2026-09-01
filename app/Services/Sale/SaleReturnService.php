@@ -3,6 +3,7 @@
 namespace App\Services\Sale;
 
 use App\Helpers\NumberHelper;
+use App\Helpers\StockHelper;
 use App\Models\Sale\SaleReturn;
 use App\Repositories\Contracts\SaleReturnRepositoryInterface;
 use App\Services\Contracts\SaleReturnServiceInterface;
@@ -104,6 +105,20 @@ class SaleReturnService implements SaleReturnServiceInterface
 
         return DB::transaction(function () use ($id, $data) {
 
+            $saleReturn = $this->saleReturnRepository->findOrFail($id);
+
+            if ($saleReturn->status === SaleReturn::STATUS_COMPLETED) {
+                throw ValidationException::withMessages([
+                    'status' => 'Completed sale returns are immutable.',
+                ]);
+            }
+
+            if (isset($data['status']) && $data['status'] !== $saleReturn->status) {
+                throw ValidationException::withMessages([
+                    'status' => 'Use the sale return status action to change status.',
+                ]);
+            }
+
             return $this->saleReturnRepository
                 ->update($id, $data);
         });
@@ -169,11 +184,42 @@ class SaleReturnService implements SaleReturnServiceInterface
         string $status
     ): SaleReturn {
 
-        return DB::transaction(
-            fn() =>
-            $this->saleReturnRepository
-                ->changeStatus($id, $status)
-        );
+        return DB::transaction(function () use ($id, $status) {
+            $saleReturn = $this->saleReturnRepository->findOrFail($id);
+
+            if ($status === $saleReturn->status) {
+                return $saleReturn;
+            }
+
+            $allowedTransitions = [
+                SaleReturn::STATUS_DRAFT => [SaleReturn::STATUS_APPROVED, SaleReturn::STATUS_CANCELLED],
+                SaleReturn::STATUS_APPROVED => [SaleReturn::STATUS_COMPLETED, SaleReturn::STATUS_CANCELLED],
+                SaleReturn::STATUS_COMPLETED => [],
+                SaleReturn::STATUS_CANCELLED => [],
+            ];
+
+            if (! in_array($status, $allowedTransitions[$saleReturn->status] ?? [], true)) {
+                throw ValidationException::withMessages([
+                    'status' => "Sale return status cannot change from {$saleReturn->status} to {$status}.",
+                ]);
+            }
+
+            if ($saleReturn->status !== SaleReturn::STATUS_COMPLETED
+                && $status === SaleReturn::STATUS_COMPLETED) {
+                foreach ($saleReturn->items as $item) {
+                    StockHelper::increase(
+                        $item->product_id,
+                        (int) $item->quantity,
+                        SaleReturn::class,
+                        $saleReturn->id,
+                        'Sale return completed',
+                        "sale-return:{$saleReturn->id}:product:{$item->product_id}:completed"
+                    );
+                }
+            }
+
+            return $this->saleReturnRepository->changeStatus($id, $status);
+        });
     }
 
     /*

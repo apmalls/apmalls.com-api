@@ -6,6 +6,8 @@ namespace App\Services\Product;
 
 use App\Models\Category\Category;
 use App\Models\Product\Product;
+use App\Models\Inventory\Stock;
+use App\Helpers\StockHelper;
 use App\Repositories\Contracts\GeneralSettingRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Services\Contracts\ProductServiceInterface;
@@ -53,6 +55,10 @@ class ProductService implements ProductServiceInterface
 
         return DB::transaction(function () use ($data) {
 
+            $initialStock = max(0, (int) ($data['stock'] ?? 0));
+            $minimumStock = max(0, (int) ($data['minimum_stock'] ?? 0));
+            $data['stock'] = 0;
+
             if (blank($data['barcode'] ?? null)) {
 
                 $setting = $this->generalSettingRepository->getForUpdate();
@@ -86,7 +92,29 @@ class ProductService implements ProductServiceInterface
                     ->barcode_type;
             }
 
-            return $this->productRepository->create($data);
+            $product = $this->productRepository->create($data);
+
+            Stock::create([
+                'product_id' => $product->id,
+                'current_stock' => 0,
+                'reserved_stock' => 0,
+                'available_stock' => 0,
+                'minimum_stock' => $minimumStock,
+                'maximum_stock' => 0,
+            ]);
+
+            if ($initialStock > 0) {
+                StockHelper::increase(
+                    productId: $product->id,
+                    quantity: $initialStock,
+                    referenceType: Product::class,
+                    referenceId: $product->id,
+                    remarks: 'Initial product stock',
+                    idempotencyKey: "product:{$product->id}:initial-stock"
+                );
+            }
+
+            return $product->fresh(['inventoryStock']);
         });
     }
 
@@ -96,7 +124,19 @@ class ProductService implements ProductServiceInterface
             $this->validateProductCategory((int) $data['category_id']);
         }
 
-        return $this->productRepository->update($id, $data);
+        return DB::transaction(function () use ($id, $data) {
+            unset($data['stock']);
+            $product = $this->productRepository->update($id, $data);
+
+            StockHelper::currentStock($product->id);
+            Stock::query()
+                ->where('product_id', $product->id)
+                ->update([
+                    'minimum_stock' => max(0, (int) ($data['minimum_stock'] ?? $product->minimum_stock)),
+                ]);
+
+            return $product->fresh(['inventoryStock']);
+        });
     }
 
     private function validateProductCategory(int $categoryId): void

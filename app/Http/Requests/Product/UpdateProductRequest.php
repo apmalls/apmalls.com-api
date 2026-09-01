@@ -142,12 +142,6 @@ class UpdateProductRequest extends FormRequest
                 'between:0,100',
             ],
 
-            'stock' => [
-                'nullable',
-                'integer',
-                'min:0',
-            ],
-
             'minimum_stock' => [
                 'nullable',
                 'integer',

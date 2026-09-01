@@ -181,6 +181,7 @@ class StoreSaleOrderRequest extends FormRequest
             'items.*.product_id' => [
                 'required',
                 'integer',
+                'distinct',
                 'exists:products,id',
             ],
 

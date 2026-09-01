@@ -4,14 +4,13 @@ namespace App\Repositories\Contracts;
 
 use App\Models\Inventory\Stock;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 interface StockRepositoryInterface
 {
     /**
      * Get all stocks
      */
-    public function getAll(array $filters = []): Collection|LengthAwarePaginator;
+    public function getAll(array $filters = []): LengthAwarePaginator;
 
     /**
      * Find stock by id

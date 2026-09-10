@@ -180,6 +180,8 @@ class CheckoutService implements CheckoutServiceInterface
 
                 'sale_no' => $this->generateSaleNo(),
 
+                'order_source' => SaleOrder::SOURCE_ONLINE,
+
                 'sale_date' => now(config('app.business_timezone'))->toDateString(),
 
                 'sub_total' => $cart->subtotal,

@@ -24,6 +24,8 @@ class SaleResource extends JsonResource
 
             'sale_no' => $this->sale_no,
 
+            'order_source' => $this->order_source,
+
             'invoice_no' => $this->invoice_no,
 
             'sale_date' => $this->sale_date,

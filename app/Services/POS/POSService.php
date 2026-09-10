@@ -748,6 +748,8 @@ class POSService implements POSServiceInterface
 
                 'customer_id' => $customerId,
 
+                'order_source' => SaleOrder::SOURCE_POS,
+
                 'paid_amount' => $paidAmount,
 
                 'sale_date' => now()->toDateString(),

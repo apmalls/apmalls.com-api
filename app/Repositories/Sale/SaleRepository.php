@@ -260,6 +260,11 @@ class SaleRepository implements SaleRepositoryInterface
             )
 
             ->when(
+                $filters['order_source'] ?? null,
+                fn($q, $source) => $q->where('order_source', $source)
+            )
+
+            ->when(
                 $filters['payment_status'] ?? null,
                 fn($q, $status) => $q->where('payment_status', $status)
             )

@@ -100,6 +100,8 @@ class SaleService implements SaleServiceInterface
                 );
             }
 
+            $data['order_source'] ??= SaleOrder::SOURCE_MANUAL;
+
             $sale = $this->saleRepository->create($data);
 
             foreach ($items as $item) {

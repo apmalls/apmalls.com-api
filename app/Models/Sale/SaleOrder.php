@@ -27,6 +27,12 @@ class SaleOrder extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const SOURCE_ONLINE = 'online';
+
+    public const SOURCE_POS = 'pos';
+
+    public const SOURCE_MANUAL = 'manual';
+
     /*
     |--------------------------------------------------------------------------
     | Payment Status
@@ -63,6 +69,8 @@ class SaleOrder extends Model
         'customer_id',
 
         'sale_no',
+
+        'order_source',
 
         'invoice_no',
 

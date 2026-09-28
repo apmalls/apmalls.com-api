@@ -86,9 +86,14 @@ class DefaultUsersSeeder extends Seeder
                     'mobile'     => $data['mobile'],
                     'password'   => Hash::make('Admin@123'),
                     'is_active'  => true,
+                    'email_verified_at' => now(),
                 ]
 
             );
+
+            if ($user->email_verified_at === null) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
 
             $user->syncRoles($data['role']);
 

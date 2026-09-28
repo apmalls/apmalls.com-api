@@ -19,7 +19,7 @@ class UserRepository implements UserRepositoryInterface
     public function paginate(array $filters = []): LengthAwarePaginator
     {
         $query = User::query()
-            ->with('roles')
+            ->with(['roles', 'latestInvitation'])
             ->latest();
 
         // Search
@@ -49,7 +49,7 @@ class UserRepository implements UserRepositoryInterface
     public function trash(array $filters = []): LengthAwarePaginator
     {
         $query = User::onlyTrashed()
-            ->with('roles')
+            ->with(['roles', 'latestInvitation'])
             ->latest('deleted_at');
 
         // Search

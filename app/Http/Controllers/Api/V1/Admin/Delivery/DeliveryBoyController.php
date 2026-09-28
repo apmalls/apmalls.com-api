@@ -25,10 +25,11 @@ class DeliveryBoyController extends Controller
     public function unlinkedUsers(): JsonResponse
     {
         $users = User::role('Delivery Boy')
+            ->with('latestInvitation')
             ->whereDoesntHave('deliveryBoy', fn ($query) => $query->withTrashed())
             ->where('is_active', true)
             ->orderBy('first_name')
-            ->get(['id', 'first_name', 'last_name', 'email', 'mobile']);
+            ->get(['id', 'first_name', 'last_name', 'email', 'mobile', 'email_verified_at']);
 
         return response()->json(['success' => true, 'data' => $users]);
     }

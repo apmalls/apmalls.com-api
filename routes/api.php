@@ -136,9 +136,19 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/login', [AuthController::class, 'login']);
 
+        Route::post('/login/verify-otp', [AuthController::class, 'verifyLoginOtp']);
+
+        Route::post('/login/resend-otp', [AuthController::class, 'resendLoginOtp']);
+
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+        Route::post('/email-verification/verify', [AuthController::class, 'verifyEmail']);
+
+        Route::post('/email-verification/resend', [AuthController::class, 'resendEmailVerification']);
+
+        Route::post('/activate-account', [AuthController::class, 'activateAccount']);
 
         Route::post(
             'send-otp',
@@ -209,6 +219,8 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', 'destroy')->middleware('permission:user.delete');
 
             Route::patch('/{id}/status', 'changeStatus')->middleware('permission:user.change-status');
+
+            Route::post('/{id}/resend-invitation', 'resendInvitation')->middleware('permission:user.update');
 
             Route::put('/{id}/restore', 'restore')->middleware('permission:user.restore');
 

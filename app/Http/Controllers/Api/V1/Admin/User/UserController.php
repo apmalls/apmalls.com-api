@@ -12,11 +12,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
+use App\Services\Auth\AccountInvitationService;
+use App\Services\Contracts\OtpServiceInterface;
 
 class UserController extends Controller
 {
     public function __construct(
-        protected UserServiceInterface $userService
+        protected UserServiceInterface $userService,
+        protected AccountInvitationService $accountInvitationService,
+        protected OtpServiceInterface $otpService,
     ) {
     }
 
@@ -60,8 +65,9 @@ class UserController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'mobile' => $request->mobile,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make(Str::random(64)),
                 'is_active' => $request->boolean('is_active'),
+                'email_verified_at' => null,
             ];
 
             // Upload Profile Photo
@@ -82,9 +88,15 @@ class UserController extends Controller
 
             $this->commit();
 
+            try {
+                $this->accountInvitationService->invite($user, $request->user());
+            } catch (\Throwable $invitationException) {
+                report($invitationException);
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'User created successfully.',
+                'message' => 'User created and activation email sent successfully.',
                 'data' => $user->load('roles')
             ], 201);
 
@@ -113,6 +125,9 @@ class UserController extends Controller
     {
         try {
             $user = $this->userService->find($id);
+
+            $emailChanged = Str::lower((string) $user->email) !== Str::lower((string) $request->email);
+            $wasVerified = $user->email_verified_at !== null;
 
             return response()->json([
                 'success' => true,
@@ -159,6 +174,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'mobile' => $request->mobile,
                 'is_active' => $request->boolean('is_active'),
+                'email_verified_at' => $emailChanged ? null : $user->email_verified_at,
             ];
 
             // Upload Profile Photo
@@ -185,9 +201,29 @@ class UserController extends Controller
 
             $this->commit();
 
+            if ($emailChanged) {
+                $user->tokens()->delete();
+
+                if ($wasVerified) {
+                    try {
+                        $this->otpService->send($user->email, 'email', 'email_verification');
+                    } catch (\Throwable $mailException) {
+                        report($mailException);
+                    }
+                } else {
+                    try {
+                        $this->accountInvitationService->invite($user, $request->user());
+                    } catch (\Throwable $invitationException) {
+                        report($invitationException);
+                    }
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'User updated successfully.',
+                'message' => $emailChanged
+                    ? 'User updated. Verification was sent to the new email address.'
+                    : 'User updated successfully.',
                 'data' => $user->load('roles')
             ]);
 
@@ -215,7 +251,7 @@ class UserController extends Controller
     /**
      * Delete User (Soft Delete)
      */
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
         $this->beginTransaction();
 
@@ -304,6 +340,26 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
+    }
+
+    public function resendInvitation(Request $request, int $id): JsonResponse
+    {
+        $user = $this->userService->find($id);
+
+        if ($user->email_verified_at !== null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account is already activated.',
+            ], 422);
+        }
+
+        $this->accountInvitationService->invite($user, $request->user());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'A new activation email has been sent.',
+            'data' => $user->fresh()->load(['roles', 'latestInvitation']),
+        ]);
     }
 
     /**

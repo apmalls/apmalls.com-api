@@ -28,7 +28,7 @@ class DeliveryOperationsTest extends TestCase
         parent::setUp();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         $role = Role::create(['name' => 'Delivery Boy', 'guard_name' => 'web']);
-        foreach (['delivery-assignment.list', 'delivery-assignment.view', 'delivery-assignment.update'] as $name) {
+        foreach (['dashboard.view', 'delivery-assignment.list', 'delivery-assignment.view', 'delivery-assignment.update'] as $name) {
             Permission::create(['name' => $name, 'guard_name' => 'web']);
         }
         $role->syncPermissions(Permission::all());

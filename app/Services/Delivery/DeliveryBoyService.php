@@ -16,11 +16,15 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Services\Auth\AccountInvitationService;
 
 class DeliveryBoyService implements DeliveryBoyServiceInterface
 {
     public function __construct(
         protected DeliveryBoyRepositoryInterface $deliveryBoyRepository,
+        protected AccountInvitationService $accountInvitationService,
     ) {
     }
 
@@ -60,8 +64,9 @@ class DeliveryBoyService implements DeliveryBoyServiceInterface
                     'last_name' => $data['last_name'] ?? null,
                     'email' => $data['email'],
                     'mobile' => $data['phone'],
-                    'password' => $data['password'],
+                    'password' => Str::random(64),
                     'is_active' => (bool) ($data['is_active'] ?? true),
+                    'email_verified_at' => null,
                 ]);
 
             if ($user->deliveryBoy()->exists()) {
@@ -80,6 +85,17 @@ class DeliveryBoyService implements DeliveryBoyServiceInterface
             }
 
             $profile = $this->deliveryBoyRepository->create($profileData);
+
+            if ($user->email_verified_at === null) {
+                $inviter = Auth::user();
+                DB::afterCommit(function () use ($user, $inviter): void {
+                    try {
+                        $this->accountInvitationService->invite($user, $inviter);
+                    } catch (\Throwable $invitationException) {
+                        report($invitationException);
+                    }
+                });
+            }
 
             return $profile->fresh('user');
         });

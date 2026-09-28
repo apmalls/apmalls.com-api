@@ -9,11 +9,13 @@ use App\Models\Customer\Customer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Services\Contracts\OtpServiceInterface;
 
 class AuthService
 {
     public function __construct(
         protected CustomerRepositoryInterface $customerRepository,
+        protected OtpServiceInterface $otpService,
     ) {
     }
 
@@ -24,7 +26,7 @@ class AuthService
         array $data
     ): array {
 
-        return DB::transaction(function () use ($data) {
+        $result = DB::transaction(function () use ($data) {
 
             /*
             |--------------------------------------------------------------------------
@@ -85,31 +87,23 @@ class AuthService
 
                 ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Sanctum Token
-            |--------------------------------------------------------------------------
-            */
-
-            $token = $user
-
-                ->createToken(
-                    'customer-token'
-                )
-
-                ->plainTextToken;
-
             return [
 
                 'user' => $user,
 
                 'customer' => $customer,
 
-                'token' => $token,
-
             ];
 
         });
+
+        $result['verification'] = $this->otpService->send(
+            $result['user']->email,
+            'email',
+            'email_verification',
+        );
+
+        return $result;
 
     }
 

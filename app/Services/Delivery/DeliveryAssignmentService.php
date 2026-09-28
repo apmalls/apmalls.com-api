@@ -58,7 +58,12 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
                 throw ValidationException::withMessages(['sale_order_id' => ['Only confirmed orders with a shipping address can be assigned.']]);
             }
 
-            if (! $deliveryBoy->is_active || ! $deliveryBoy->is_available || ! $deliveryBoy->user?->is_active) {
+            if (
+                ! $deliveryBoy->is_active
+                || ! $deliveryBoy->is_available
+                || ! $deliveryBoy->user?->is_active
+                || $deliveryBoy->user?->email_verified_at === null
+            ) {
                 throw ValidationException::withMessages(['delivery_boy_id' => ['Select an active and available delivery person.']]);
             }
 

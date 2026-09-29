@@ -7,7 +7,6 @@ use App\Models\Banner\WebsiteBanner;
 use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 
 class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
 {
@@ -116,47 +115,12 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
     public function sliders(): Collection
     {
         return WebsiteBanner::query()
-
             ->where(
                 'banner_type',
                 'slider'
             )
-
-            ->where(
-                'status',
-                true
-            )
-
-            ->where(function ($query) {
-
-                $query
-
-                    ->whereNull('start_date')
-
-                    ->orWhere(
-                        'start_date',
-                        '<=',
-                        Carbon::now()
-                    );
-
-            })
-
-            ->where(function ($query) {
-
-                $query
-
-                    ->whereNull('end_date')
-
-                    ->orWhere(
-                        'end_date',
-                        '>=',
-                        Carbon::now()
-                    );
-
-            })
-
+            ->published()
             ->orderBy('sort_order')
-
             ->get();
     }
 
@@ -166,47 +130,12 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
     public function offerBanners(): Collection
     {
         return WebsiteBanner::query()
-
             ->where(
                 'banner_type',
                 'offer'
             )
-
-            ->where(
-                'status',
-                true
-            )
-
-            ->where(function ($query) {
-
-                $query
-
-                    ->whereNull('start_date')
-
-                    ->orWhere(
-                        'start_date',
-                        '<=',
-                        Carbon::now()
-                    );
-
-            })
-
-            ->where(function ($query) {
-
-                $query
-
-                    ->whereNull('end_date')
-
-                    ->orWhere(
-                        'end_date',
-                        '>=',
-                        Carbon::now()
-                    );
-
-            })
-
+            ->published()
             ->orderBy('sort_order')
-
             ->get();
     }
 }

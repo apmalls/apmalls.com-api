@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class WebsiteBanner extends Model
@@ -90,16 +91,48 @@ class WebsiteBanner extends Model
 
     public function scopePublished(Builder $query): Builder
     {
+        $businessNow = Carbon::now(config('app.business_timezone'))
+            ->format('Y-m-d H:i:s');
+
         return $query
             ->active()
-            ->where(function ($q) {
+            ->where(function ($q) use ($businessNow) {
                 $q->whereNull('start_date')
-                    ->orWhere('start_date', '<=', now());
+                    ->orWhere('start_date', '<=', $businessNow);
             })
-            ->where(function ($q) {
+            ->where(function ($q) use ($businessNow) {
                 $q->whereNull('end_date')
-                    ->orWhere('end_date', '>=', now());
+                    ->orWhere('end_date', '>=', $businessNow);
             });
+    }
+
+    public function publicationStatus(): string
+    {
+        if (! $this->status) {
+            return 'inactive';
+        }
+
+        $timezone = config('app.business_timezone');
+        $businessNow = Carbon::now($timezone);
+        $startDate = $this->businessScheduleDate('start_date', $timezone);
+        $endDate = $this->businessScheduleDate('end_date', $timezone);
+
+        if ($startDate?->isAfter($businessNow)) {
+            return 'scheduled';
+        }
+
+        if ($endDate?->isBefore($businessNow)) {
+            return 'expired';
+        }
+
+        return 'published';
+    }
+
+    private function businessScheduleDate(string $attribute, string $timezone): ?Carbon
+    {
+        $value = $this->getRawOriginal($attribute);
+
+        return $value ? Carbon::parse($value, $timezone) : null;
     }
 
     public function scopeOrdered(Builder $query): Builder

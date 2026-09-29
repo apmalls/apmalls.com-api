@@ -45,6 +45,10 @@ class WebsiteBannerResource extends JsonResource
 
             'status' => $this->status,
 
+            'publication_status' => $this->publicationStatus(),
+
+            'schedule_timezone' => config('app.business_timezone'),
+
             'start_date' => optional($this->start_date)->format('Y-m-d H:i:s'),
 
             'end_date' => optional($this->end_date)->format('Y-m-d H:i:s'),

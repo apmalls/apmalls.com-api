@@ -49,6 +49,8 @@ class Product extends Model
         'is_active',
         'created_by',
         'updated_by',
+        'manufacture_date',
+        'expiry_date'
     ];
 
     protected $casts = [

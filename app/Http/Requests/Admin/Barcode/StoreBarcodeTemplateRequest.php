@@ -30,7 +30,8 @@ class StoreBarcodeTemplateRequest extends FormRequest
             ],
 
             'paper_size' => [
-                'required',
+                'sometimes',
+                'nullable',
                 'string',
                 'max:30',
             ],
@@ -38,13 +39,13 @@ class StoreBarcodeTemplateRequest extends FormRequest
             'width' => [
                 'required',
                 'integer',
-                'min:1',
+                'between:10,150',
             ],
 
             'height' => [
                 'required',
                 'integer',
-                'min:1',
+                'between:10,150',
             ],
 
             'font_size' => [
@@ -65,6 +66,16 @@ class StoreBarcodeTemplateRequest extends FormRequest
 
             'show_sku' => [
                 'required',
+                'boolean',
+            ],
+
+            'show_manufacture_date' => [
+                'sometimes',
+                'boolean',
+            ],
+
+            'show_expiry_date' => [
+                'sometimes',
                 'boolean',
             ],
 

@@ -60,6 +60,8 @@ class BarcodeTemplateSeeder extends Seeder
                     'show_name' => true,
                     'show_price' => true,
                     'show_sku' => false,
+                    'show_manufacture_date' => false,
+                    'show_expiry_date' => false,
                     'show_barcode' => true,
                     'show_qr' => false,
                     'status' => true,

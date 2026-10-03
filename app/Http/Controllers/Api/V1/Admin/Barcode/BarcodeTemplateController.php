@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin\Barcode;
 
 use Throwable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Barcode\BarcodeTemplateResource;
 use App\Services\Contracts\BarcodeTemplateServiceInterface;
+use App\Http\Requests\Admin\Barcode\DeleteBarcodeTemplateRequest;
 use App\Http\Requests\Admin\Barcode\StoreBarcodeTemplateRequest;
 use App\Http\Requests\Admin\Barcode\UpdateBarcodeTemplateRequest;
 
@@ -143,18 +145,30 @@ class BarcodeTemplateController extends Controller
     }
 
     /**
-     * Delete template.
+     * Permanently delete template.
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(
+        DeleteBarcodeTemplateRequest $request,
+        int $id
+    ): JsonResponse
     {
         try {
 
-            $this->service->delete($id);
+            $validated = $request->validated();
+
+            $this->service->delete(
+                $id,
+                $validated['confirmation_name']
+            );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Barcode template deleted successfully.',
+                'message' => 'Barcode template permanently deleted successfully.',
             ]);
+
+        } catch (ValidationException $e) {
+
+            throw $e;
 
         } catch (Throwable $e) {
 

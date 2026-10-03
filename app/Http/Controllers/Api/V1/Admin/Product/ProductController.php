@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\ChangeProductStatusRequest;
-use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\Product\StaffProductResource;
 use App\Services\Contracts\ProductServiceInterface;
 use App\Models\Product\Product;
 use App\Models\Product\ProductImage;
@@ -44,7 +44,7 @@ class ProductController extends Controller
 
             $products = $this->productService->paginate($filters);
             $page = $products->toArray();
-            $page['data'] = ProductResource::collection($products->getCollection())->resolve();
+            $page['data'] = StaffProductResource::collection($products->getCollection())->resolve();
 
             return response()->json([
                 'success' => true,
@@ -124,7 +124,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product created successfully.',
-                'data' => new ProductResource($product->load([
+                'data' => new StaffProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
@@ -151,7 +151,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product fetched successfully.',
-                'data' => new ProductResource($product->load([
+                'data' => new StaffProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
@@ -240,7 +240,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product updated successfully.',
-                'data' => new ProductResource($product->fresh()->load([
+                'data' => new StaffProductResource($product->fresh()->load([
                     'category',
                     'brand',
                     'unit',

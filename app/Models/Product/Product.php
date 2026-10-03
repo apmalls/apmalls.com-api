@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Wishlist\Wishlist;
 use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -64,11 +65,36 @@ class Product extends Model
         'new_arrival' => 'boolean',
         'best_seller' => 'boolean',
         'is_active' => 'boolean',
+        'manufacture_date' => 'date:Y-m-d',
+        'expiry_date' => 'date:Y-m-d',
     ];
 
     protected $appends = [
         'thumbnail_url',
     ];
+
+    public function expiryStatus(): string
+    {
+        $value = $this->getRawOriginal('expiry_date');
+
+        if (! $value) {
+            return 'not_set';
+        }
+
+        $timezone = config('app.business_timezone');
+        $expiryDate = Carbon::parse($value, $timezone)->startOfDay();
+        $today = Carbon::today($timezone);
+
+        if ($expiryDate->isBefore($today)) {
+            return 'expired';
+        }
+
+        if ($expiryDate->isSameDay($today)) {
+            return 'expires_today';
+        }
+
+        return 'valid';
+    }
 
 
     public function getThumbnailUrlAttribute(): ?string

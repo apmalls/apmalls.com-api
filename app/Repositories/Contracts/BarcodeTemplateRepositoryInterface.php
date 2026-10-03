@@ -42,7 +42,7 @@ interface BarcodeTemplateRepositoryInterface
     ): BarcodeTemplate;
 
     /**
-     * Delete template.
+     * Permanently delete template.
      */
     public function delete(int $id): bool;
 }

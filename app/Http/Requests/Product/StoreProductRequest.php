@@ -4,6 +4,7 @@ namespace App\Http\Requests\Product;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 
 class StoreProductRequest extends FormRequest
 {
@@ -22,6 +23,16 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $today = Carbon::today(config('app.business_timezone'))->toDateString();
+        $expiryDateRules = [
+            'nullable',
+            'date_format:Y-m-d',
+        ];
+
+        if ($this->filled('manufacture_date')) {
+            $expiryDateRules[] = 'after_or_equal:manufacture_date';
+        }
+
         return [
 
             'category_id' => [
@@ -136,6 +147,14 @@ class StoreProductRequest extends FormRequest
                 'min:0',
             ],
 
+            'manufacture_date' => [
+                'nullable',
+                'date_format:Y-m-d',
+                "before_or_equal:{$today}",
+            ],
+
+            'expiry_date' => $expiryDateRules,
+
             'featured' => [
                 'nullable',
                 'boolean',
@@ -196,6 +215,11 @@ class StoreProductRequest extends FormRequest
             'selling_price.required' => 'Selling price is required.',
 
             'mrp.required' => 'MRP is required.',
+
+            'manufacture_date.date_format' => 'Manufacture date must be a valid date.',
+            'manufacture_date.before_or_equal' => 'Manufacture date cannot be in the future.',
+            'expiry_date.date_format' => 'Expiry date must be a valid date.',
+            'expiry_date.after_or_equal' => 'Expiry date must be on or after the manufacture date.',
 
             'is_active.required' => 'Status is required.',
 

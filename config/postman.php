@@ -85,6 +85,12 @@ return [
         'requests' => [
             'default_body_type' => 'raw',
             'default_values' => [
+                'paper_size' => '40x30',
+                'width' => 40,
+                'height' => 30,
+                'font_size' => 10,
+                'manufacture_date' => '2026-01-01',
+                'expiry_date' => '2027-01-01',
                 // 'email' => 'test@example.com',
                 // 'password' => '123456',
                 // 'otp_code' => '1234',

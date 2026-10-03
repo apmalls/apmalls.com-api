@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Banner;
+namespace App\Http\Resources\Offer;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class WebsiteBannerResource extends JsonResource
+class WebsiteOfferResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -23,6 +23,10 @@ class WebsiteBannerResource extends JsonResource
 
             'description' => $this->description,
 
+            'image_url' => $this->image_url,
+
+            'deleted_at' => $this->deleted_at?->format('Y-m-d H:i:s'),
+
             'desktop_image' => $this->desktop_image,
 
             'mobile_image' => $this->mobile_image,
@@ -30,8 +34,6 @@ class WebsiteBannerResource extends JsonResource
             'type' => $this->type,
 
             'display_mode' => $this->display_mode,
-
-            'banner_type' => $this->banner_type,
 
             'video_url' => $this->video_url,
 

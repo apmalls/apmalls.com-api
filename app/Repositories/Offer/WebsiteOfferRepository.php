@@ -1,63 +1,64 @@
 <?php
 
-namespace App\Repositories\Banner;
+namespace App\Repositories\Offer;
 
 
-use App\Models\Banner\WebsiteBanner;
-use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
+use App\Models\Offer\WebsiteOffer;
+use App\Repositories\Contracts\WebsiteOfferRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
+class WebsiteOfferRepository implements WebsiteOfferRepositoryInterface
 {
     public function paginate(array $filters): LengthAwarePaginator
     {
-        return WebsiteBanner::with([
+        return WebsiteOffer::with([
             'createdBy:id,first_name,last_name',
             'updatedBy:id,first_name,last_name'
         ])
             ->search($filters['search'] ?? null)
+            ->when(isset($filters['status']) && $filters['status'] !== '', fn ($query) => $query->where('status', filter_var($filters['status'], FILTER_VALIDATE_BOOLEAN)))
             ->ordered()
             ->paginate($filters['per_page'] ?? 15);
     }
 
     public function active(): Collection
     {
-        return WebsiteBanner::published()
+        return WebsiteOffer::published()
             ->ordered()
             ->get();
     }
 
     public function trashed(): LengthAwarePaginator
     {
-        return WebsiteBanner::onlyTrashed()
+        return WebsiteOffer::onlyTrashed()
             ->latest()
             ->paginate();
     }
 
-    public function findTrashedById(int $id): WebsiteBanner
+    public function findTrashedById(int $id): WebsiteOffer
     {
-        return WebsiteBanner::onlyTrashed()->with([
+        return WebsiteOffer::onlyTrashed()->with([
             'createdBy:id,first_name,last_name',
             'updatedBy:id,first_name,last_name',
         ])->findOrFail($id);
     }
 
-    public function findById(int $id): WebsiteBanner
+    public function findById(int $id): WebsiteOffer
     {
-        return WebsiteBanner::with([
+        return WebsiteOffer::with([
             'createdBy:id,first_name,last_name',
             'updatedBy:id,first_name,last_name'
         ])->findOrFail($id);
 
     }
 
-    public function create(array $data): WebsiteBanner
+    public function create(array $data): WebsiteOffer
     {
-        return WebsiteBanner::create($data);
+        return WebsiteOffer::create($data);
     }
 
-    public function update(int $id, array $data): WebsiteBanner
+    public function update(int $id, array $data): WebsiteOffer
     {
         $banner = $this->findById($id);
 
@@ -71,7 +72,7 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
         return $this->findById($id)->delete();
     }
 
-    public function changeStatus(int $id): WebsiteBanner
+    public function changeStatus(int $id): WebsiteOffer
     {
         $banner = $this->findById($id);
 
@@ -84,44 +85,23 @@ class WebsiteBannerRepository implements WebsiteBannerRepositoryInterface
 
     public function restore(int $id): bool
     {
-        return WebsiteBanner::onlyTrashed()
+        return WebsiteOffer::onlyTrashed()
             ->findOrFail($id)
             ->restore();
     }
 
     public function forceDelete(int $id): bool
     {
-        return WebsiteBanner::onlyTrashed()
+        return WebsiteOffer::onlyTrashed()
             ->findOrFail($id)
             ->forceDelete();
     }
 
     public function bulkDelete(array $ids): bool
     {
-        WebsiteBanner::whereIn('id', $ids)->delete();
+        WebsiteOffer::whereIn('id', $ids)->delete();
 
         return true;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Homepage sliders.
-     */
-    public function sliders(): Collection
-    {
-        return WebsiteBanner::query()
-            ->where(
-                'banner_type',
-                'slider'
-            )
-            ->published()
-            ->orderBy('sort_order')
-            ->get();
     }
 
 }

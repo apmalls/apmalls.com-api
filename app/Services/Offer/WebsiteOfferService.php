@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Services\Banner;
+namespace App\Services\Offer;
 
-use App\Models\Banner\WebsiteBanner;
+use App\Models\Offer\WebsiteOffer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
-use App\Services\Contracts\WebsiteBannerServiceInterface;
+use App\Repositories\Contracts\WebsiteOfferRepositoryInterface;
+use App\Services\Contracts\WebsiteOfferServiceInterface;
 
-class WebsiteBannerService implements WebsiteBannerServiceInterface
+class WebsiteOfferService implements WebsiteOfferServiceInterface
 {
     public function __construct(
-        protected WebsiteBannerRepositoryInterface $repository,
-        protected WebsiteBannerRepositoryInterface $bannerRepository,
+        protected WebsiteOfferRepositoryInterface $repository,
     ) {
     }
 
@@ -41,7 +40,7 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
         return $this->repository->trashed();
     }
 
-    public function findTrashedById(int $id): WebsiteBanner
+    public function findTrashedById(int $id): WebsiteOffer
     {
         return $this->repository->findTrashedById($id);
     }
@@ -49,7 +48,7 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
     /**
      * Banner Details
      */
-    public function findById(int $id): WebsiteBanner
+    public function findById(int $id): WebsiteOffer
     {
         return $this->repository->findById($id);
     }
@@ -57,7 +56,7 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
     /**
      * Create Banner
      */
-    public function create(array $data): WebsiteBanner
+    public function create(array $data): WebsiteOffer
     {
         return DB::transaction(function () use ($data) {
 
@@ -71,7 +70,7 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
     /**
      * Update Banner
      */
-    public function update(int $id, array $data): WebsiteBanner
+    public function update(int $id, array $data): WebsiteOffer
     {
         return DB::transaction(function () use ($id, $data) {
 
@@ -121,7 +120,7 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
     /**
      * Change Status
      */
-    public function changeStatus(int $id): WebsiteBanner
+    public function changeStatus(int $id): WebsiteOffer
     {
         return DB::transaction(function () use ($id) {
 
@@ -140,20 +139,6 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
             return $this->repository->bulkDelete($ids);
 
         });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Website
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Get homepage sliders.
-     */
-    public function sliders(): Collection
-    {
-        return $this->bannerRepository->sliders();
     }
 
 }

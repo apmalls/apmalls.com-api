@@ -37,6 +37,7 @@ class HomeController extends Controller
                 'message' => 'Home data fetched successfully.',
 
                 'data' => [
+                    'carousel_settings' => $data['carousel_settings'],
 
                     /*
                     |--------------------------------------------------------------------------
@@ -52,7 +53,9 @@ class HomeController extends Controller
                     |--------------------------------------------------------------------------
                     */
 
-                    'offer_banners' => $data['offer_banners'],
+                    'offers' => \App\Http\Resources\Offer\WebsiteOfferResource::collection($data['offers']),
+
+                    'offer_banners' => \App\Http\Resources\Offer\WebsiteOfferResource::collection($data['offers']),
 
                     /*
                     |--------------------------------------------------------------------------

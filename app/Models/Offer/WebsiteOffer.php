@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Banner;
+namespace App\Models\Offer;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
-class WebsiteBanner extends Model
+class WebsiteOffer extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -19,13 +19,8 @@ class WebsiteBanner extends Model
 
     protected $attributes = [
         'display_mode' => self::DISPLAY_IMAGE_WITH_TEXT,
-        'banner_type' => 'slider',
+        'position' => 'offer',
     ];
-
-    protected static function booted(): void
-    {
-        static::addGlobalScope('sliders', fn (Builder $query) => $query->where('banner_type', 'slider'));
-    }
 
     protected $fillable = [
         'title',
@@ -36,7 +31,6 @@ class WebsiteBanner extends Model
         'mobile_image',
         'type',
         'display_mode',
-        'banner_type',
         'video_url',
         'position',
         'button_text',
@@ -52,6 +46,7 @@ class WebsiteBanner extends Model
 
     protected $casts = [
         'status' => 'boolean',
+        'sort_order' => 'integer',
         'open_new_tab' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
@@ -162,10 +157,12 @@ class WebsiteBanner extends Model
             return $query;
         }
 
-        return $query->where(function ($q) use ($search) {
-            $q->where('title', 'ILIKE', "%{$search}%")
-                ->orWhere('sub_title', 'ILIKE', "%{$search}%")
-                ->orWhere('slug', 'ILIKE', "%{$search}%");
+        $operator = $query->getConnection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        return $query->where(function ($q) use ($search, $operator) {
+            $q->where('title', $operator, "%{$search}%")
+                ->orWhere('sub_title', $operator, "%{$search}%")
+                ->orWhere('slug', $operator, "%{$search}%");
         });
     }
 }

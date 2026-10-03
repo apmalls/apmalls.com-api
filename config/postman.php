@@ -85,6 +85,7 @@ return [
         'requests' => [
             'default_body_type' => 'raw',
             'default_values' => [
+                'display_mode' => 'image_with_text',
                 'paper_size' => '40x30',
                 'width' => 40,
                 'height' => 30,

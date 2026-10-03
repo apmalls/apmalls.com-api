@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Api\V1\Admin\Banner\WebsiteBannerController;
+use App\Http\Controllers\Api\V1\Admin\Offer\WebsiteOfferController;
 use App\Http\Controllers\Api\V1\Admin\Barcode\BarcodePrintController;
 use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryAssignmentController;
 use App\Http\Controllers\Api\V1\Admin\Delivery\DeliveryConfirmationController as AdminDeliveryConfirmationController;
@@ -814,6 +815,11 @@ Route::prefix('v1')->group(function () {
             ->controller(WebsiteBannerController::class)
             ->group(function () {
 
+                Route::get('/animation', [\App\Http\Controllers\Api\V1\Admin\Setting\CarouselAnimationController::class, 'showBanners'])
+                    ->middleware('permission:website-banner.list|website-banner.view');
+                Route::put('/animation', [\App\Http\Controllers\Api\V1\Admin\Setting\CarouselAnimationController::class, 'updateBanners'])
+                    ->middleware('permission:website-banner.update');
+
                 Route::get('/', 'index')->middleware('permission:website-banner.list|website-banner.view');
                 Route::get('/active', 'active')->middleware('permission:website-banner.list|website-banner.view');
                 Route::get('/trash', 'trash')->middleware('permission:website-banner.view');
@@ -832,6 +838,34 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:website-banner.force-delete');
 
                 Route::post('/bulk-delete', 'bulkDelete')->middleware('permission:website-banner.delete');
+            });
+
+        Route::prefix('website-offers')
+            ->controller(WebsiteOfferController::class)
+            ->group(function () {
+
+                Route::get('/animation', [\App\Http\Controllers\Api\V1\Admin\Setting\CarouselAnimationController::class, 'showOffers'])
+                    ->middleware('permission:website-offer.list|website-offer.view');
+                Route::put('/animation', [\App\Http\Controllers\Api\V1\Admin\Setting\CarouselAnimationController::class, 'updateOffers'])
+                    ->middleware('permission:website-offer.update');
+
+                Route::get('/', 'index')->middleware('permission:website-offer.list|website-offer.view');
+                Route::get('/active', 'active')->middleware('permission:website-offer.list|website-offer.view');
+                Route::get('/trash', 'trash')->middleware('permission:website-offer.view');
+                Route::get('/{id}', 'show')->middleware('permission:website-offer.view');
+
+                Route::post('/', 'store')->middleware('permission:website-offer.create');
+
+                Route::put('/{id}', 'update')->middleware('permission:website-offer.update');
+
+                Route::patch('/{id}/status', 'changeStatus')->middleware('permission:website-offer.change-status');
+
+                Route::delete('/{id}', 'destroy')->middleware('permission:website-offer.delete');
+
+                Route::put('/{id}/restore', 'restore')->middleware('permission:website-offer.restore');
+
+                Route::delete('/{id}/force-delete', 'forceDelete')->middleware('permission:website-offer.force-delete');
+
             });
 
         /*

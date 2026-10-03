@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Banner;
 
+use App\Models\Banner\WebsiteBanner;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -67,9 +68,18 @@ class UpdateWebsiteBannerRequest extends FormRequest
                 Rule::in(['image', 'video'])
             ],
 
-            'banner_type' => [
+            'display_mode' => [
+                'sometimes',
                 'required',
-                Rule::in(['slider', 'offer'])
+                Rule::in($this->input('type') === 'video'
+                    ? [WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]
+                    : [WebsiteBanner::DISPLAY_FULL_IMAGE, WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]),
+            ],
+
+            'banner_type' => [
+                'sometimes',
+                'required',
+                Rule::in(['slider'])
             ],
 
             'video_url' => [
@@ -86,7 +96,6 @@ class UpdateWebsiteBannerRequest extends FormRequest
                     'home_bottom',
                     'category',
                     'product',
-                    'offer',
                     'popup'
                 ])
             ],
@@ -126,9 +135,29 @@ class UpdateWebsiteBannerRequest extends FormRequest
             'end_date' => [
                 'nullable',
                 'date',
-                'after_or_equal:start_date'
+                ...($this->filled('start_date') ? ['after_or_equal:start_date'] : [])
             ],
 
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (\Illuminate\Validation\Validator $validator): void {
+                if ($this->input('type') !== 'video' || $this->exists('display_mode')) {
+                    return;
+                }
+
+                $banner = WebsiteBanner::find($this->route('id'));
+
+                if ($banner?->display_mode === WebsiteBanner::DISPLAY_FULL_IMAGE) {
+                    $validator->errors()->add(
+                        'display_mode',
+                        'Video banners must use the banner with text display mode.'
+                    );
+                }
+            },
         ];
     }
 }

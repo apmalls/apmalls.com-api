@@ -55,6 +55,8 @@ class GeneralSettingRepository implements GeneralSettingRepositoryInterface
             'barcode_start_number' => 100000,
             'thermal_paper_size' => '80mm',
             'auto_print_invoice' => false,
+            'banner_autoplay_enabled' => false,
+            'offer_autoplay_enabled' => false,
             'timezone' => 'Asia/Kolkata',
             'date_format' => 'd-m-Y',
             'time_format' => 'H:i',

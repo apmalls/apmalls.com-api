@@ -34,6 +34,8 @@ class GeneralSetting extends Model
 
         'thermal_paper_size',
         'auto_print_invoice',
+        'banner_autoplay_enabled',
+        'offer_autoplay_enabled',
 
         'timezone',
         'date_format',
@@ -46,6 +48,8 @@ class GeneralSetting extends Model
     protected $casts = [
 
         'auto_print_invoice' => 'boolean',
+        'banner_autoplay_enabled' => 'boolean',
+        'offer_autoplay_enabled' => 'boolean',
         'status' => 'boolean',
 
     ];

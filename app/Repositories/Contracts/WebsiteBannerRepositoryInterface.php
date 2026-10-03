@@ -43,8 +43,4 @@ interface WebsiteBannerRepositoryInterface
      */
     public function sliders(): Collection;
 
-    /**
-     * Homepage offer banners.
-     */
-    public function offerBanners(): Collection;
 }

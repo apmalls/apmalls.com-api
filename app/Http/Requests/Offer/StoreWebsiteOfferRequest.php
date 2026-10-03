@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Banner;
+namespace App\Http\Requests\Offer;
 
-use App\Models\Banner\WebsiteBanner;
+use App\Models\Offer\WebsiteOffer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreWebsiteBannerRequest extends FormRequest
+class StoreWebsiteOfferRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized.
@@ -39,7 +39,7 @@ class StoreWebsiteBannerRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('website_banners', 'slug'),
+                Rule::unique('website_offers', 'slug'),
             ],
 
             'description' => [
@@ -70,33 +70,18 @@ class StoreWebsiteBannerRequest extends FormRequest
                 'sometimes',
                 'required',
                 Rule::in($this->input('type') === 'video'
-                    ? [WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]
-                    : [WebsiteBanner::DISPLAY_FULL_IMAGE, WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]),
+                    ? [WebsiteOffer::DISPLAY_IMAGE_WITH_TEXT]
+                    : [WebsiteOffer::DISPLAY_FULL_IMAGE, WebsiteOffer::DISPLAY_IMAGE_WITH_TEXT]),
             ],
 
-            'banner_type' => [
-                'sometimes',
-                'required',
-                Rule::in(['slider'])
-            ],
+            'banner_type' => ['prohibited'],
 
             'video_url' => [
                 'required_if:type,video',
                 'url'
             ],
 
-            'position' => [
-                'required',
-                Rule::in([
-                    'home_hero',
-                    'home_top',
-                    'home_middle',
-                    'home_bottom',
-                    'category',
-                    'product',
-                    'popup'
-                ])
-            ],
+            'position' => ['sometimes', 'required', 'string', 'max:255'],
 
             'button_text' => [
                 'nullable',
@@ -110,18 +95,21 @@ class StoreWebsiteBannerRequest extends FormRequest
             ],
 
             'open_new_tab' => [
-                'nullable',
+                'sometimes',
+                'required',
                 'boolean'
             ],
 
             'sort_order' => [
-                'nullable',
+                'sometimes',
+                'required',
                 'integer',
                 'min:0'
             ],
 
             'status' => [
-                'nullable',
+                'sometimes',
+                'required',
                 'boolean'
             ],
 

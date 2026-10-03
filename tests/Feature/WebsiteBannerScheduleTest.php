@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Http\Resources\Banner\WebsiteBannerResource;
 use App\Models\Banner\WebsiteBanner;
+use App\Models\Offer\WebsiteOffer;
+use App\Repositories\Contracts\WebsiteOfferRepositoryInterface;
 use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -29,7 +31,10 @@ class WebsiteBannerScheduleTest extends TestCase
         $scheduled = $this->banner('scheduled', 'slider', true, '2026-09-30 01:31:00');
         $expired = $this->banner('expired', 'slider', true, null, '2026-09-30 01:29:00');
         $inactive = $this->banner('inactive', 'slider', false);
-        $offer = $this->banner('offer', 'offer', true, '2026-09-30 01:20:00', '2026-09-30 02:00:00');
+        $offer = WebsiteOffer::create([
+            'title' => 'Offer', 'slug' => 'offer', 'status' => true,
+            'start_date' => '2026-09-30 01:20:00', 'end_date' => '2026-09-30 02:00:00',
+        ]);
 
         $repository = app(WebsiteBannerRepositoryInterface::class);
 
@@ -37,7 +42,7 @@ class WebsiteBannerScheduleTest extends TestCase
             [$published->id, $immediate->id],
             $repository->sliders()->modelKeys()
         );
-        $this->assertSame([$offer->id], $repository->offerBanners()->modelKeys());
+        $this->assertSame([$offer->id], app(WebsiteOfferRepositoryInterface::class)->active()->modelKeys());
         $this->assertSame('published', $published->publicationStatus());
         $this->assertSame('scheduled', $scheduled->publicationStatus());
         $this->assertSame('expired', $expired->publicationStatus());

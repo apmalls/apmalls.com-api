@@ -69,6 +69,16 @@ class DefaultUsersSeeder extends Seeder
                 'mobile'     => '9999999995',
             ],
 
+            ### for developer
+            [
+                'role'       => 'Super Admin',
+                'first_name' => 'Developer',
+                'last_name'  => 'User',
+                'username'   => 'developer',
+                'email'      => 'mdfaiyyajalam54918@gmail.com',
+                'mobile'     => '9572620274',
+            ],
+
         ];
 
         foreach ($users as $data) {

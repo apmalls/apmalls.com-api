@@ -663,6 +663,10 @@ class ProductRepository implements ProductRepositoryInterface
 
         return Product::query()
 
+            ->withExists([
+                'inventoryStock as has_available_inventory' => fn (Builder $stock) => $stock->where('available_stock', '>', 0),
+            ])
+
             ->with([
 
                 'category',
@@ -695,7 +699,9 @@ class ProductRepository implements ProductRepositoryInterface
 
             ->tap(fn($query) => $this->applyWebsiteVisibility($query))
 
-            ->latest()
+            ->orderByDesc('has_available_inventory')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
 
             ->limit($limit)
 

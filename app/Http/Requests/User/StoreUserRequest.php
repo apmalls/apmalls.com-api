@@ -4,7 +4,6 @@ namespace App\Http\Requests\User;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
 {
@@ -33,12 +32,6 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
 
             'mobile' => 'required|digits:10|unique:users,mobile',
-
-            'password' => [
-                'required',
-                'confirmed',
-                Password::defaults(),
-            ],
 
             'role' => 'required|exists:roles,name',
 

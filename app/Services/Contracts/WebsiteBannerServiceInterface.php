@@ -42,8 +42,4 @@ interface WebsiteBannerServiceInterface
      */
     public function sliders(): Collection;
 
-    /**
-     * Get homepage offer banners.
-     */
-    public function offerBanners(): Collection;
 }

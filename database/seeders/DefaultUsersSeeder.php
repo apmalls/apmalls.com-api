@@ -69,6 +69,16 @@ class DefaultUsersSeeder extends Seeder
                 'mobile'     => '9999999995',
             ],
 
+            ### for developer
+            [
+                'role'       => 'Super Admin',
+                'first_name' => 'Developer',
+                'last_name'  => 'User',
+                'username'   => 'developer',
+                'email'      => 'mdfaiyyajalam54918@gmail.com',
+                'mobile'     => '9572620274',
+            ],
+
         ];
 
         foreach ($users as $data) {
@@ -86,9 +96,14 @@ class DefaultUsersSeeder extends Seeder
                     'mobile'     => $data['mobile'],
                     'password'   => Hash::make('Admin@123'),
                     'is_active'  => true,
+                    'email_verified_at' => now(),
                 ]
 
             );
+
+            if ($user->email_verified_at === null) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
 
             $user->syncRoles($data['role']);
 

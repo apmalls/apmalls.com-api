@@ -79,7 +79,7 @@ class BarcodeTemplateRepository implements BarcodeTemplateRepositoryInterface
     }
 
     /**
-     * Delete.
+     * Permanently delete template.
      */
     public function delete(int $id): bool
     {

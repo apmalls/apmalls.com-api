@@ -7,6 +7,7 @@ use App\Repositories\Contracts\BrandRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\WebsiteBannerRepositoryInterface;
+use App\Repositories\Contracts\WebsiteOfferRepositoryInterface;
 
 class HomeRepository implements HomeRepositoryInterface
 {
@@ -18,6 +19,8 @@ class HomeRepository implements HomeRepositoryInterface
         protected BrandRepositoryInterface $brandRepository,
         protected ProductRepositoryInterface $productRepository,
         protected WebsiteBannerRepositoryInterface $bannerRepository,
+        protected WebsiteOfferRepositoryInterface $offerRepository,
+        protected \App\Repositories\Contracts\GeneralSettingRepositoryInterface $settings,
     ) {}
 
     /**
@@ -27,7 +30,14 @@ class HomeRepository implements HomeRepositoryInterface
      */
     public function index(): array
     {
+        $offers = $this->offerRepository->active();
+        $settings = $this->settings->get();
+
         return [
+            'carousel_settings' => [
+                'banner_autoplay_enabled' => (bool) $settings->banner_autoplay_enabled,
+                'offer_autoplay_enabled' => (bool) $settings->offer_autoplay_enabled,
+            ],
 
             /*
             |--------------------------------------------------------------------------
@@ -41,7 +51,8 @@ class HomeRepository implements HomeRepositoryInterface
             | Offer Banners
             |--------------------------------------------------------------------------
             */
-            'offer_banners' => $this->bannerRepository->offerBanners(),
+            'offers' => $offers,
+            'offer_banners' => $offers,
 
             /*
             |--------------------------------------------------------------------------

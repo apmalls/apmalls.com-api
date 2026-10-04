@@ -29,6 +29,8 @@ class WebsiteBannerResource extends JsonResource
 
             'type' => $this->type,
 
+            'display_mode' => $this->display_mode,
+
             'banner_type' => $this->banner_type,
 
             'video_url' => $this->video_url,
@@ -44,6 +46,10 @@ class WebsiteBannerResource extends JsonResource
             'sort_order' => $this->sort_order,
 
             'status' => $this->status,
+
+            'publication_status' => $this->publicationStatus(),
+
+            'schedule_timezone' => config('app.business_timezone'),
 
             'start_date' => optional($this->start_date)->format('Y-m-d H:i:s'),
 

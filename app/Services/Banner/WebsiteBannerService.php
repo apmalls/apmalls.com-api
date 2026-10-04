@@ -156,11 +156,4 @@ class WebsiteBannerService implements WebsiteBannerServiceInterface
         return $this->bannerRepository->sliders();
     }
 
-    /**
-     * Get homepage offer banners.
-     */
-    public function offerBanners(): Collection
-    {
-        return $this->bannerRepository->offerBanners();
-    }
 }

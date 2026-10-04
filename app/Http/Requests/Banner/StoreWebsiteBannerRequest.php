@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Banner;
 
+use App\Models\Banner\WebsiteBanner;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -65,9 +66,18 @@ class StoreWebsiteBannerRequest extends FormRequest
                 Rule::in(['image', 'video'])
             ],
 
-            'banner_type' => [
+            'display_mode' => [
+                'sometimes',
                 'required',
-                Rule::in(['slider', 'offer'])
+                Rule::in($this->input('type') === 'video'
+                    ? [WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]
+                    : [WebsiteBanner::DISPLAY_FULL_IMAGE, WebsiteBanner::DISPLAY_IMAGE_WITH_TEXT]),
+            ],
+
+            'banner_type' => [
+                'sometimes',
+                'required',
+                Rule::in(['slider'])
             ],
 
             'video_url' => [
@@ -84,7 +94,6 @@ class StoreWebsiteBannerRequest extends FormRequest
                     'home_bottom',
                     'category',
                     'product',
-                    'offer',
                     'popup'
                 ])
             ],
@@ -124,7 +133,7 @@ class StoreWebsiteBannerRequest extends FormRequest
             'end_date' => [
                 'nullable',
                 'date',
-                'after_or_equal:start_date'
+                ...($this->filled('start_date') ? ['after_or_equal:start_date'] : [])
             ],
 
         ];

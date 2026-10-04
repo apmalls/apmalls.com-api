@@ -28,8 +28,6 @@ class CreateDeliveryBoyRequest extends FormRequest
             'first_name' => ['required_without:user_id', 'nullable', 'string', 'max:100'],
             'last_name' => ['nullable', 'string', 'max:100'],
             'email' => ['required_without:user_id', 'nullable', 'email', 'unique:users,email'],
-            'password' => ['required_without:user_id', 'nullable', 'string', 'min:8', 'confirmed'],
-
             'employee_code' => ['required', 'string', 'max:50', 'unique:delivery_boys,employee_code'],
 
             'phone' => [

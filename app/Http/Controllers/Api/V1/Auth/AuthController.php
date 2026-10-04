@@ -10,7 +10,9 @@ use App\Services\Contracts\OtpServiceInterface;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\ResendLoginOtpRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\VerifyLoginOtpRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +21,16 @@ use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\ActivateAccountRequest;
+use App\Http\Requests\Auth\ResendEmailVerificationRequest;
+use App\Http\Requests\Auth\VerifyEmailRequest;
+use App\Services\Auth\AccountInvitationService;
+use App\Services\Auth\LoginChallengeService;
+use App\Exceptions\LoginChallengeException;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 use App\Mail\ForgotPasswordMail;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +46,10 @@ class AuthController extends Controller
 
     public function __construct(
         protected CustomerRepositoryInterface $customerRepository,
-        protected CustomerAddressRepositoryInterface $customerAddressRepository
+        protected CustomerAddressRepositoryInterface $customerAddressRepository,
+        protected OtpServiceInterface $otpService,
+        protected AccountInvitationService $accountInvitationService,
+        protected LoginChallengeService $loginChallengeService,
     ) {
     }
 
@@ -175,24 +187,33 @@ class AuthController extends Controller
 
             }
 
-            /**
-             * Sanctum Token
-             */
-            $token = $user->createToken('auth_token')->plainTextToken;
-
             $this->commit();
+
+            try {
+                $verification = $this->otpService->send(
+                    recipient: $user->email,
+                    channel: 'email',
+                    type: 'email_verification',
+                );
+            } catch (\Throwable $mailException) {
+                report($mailException);
+                $verification = [
+                    'masked_recipient' => $user->email,
+                    'resend_after' => 0,
+                ];
+            }
 
             return response()->json([
 
                 'success' => true,
 
-                'message' => 'Registration successful.',
+                'message' => 'Registration successful. Verify your email to continue.',
 
                 'data' => [
 
                     'user' => $user->load('roles'),
 
-                    'token' => $token,
+                    'verification' => $verification,
 
                 ]
 
@@ -205,6 +226,74 @@ class AuthController extends Controller
             return $this->handleException($e);
 
         }
+    }
+
+    public function verifyEmail(VerifyEmailRequest $request): JsonResponse
+    {
+        $user = User::query()
+            ->whereRaw('LOWER(email) = ?', [Str::lower($request->email)])
+            ->first();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code.',
+            ], 422);
+        }
+
+        if (! $user->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has been deactivated.',
+            ], 403);
+        }
+
+        if (! $this->otpService->verify(
+            recipient: Str::lower($request->email),
+            channel: 'email',
+            type: 'email_verification',
+            otp: $request->otp,
+        )) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code.',
+            ], 422);
+        }
+
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        return $this->authenticatedResponse($user, 'Email verified successfully.');
+    }
+
+    public function resendEmailVerification(ResendEmailVerificationRequest $request): JsonResponse
+    {
+        $user = User::query()
+            ->whereRaw('LOWER(email) = ?', [Str::lower($request->email)])
+            ->first();
+
+        $verification = $user && $user->email_verified_at === null
+            ? $this->otpService->send($user->email, 'email', 'email_verification')
+            : [
+                'success' => true,
+                'message' => 'If verification is required, a code has been sent.',
+                'resend_after' => 60,
+            ];
+
+        return response()->json($verification);
+    }
+
+    public function activateAccount(ActivateAccountRequest $request): JsonResponse
+    {
+        $this->accountInvitationService->accept(
+            email: $request->email,
+            token: $request->token,
+            password: $request->password,
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Account activated successfully. You can now log in.',
+        ]);
     }
 
     /**
@@ -231,6 +320,8 @@ class AuthController extends Controller
 
         if (!$user->is_active) {
 
+            Auth::logout();
+
             return response()->json([
 
                 'success' => false,
@@ -241,51 +332,78 @@ class AuthController extends Controller
 
         }
 
-        /**
-         * Remove Old Tokens
-         */
-        $user->tokens()->delete();
+        if ($user->email_verified_at === null) {
+            Auth::logout();
 
-        /**
-         * Create New Token
-         */
-        $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                'success' => false,
+                'code' => 'email_verification_required',
+                'message' => 'Verify your email address before logging in.',
+                'data' => ['email' => $user->email, 'resend_after' => 0],
+            ], 403);
+        }
+
+        Auth::logout();
+
+        try {
+            $challenge = $this->loginChallengeService->create(
+                $user,
+                $request->ip(),
+                $request->userAgent(),
+            );
+        } catch (LoginChallengeException $exception) {
+            return $this->loginChallengeError($exception);
+        }
 
         return response()->json([
-
             'success' => true,
+            'code' => 'login_otp_required',
+            'message' => 'A login code has been sent.',
+            'data' => $challenge,
+        ], 202);
+    }
 
+    public function verifyLoginOtp(VerifyLoginOtpRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->loginChallengeService->verify(
+                $request->validated('challenge_id'),
+                $request->validated('otp'),
+            );
+        } catch (LoginChallengeException $exception) {
+            return $this->loginChallengeError($exception);
+        }
+
+        /** @var User $user */
+        $user = $result['user'];
+
+        return response()->json([
+            'success' => true,
             'message' => 'Login successful.',
-
             'data' => [
-                'token' => $token,
-                'user' => [
-
-                    'id' => $user->id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'full_name' => $user->full_name,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'mobile' => $user->mobile,
-                    'profile_photo' => $user->profile_photo_url,
-                    'is_active' => $user->is_active,
-                    'terms_accepted' => $user->terms_accepted,
-                    'terms_accepted_at' => optional($user->terms_accepted_at)->toISOString(),
-                    'terms_version' => $user->terms_version,
-
-                ],
-
+                'token' => $result['token'],
+                'user' => $user->load('roles'),
                 'roles' => $user->getRoleNames()->values(),
+                'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            ],
+        ]);
+    }
 
-                'permissions' => $user->getAllPermissions()
-                    ->pluck('name')
-                    ->values(),
+    public function resendLoginOtp(ResendLoginOtpRequest $request): JsonResponse
+    {
+        try {
+            $challenge = $this->loginChallengeService->resend(
+                $request->validated('challenge_id'),
+                $request->ip(),
+            );
+        } catch (LoginChallengeException $exception) {
+            return $this->loginChallengeError($exception);
+        }
 
-
-
-            ]
-
+        return response()->json([
+            'success' => true,
+            'message' => 'A new login code has been sent.',
+            'data' => $challenge,
         ]);
     }
 
@@ -390,6 +508,8 @@ class AuthController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        $emailChanged = Str::lower((string) $user->email) !== Str::lower((string) $request->email);
+
         $this->beginTransaction();
 
         try {
@@ -424,6 +544,8 @@ class AuthController extends Controller
                 'mobile' => $request->mobile,
 
                 'profile_photo' => $data['profile_photo'] ?? $user->profile_photo,
+
+                'email_verified_at' => $emailChanged ? null : $user->email_verified_at,
 
             ]);
 
@@ -560,11 +682,25 @@ class AuthController extends Controller
 
             $this->commit();
 
+            if ($emailChanged) {
+                $user->tokens()->delete();
+
+                try {
+                    $this->otpService->send($user->email, 'email', 'email_verification');
+                } catch (\Throwable $mailException) {
+                    report($mailException);
+                }
+            }
+
             return response()->json([
 
                 'success' => true,
 
-                'message' => 'Profile updated successfully.',
+                'message' => $emailChanged
+                    ? 'Profile updated. Verify your new email address to continue.'
+                    : 'Profile updated successfully.',
+
+                'requires_email_verification' => $emailChanged,
 
                 'data' => $user->load([
                     'roles',
@@ -610,6 +746,33 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Password changed successfully. Please login again.',
         ]);
+    }
+
+    private function authenticatedResponse(User $user, string $message): JsonResponse
+    {
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => [
+                'token' => $token,
+                'user' => $user->load('roles'),
+                'roles' => $user->getRoleNames()->values(),
+                'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            ],
+        ]);
+    }
+
+    private function loginChallengeError(LoginChallengeException $exception): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'code' => $exception->errorCode,
+            'message' => $exception->getMessage(),
+            'data' => $exception->data,
+        ], $exception->status);
     }
 
 
@@ -727,6 +890,11 @@ class AuthController extends Controller
                 'token'
             ),
             function (User $user, string $password) {
+                if (Hash::check($password, $user->password)) {
+                    throw ValidationException::withMessages([
+                        'password' => ['Your new password must be different from your current password.'],
+                    ]);
+                }
 
                 $user->forceFill([
                     'password' => Hash::make($password),

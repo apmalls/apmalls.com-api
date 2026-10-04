@@ -16,7 +16,7 @@ class DeliveryBoyRepository implements DeliveryBoyRepositoryInterface
         int $perPage = 15
     ): LengthAwarePaginator {
 
-        $query = DeliveryBoy::query()->with('user');
+        $query = DeliveryBoy::query()->with('user.latestInvitation');
 
         if (! empty($filters['search'])) {
 
@@ -53,6 +53,12 @@ class DeliveryBoyRepository implements DeliveryBoyRepositoryInterface
                 'is_available',
                 $filters['is_available']
             );
+
+            if (filter_var($filters['is_available'], FILTER_VALIDATE_BOOLEAN)) {
+                $query->whereHas('user', fn ($userQuery) => $userQuery
+                    ->where('is_active', true)
+                    ->whereNotNull('email_verified_at'));
+            }
 
         }
 

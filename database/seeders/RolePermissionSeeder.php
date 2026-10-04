@@ -82,11 +82,17 @@ class RolePermissionSeeder extends Seeder
             'cash-register.delete',
 
             'website-banner.list',
+            'website-offer.list',
             'website-banner.view',
+            'website-offer.view',
             'website-banner.create',
+            'website-offer.create',
             'website-banner.update',
+            'website-offer.update',
             'website-banner.delete',
+            'website-offer.delete',
             'website-banner.change-status',
+            'website-offer.change-status',
 
             'setting.manage',
 

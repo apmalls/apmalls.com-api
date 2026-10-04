@@ -59,6 +59,8 @@ class OtpAuthController extends Controller
 
             if (!$verified) {
 
+                DB::rollBack();
+
                 return response()->json([
 
                     'success' => false,
@@ -102,6 +104,8 @@ class OtpAuthController extends Controller
              */
             if (!$user) {
 
+                DB::rollBack();
+
                 return response()->json([
 
                     'success' => false,
@@ -117,6 +121,8 @@ class OtpAuthController extends Controller
              */
             if (!$user->is_active) {
 
+                DB::rollBack();
+
                 return response()->json([
 
                     'success' => false,
@@ -127,17 +133,16 @@ class OtpAuthController extends Controller
 
             }
 
-            /**
-             * Remove Old Tokens
-             */
-            $user->tokens()->delete();
-
-            /**
-             * New Token
-             */
-            $token = $user
-                ->createToken('auth_token')
-                ->plainTextToken;
+            if ($request->type === 'email_verification' && $request->channel === 'email') {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            } elseif ($user->email_verified_at === null) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'code' => 'email_verification_required',
+                    'message' => 'Verify your email address before logging in.',
+                ], 403);
+            }
 
             DB::commit();
 
@@ -145,21 +150,7 @@ class OtpAuthController extends Controller
 
                 'success' => true,
 
-                'message' => 'Login successful.',
-
-                'data' => [
-
-                    'token' => $token,
-
-                    'user' => $user->load('roles'),
-
-                    'roles' => $user->getRoleNames()->values(),
-
-                    'permissions' => $user->getAllPermissions()
-                        ->pluck('name')
-                        ->values(),
-
-                ]
+                'message' => 'OTP verified successfully.',
 
             ]);
 

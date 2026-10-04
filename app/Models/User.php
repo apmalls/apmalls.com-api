@@ -5,12 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Customer\Customer;
 use App\Models\Delivery\DeliveryBoy;
+use App\Models\Auth\UserInvitation;
 use App\Traits\HasMedia;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,7 +32,8 @@ use Spatie\Activitylog\LogOptions;
     'is_active',
     'terms_accepted',
     'terms_accepted_at',
-    'terms_version'
+    'terms_version',
+    'email_verified_at'
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -87,7 +90,35 @@ class User extends Authenticatable
     protected $appends = [
         'full_name',
         'profile_photo_url',
+        'email_verified',
+        'invitation_status',
     ];
+
+    public function getEmailVerifiedAttribute(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    public function getInvitationStatusAttribute(): ?string
+    {
+        if ($this->email_verified_at !== null) {
+            return 'accepted';
+        }
+
+        $invitation = $this->relationLoaded('latestInvitation')
+            ? $this->latestInvitation
+            : $this->latestInvitation()->first();
+
+        if (! $invitation) {
+            return null;
+        }
+
+        if ($invitation->accepted_at !== null) {
+            return null;
+        }
+
+        return $invitation->expires_at->isPast() ? 'expired' : 'pending';
+    }
 
     public function getProfilePhotoUrlAttribute(): ?string
     {
@@ -102,5 +133,15 @@ class User extends Authenticatable
     public function deliveryBoy(): HasOne
     {
         return $this->hasOne(DeliveryBoy::class);
+    }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(UserInvitation::class);
+    }
+
+    public function latestInvitation(): HasOne
+    {
+        return $this->hasOne(UserInvitation::class)->latestOfMany();
     }
 }

@@ -184,8 +184,8 @@ class WebsiteBannerController extends Controller
      */
     public function forceDelete(int $id): JsonResponse
     {
-        $this->beginTransaction();
-        $banner = $this->service->findById($id);
+        $banner = $this->service->findTrashedById($id);
+        $this->service->forceDelete($id);
 
         if (!empty($banner->desktop_image)) {
             $this->deleteFile($banner->desktop_image);
@@ -195,9 +195,6 @@ class WebsiteBannerController extends Controller
             $this->deleteFile($banner->mobile_image);
         }
 
-        $this->service->forceDelete($id);
-
-        $this->commit();
         return response()->json([
             'success' => true,
             'message' => 'Website banner permanently deleted.'

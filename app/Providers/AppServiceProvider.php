@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Repositories\Banner\WebsiteBannerRepository;
+use App\Repositories\Offer\WebsiteOfferRepository;
+use App\Repositories\Contracts\WebsiteOfferRepositoryInterface;
+use App\Services\Offer\WebsiteOfferService;
+use App\Services\Contracts\WebsiteOfferServiceInterface;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use App\Repositories\Contracts\DeliveryAssignmentRepositoryInterface;
 use App\Repositories\Contracts\DeliveryBoyRepositoryInterface;
@@ -447,6 +451,9 @@ class AppServiceProvider extends ServiceProvider
             PaymentModeServiceInterface::class,
             PaymentModeService::class
         );
+
+        $this->app->bind(WebsiteOfferRepositoryInterface::class, WebsiteOfferRepository::class);
+        $this->app->bind(WebsiteOfferServiceInterface::class, WebsiteOfferService::class);
 
         $this->app->bind(
             WebsiteBannerRepositoryInterface::class,

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\ChangeProductStatusRequest;
-use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\Product\StaffProductResource;
 use App\Services\Contracts\ProductServiceInterface;
 use App\Models\Product\Product;
 use App\Models\Product\ProductImage;
@@ -20,8 +20,7 @@ class ProductController extends Controller
 {
     public function __construct(
         protected ProductServiceInterface $productService
-    ) {
-    }
+    ) {}
 
     /**
      * Product Listing
@@ -45,14 +44,13 @@ class ProductController extends Controller
 
             $products = $this->productService->paginate($filters);
             $page = $products->toArray();
-            $page['data'] = ProductResource::collection($products->getCollection())->resolve();
+            $page['data'] = StaffProductResource::collection($products->getCollection())->resolve();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Products fetched successfully.',
                 'data' => $page,
             ]);
-
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -89,6 +87,8 @@ class ProductController extends Controller
                 'discount_percent' => $request->discount_percent,
                 'stock' => $request->stock,
                 'minimum_stock' => $request->minimum_stock,
+                'manufacture_date' => $request->manufacture_date,
+                'expiry_date' => $request->expiry_date,
                 'featured' => $request->boolean('featured'),
                 'new_arrival' => $request->boolean('new_arrival'),
                 'best_seller' => $request->boolean('best_seller'),
@@ -124,7 +124,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product created successfully.',
-                'data' => new ProductResource($product->load([
+                'data' => new StaffProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
@@ -132,7 +132,6 @@ class ProductController extends Controller
                     'inventoryStock',
                 ])),
             ], 201);
-
         } catch (\Exception $e) {
             $this->rollback();
             $this->cleanupUploadedFile($thumbnail);
@@ -152,7 +151,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product fetched successfully.',
-                'data' => new ProductResource($product->load([
+                'data' => new StaffProductResource($product->load([
                     'category',
                     'brand',
                     'unit',
@@ -162,7 +161,6 @@ class ProductController extends Controller
                     'inventoryStock',
                 ])),
             ]);
-
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -202,6 +200,8 @@ class ProductController extends Controller
                 'tax_percent' => $request->tax_percent,
                 'discount_percent' => $request->discount_percent,
                 'minimum_stock' => $request->minimum_stock,
+                'manufacture_date' => $request->manufacture_date,
+                'expiry_date' => $request->expiry_date,
                 'featured' => $request->boolean('featured'),
                 'new_arrival' => $request->boolean('new_arrival'),
                 'best_seller' => $request->boolean('best_seller'),
@@ -240,7 +240,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product updated successfully.',
-                'data' => new ProductResource($product->fresh()->load([
+                'data' => new StaffProductResource($product->fresh()->load([
                     'category',
                     'brand',
                     'unit',
@@ -248,7 +248,6 @@ class ProductController extends Controller
                     'inventoryStock',
                 ])),
             ]);
-
         } catch (\Exception $e) {
             $this->rollback();
             $this->cleanupUploadedFile($newThumbnail);
@@ -283,7 +282,6 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => 'Product deleted successfully.',
             ]);
-
         } catch (\Exception $e) {
             $this->rollback();
             return $this->handleException($e);
@@ -303,7 +301,6 @@ class ProductController extends Controller
                 'message' => 'Product status updated successfully.',
                 'data' => $product,
             ]);
-
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -327,7 +324,6 @@ class ProductController extends Controller
                 'message' => 'Deleted products fetched successfully.',
                 'data' => $products,
             ]);
-
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
@@ -349,7 +345,6 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => 'Product restored successfully.',
             ]);
-
         } catch (\Exception $e) {
             $this->rollback();
             return $this->handleException($e);
@@ -382,7 +377,6 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => 'Product permanently deleted successfully.',
             ]);
-
         } catch (\Exception $e) {
             $this->rollback();
             return $this->handleException($e);

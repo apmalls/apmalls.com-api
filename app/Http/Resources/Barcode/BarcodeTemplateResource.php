@@ -32,6 +32,10 @@ class BarcodeTemplateResource extends JsonResource
 
             'show_sku' => (bool) $this->show_sku,
 
+            'show_manufacture_date' => (bool) $this->show_manufacture_date,
+
+            'show_expiry_date' => (bool) $this->show_expiry_date,
+
             'show_barcode' => (bool) $this->show_barcode,
 
             'show_qr' => (bool) $this->show_qr,

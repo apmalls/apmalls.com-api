@@ -45,7 +45,7 @@ class VerifyOtpRequest extends FormRequest
 
                 'required',
 
-                'in:login,register,forgot_password,email_verification,mobile_verification'
+                'in:register,forgot_password,email_verification,mobile_verification'
 
             ],
 

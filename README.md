@@ -21,6 +21,20 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## AP Malls Email Authentication
+
+Customer registration and staff invitations require working email delivery. Configure `FRONTEND_URL` and the `MAIL_*` values in `.env` before testing these flows.
+
+Mailables are queued after their database transaction commits. For a simple local setup use `QUEUE_CONNECTION=sync`. When `QUEUE_CONNECTION=database` is used, keep a worker running:
+
+```bash
+php artisan queue:work
+```
+
+Never commit SMTP credentials. Registration and password-login OTPs expire after five minutes, while staff activation links expire after 24 hours.
+
+Every password login is completed through `POST /api/v1/auth/login/verify-otp`. The initial password request returns an opaque challenge instead of a Sanctum token, and login remains blocked if email delivery is unavailable. Keep the queue worker monitored in deployed environments because it is part of login availability.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

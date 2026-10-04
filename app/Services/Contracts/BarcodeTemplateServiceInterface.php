@@ -42,7 +42,10 @@ interface BarcodeTemplateServiceInterface
     ): BarcodeTemplate;
 
     /**
-     * Delete barcode template.
+     * Permanently delete barcode template.
      */
-    public function delete(int $id): bool;
+    public function delete(
+        int $id,
+        string $confirmationName
+    ): bool;
 }

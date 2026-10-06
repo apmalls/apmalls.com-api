@@ -651,13 +651,11 @@
                                         "header": [
                                             {
                                                 "key": "Accept",
-                                                "value": "application/json",
-                                                "type": "text"
+                                                "value": "application/json"
                                             },
                                             {
                                                 "key": "Content-Type",
-                                                "value": "application/json",
-                                                "type": "text"
+                                                "value": "application/json"
                                             }
                                         ],
                                         "url": {
@@ -674,10 +672,65 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"email\": \"user98@example.com\",\n    \"password\": \"sample_text\"\n}",
-                                            "options": []
+                                            "raw": "{\n    \"email\": \"verified@example.com\",\n    \"password\": \"{{account_password}}\"\n}",
+                                            "options": {
+                                                "raw": {
+                                                    "language": "json"
+                                                }
+                                            }
+                                        },
+                                        "description": "Password login for any active, verified role. No login OTP or email is required. HTTP 200 returns token, user, roles and permissions; Next.js stores the token only in httpOnly cookies. Ten requests/minute per visitor IP. Unverified accounts receive email_verification_required (403).",
+                                        "auth": {
+                                            "type": "noauth"
                                         }
                                     }
+                                },
+                                {
+                                    "name": "send-otp",
+                                    "item": [
+                                        {
+                                            "name": "[POST] api/v1/auth/login/send-otp",
+                                            "request": {
+                                                "method": "POST",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/auth/login/send-otp",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "auth",
+                                                        "login",
+                                                        "send-otp"
+                                                    ]
+                                                },
+                                                "body": {
+                                                    "mode": "raw",
+                                                    "raw": "{\n    \"email\": \"verified@example.com\"\n}",
+                                                    "options": {
+                                                        "raw": {
+                                                            "language": "json"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Passwordless email OTP login for existing active, verified accounts only. HTTP 202 returns login_otp_required with challenge_id, masked_recipient, expires_in (300), expires_at, resend_after (60) and resend_available_at. No user, token or OTP in this response. SMTP delivery is queued via database; a running worker is required. Unknown/inactive/unverified/pending-activation accounts receive the same generic rejection. Requests and resends share a 60-second cooldown and independent five-send/hour account and IP limits.",
+                                                "auth": {
+                                                    "type": "noauth"
+                                                }
+                                            }
+                                        }
+                                    ]
                                 },
                                 {
                                     "name": "verify-otp",
@@ -689,13 +742,11 @@
                                                 "header": [
                                                     {
                                                         "key": "Accept",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     },
                                                     {
                                                         "key": "Content-Type",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     }
                                                 ],
                                                 "url": {
@@ -713,8 +764,16 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"challenge_id\": \"sample_text\",\n    \"otp\": \"sample_text\"\n}",
-                                                    "options": []
+                                                    "raw": "{\n    \"challenge_id\": \"{{login_challenge_id}}\",\n    \"otp\": \"{{login_otp}}\"\n}",
+                                                    "options": {
+                                                        "raw": {
+                                                            "language": "json"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Verify the six-digit email login code. Hashed, single-use, five-minute expiry and five attempts. Account must remain active and verified. Transactional verification consumes the challenge, invalidates outstanding challenges, replaces tokens and returns the normal authenticated response. Signup verification is separate and remains mandatory.",
+                                                "auth": {
+                                                    "type": "noauth"
                                                 }
                                             }
                                         }
@@ -730,13 +789,11 @@
                                                 "header": [
                                                     {
                                                         "key": "Accept",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     },
                                                     {
                                                         "key": "Content-Type",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     }
                                                 ],
                                                 "url": {
@@ -754,8 +811,16 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"challenge_id\": \"sample_text\"\n}",
-                                                    "options": []
+                                                    "raw": "{\n    \"challenge_id\": \"{{login_challenge_id}}\"\n}",
+                                                    "options": {
+                                                        "raw": {
+                                                            "language": "json"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Request a replacement code for the existing challenge; never accepts a recipient. Old codes stop working. Shares initial-request cooldown and hourly limits. Successful response means queued/requested, not confirmed inbox delivery. Email/queue failures never create a session.",
+                                                "auth": {
+                                                    "type": "noauth"
                                                 }
                                             }
                                         }

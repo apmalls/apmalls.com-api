@@ -9,7 +9,7 @@ Use this six-digit code to finish signing in to AP Malls:
 {{ $otp }}
 </x-mail::panel>
 
-This code expires in five minutes and can be used only once. If you did not try to sign in, you can safely ignore this email and consider changing your password.
+This code expires in five minutes and can be used only once. Never share it. If you did not request this code, ignore this email; requesting a code does not grant access to your account.
 
 Thanks,<br>
 {{ config('app.name') }}

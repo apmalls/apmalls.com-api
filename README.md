@@ -25,15 +25,32 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 Customer registration and staff invitations require working email delivery. Configure `FRONTEND_URL` and the `MAIL_*` values in `.env` before testing these flows.
 
-Mailables are queued after their database transaction commits. For a simple local setup use `QUEUE_CONNECTION=sync`. When `QUEUE_CONNECTION=database` is used, keep a worker running:
+Use SMTP and the database queue in the backend `.env` (never in the frontend):
 
-```bash
-php artisan queue:work
+```dotenv
+MAIL_MAILER=smtp
+QUEUE_CONNECTION=database
 ```
 
-Never commit SMTP credentials. Registration and password-login OTPs expire after five minutes, while staff activation links expire after 24 hours.
+Set the SMTP host, port, scheme, username, password and sender for your provider. Never use a log mailer or commit SMTP credentials. Mailables are queued after their database transaction commits. A successful request means queued, not delivered to an inbox. Keep a supervised database queue worker running:
 
-Every password login is completed through `POST /api/v1/auth/login/verify-otp`. The initial password request returns an opaque challenge instead of a Sanctum token, and login remains blocked if email delivery is unavailable. Keep the queue worker monitored in deployed environments because it is part of login availability.
+```bash
+php artisan queue:work database --queue=default --sleep=1 --tries=3
+```
+
+After environment changes, run `php artisan config:clear` (or rebuild production config with `config:cache`) and `php artisan queue:restart`. Monitor worker availability and `php artisan queue:failed`; investigate SMTP or queue failures before retrying jobs with `php artisan queue:retry <id>`. Do not dump queue payloads into logs: queued mail contains sensitive verification material. A stopped worker leaves emails in `jobs`, and codes expire five minutes after generation, not delivery. Old queued messages may contain replaced or expired codes; only the newest valid code works.
+
+All active, verified roles can choose either sign-in method:
+
+- `POST /api/v1/auth/login` accepts email/password and immediately returns the normal authenticated response. It sends no OTP and does not depend on mail delivery. Verified demo accounts without real mailboxes can use this method.
+- Password requests are limited to ten per minute per visitor IP to limit password guessing.
+- `POST /api/v1/auth/login/send-otp` accepts only email and returns HTTP 202 with `code: login_otp_required`, an opaque challenge ID, masked destination, expiry and resend timing. It never returns a token or user. Complete login through `/auth/login/verify-otp`; resend through `/auth/login/resend-otp`, both using that challenge ID.
+- Login codes are hashed, single-use, valid for five minutes and limited to five attempts. Initial requests and resends share a 60-second per-account cooldown and independent five-send/hour account and IP limits. Replaced codes and outstanding challenges after a successful login cannot be used.
+- Unknown, inactive, unverified and pending-activation accounts receive the same OTP-request rejection. Both methods require verification; neither creates an account or bypasses staff activation. Generic OTP routes still reject the `login` purpose.
+
+Signup continues requiring email OTP verification before any session is issued. Staff must use their 24-hour activation link to set a password. Google authentication, password resets and re-verification after email changes retain their existing behavior. Active sessions and cookie duration remain unchanged. This is a choice of password or passwordless email OTP, not mandatory two-factor authentication. SMTP/queue failure blocks OTP login and signup verification; password login is an explicit alternative for already verified accounts.
+
+For per-visitor IP throttling behind Next.js, configure backend `TRUSTED_PROXIES` with only the frontend/reverse-proxy IP addresses or CIDRs (default: loopback). Login OTP proxies forward `X-Forwarded-For`; the hosting edge must overwrite untrusted incoming forwarding headers. Never trust all public API callers. Without a trusted forwarding setup, requests share the proxy's five-send/hour IP quota. Accounts sharing one public IP also share that quota.
 
 ## Learning Laravel
 

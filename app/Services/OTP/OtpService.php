@@ -57,10 +57,11 @@ class OtpService implements OtpServiceInterface
 
         $verificationOnly = in_array($type, ['register', 'email_verification'], true);
 
-        if (! $user || ($verificationOnly && $user->email_verified_at !== null)) {
+        if (! $user || ($verificationOnly && ($user->email_verified_at !== null
+            || $user->latestInvitation()->whereNull('accepted_at')->exists()))) {
             return [
                 'success' => true,
-                'message' => 'If verification is required, a code has been sent.',
+                'message' => 'If verification is required, a code has been requested. Check your email shortly.',
                 'masked_recipient' => $this->maskEmail($recipient),
                 'resend_after' => 60,
             ];
@@ -100,7 +101,7 @@ class OtpService implements OtpServiceInterface
 
             'success' => true,
 
-            'message' => 'Verification code sent successfully.',
+            'message' => 'Verification code requested. Check your email shortly.',
 
             'masked_recipient' => $this->maskEmail($recipient),
 

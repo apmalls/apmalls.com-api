@@ -22,6 +22,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
     public function __construct(
         protected DeliveryAssignmentRepositoryInterface $deliveryAssignmentRepository,
         protected SaleRepositoryInterface $saleOrderRepository,
+        protected DeliveryConfirmationService $confirmationService,
 
     ) {
     }
@@ -193,6 +194,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
             $assignment = DeliveryAssignment::query()
                 ->lockForUpdate()
                 ->findOrFail($assignmentId);
+            SaleOrder::query()->lockForUpdate()->findOrFail($assignment->sale_order_id);
 
             if ($assignment->status === DeliveryAssignment::STATUS_DELIVERED) {
                 throw ValidationException::withMessages(['status' => ['A delivered assignment cannot be cancelled.']]);
@@ -208,6 +210,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
 
             $confirmation = DeliveryConfirmation::query()
                 ->where('delivery_assignment_id', $assignment->id)
+                ->lockForUpdate()
                 ->first();
             if ($confirmation && in_array($confirmation->status, [
                 DeliveryConfirmation::STATUS_AWAITING_CUSTOMER,
@@ -222,6 +225,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
                 'status' => DeliveryAssignment::STATUS_CANCELLED,
                 'cancelled_at' => now(),
             ]);
+            $confirmation?->update(['otp_hash' => null, 'otp_version' => null, 'otp_expires_at' => null]);
             $this->saleOrderRepository->updateDeliveryStatus($assignment->sale_order_id, null);
 
             return true;
@@ -265,6 +269,7 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
             $assignment = DeliveryAssignment::query()
                 ->lockForUpdate()
                 ->findOrFail($assignmentId);
+            SaleOrder::query()->lockForUpdate()->findOrFail($assignment->sale_order_id);
 
             $expected = match ($status) {
                 DeliveryAssignment::STATUS_ACCEPTED => DeliveryAssignment::STATUS_ASSIGNED,
@@ -291,6 +296,10 @@ class DeliveryAssignmentService implements DeliveryAssignmentServiceInterface
                     $assignment->sale_order_id,
                     $status
                 );
+
+            if ($status === DeliveryAssignment::STATUS_OUT_FOR_DELIVERY) {
+                $this->confirmationService->prepareDispatch($assignment);
+            }
 
             return $assignment;
 

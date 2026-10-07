@@ -20,6 +20,7 @@ use App\Services\Contracts\PaymentServiceInterface;
 use App\Services\Contracts\POSServiceInterface;
 
 use App\Services\Contracts\SaleServiceInterface;
+use App\Services\Sale\OrderNotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -56,6 +57,8 @@ class POSService implements POSServiceInterface
         protected CustomerRepositoryInterface $customerRepository,
 
         protected CashRegisterTransactionRepositoryInterface $cashRegisterTransactionRepository,
+
+        protected OrderNotificationService $notifications,
 
     ) {
     }
@@ -859,6 +862,8 @@ class POSService implements POSServiceInterface
             | Response
             |--------------------------------------------------------------------------
             */
+
+            $this->notifications->orderPlaced($sale->fresh());
 
             return [
 

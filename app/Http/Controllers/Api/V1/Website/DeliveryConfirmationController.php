@@ -37,7 +37,7 @@ class DeliveryConfirmationController extends Controller
     {
         return response()->json([
             'success' => true,
-            'message' => 'Delivery code generated.',
+            'message' => 'Delivery email requested. Check the email status in your order.',
             'data' => $this->service->generateOtp($request->user(), $saleNo),
         ]);
     }

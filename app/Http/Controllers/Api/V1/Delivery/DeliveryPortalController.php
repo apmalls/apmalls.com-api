@@ -79,7 +79,7 @@ class DeliveryPortalController extends Controller
         return response()->json([
             'success' => true,
             'message' => $action === 'delivered'
-                ? 'Handover reported. Awaiting customer confirmation.'
+                ? 'Manager assistance requested. Delivery remains open.'
                 : 'Delivery assignment updated.',
             'data' => new DeliveryAssignmentResource($assignment),
         ]);
@@ -91,8 +91,20 @@ class DeliveryPortalController extends Controller
             'success' => true,
             'message' => 'Delivery confirmed with customer code.',
             'data' => new DeliveryAssignmentResource(
-                $this->service->confirmOtp($request->user(), $id, $request->validated('otp'))
+                $this->service->confirmOtp($request->user(), $id, $request->validated('otp'),
+                    (bool) $request->validated('cash_collected', false), $request->validated('remarks'))
             ),
+        ]);
+    }
+
+    public function resendOtp(Request $request, int $id): JsonResponse
+    {
+        $assignment = $this->service->resendOtp($request->user(), $id);
+        return response()->json([
+            'success' => true,
+            'message' => $assignment->confirmation?->otp_email_status === 'failed'
+                ? 'Delivery email could not be queued. Retry or request manager assistance.' : 'Delivery email requested.',
+            'data' => new DeliveryAssignmentResource($assignment),
         ]);
     }
 }

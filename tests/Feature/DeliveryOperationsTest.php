@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendDeliveryOtp;
+use App\Mail\DeliveryOtpMail;
+use App\Services\Delivery\DeliveryAssignmentService;
 use App\Models\Customer\Customer;
 use App\Models\Customer\CustomerAddress;
 use App\Models\Delivery\DeliveryAssignment;
@@ -13,6 +16,11 @@ use App\Models\Sale\SaleOrder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Queue\DatabaseQueue;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -26,6 +34,8 @@ class DeliveryOperationsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Mail::fake();
+        Queue::fake([SendDeliveryOtp::class]);
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         $role = Role::create(['name' => 'Delivery Boy', 'guard_name' => 'web']);
         foreach (['dashboard.view', 'delivery-assignment.list', 'delivery-assignment.view', 'delivery-assignment.update'] as $name) {
@@ -154,11 +164,10 @@ class DeliveryOperationsTest extends TestCase
         PaymentMode::create(['name' => 'Cash', 'code' => 'CASH', 'is_online' => false, 'is_active' => true]);
         Sanctum::actingAs($user);
 
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
-        Sanctum::actingAs($assignment->saleOrder->customer->user);
-        $endpoint = "/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/confirm";
-        $this->postJson($endpoint, ['amount_paid' => 450])->assertOk();
-        $this->postJson($endpoint, ['amount_paid' => 450])->assertOk();
+        $otp = $this->requestCode($assignment);
+        $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
+        $this->postJson($endpoint, ['otp' => $otp, 'cash_collected' => true])->assertOk();
+        $this->postJson($endpoint, ['otp' => $otp, 'cash_collected' => true])->assertUnprocessable();
 
         $this->assertSame(1, Payment::where('reference_no', "DELIVERY-{$assignment->id}")->count());
         $this->assertDatabaseHas('sale_orders', [
@@ -174,7 +183,7 @@ class DeliveryOperationsTest extends TestCase
         [$driver, $profile] = $this->deliveryPerson('owner-check');
         $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 200);
         Sanctum::actingAs($driver);
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true, 'remarks' => 'Unable to obtain delivery code.'])->assertOk();
 
         $other = $this->customerUser('other-customer');
         Customer::create([
@@ -187,7 +196,7 @@ class DeliveryOperationsTest extends TestCase
         ]);
         Sanctum::actingAs($other);
         $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/confirm", ['amount_paid' => 200])
-            ->assertNotFound();
+            ->assertForbidden();
     }
 
     public function test_customer_otp_confirms_delivery_and_cannot_be_reused(): void
@@ -195,12 +204,7 @@ class DeliveryOperationsTest extends TestCase
         [$driver, $profile] = $this->deliveryPerson('otp-driver');
         $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 0);
         Sanctum::actingAs($driver);
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered")->assertOk();
-
-        Sanctum::actingAs($assignment->saleOrder->customer->user);
-        $otp = $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/otp")
-            ->assertOk()
-            ->json('data.otp');
+        $otp = $this->requestCode($assignment);
 
         Sanctum::actingAs($driver);
         $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
@@ -218,10 +222,7 @@ class DeliveryOperationsTest extends TestCase
         [$driver, $profile] = $this->deliveryPerson('otp-limit');
         $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 0);
         Sanctum::actingAs($driver);
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered")->assertOk();
-
-        Sanctum::actingAs($assignment->saleOrder->customer->user);
-        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/otp")->assertOk();
+        $this->requestCode($assignment);
 
         Sanctum::actingAs($driver);
         $endpoint = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
@@ -242,7 +243,7 @@ class DeliveryOperationsTest extends TestCase
         [$driver, $profile] = $this->deliveryPerson('dispute-driver');
         $assignment = $this->assignment($profile, DeliveryAssignment::STATUS_OUT_FOR_DELIVERY, 200);
         Sanctum::actingAs($driver);
-        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true])->assertOk();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true, 'remarks' => 'Customer cannot access email.'])->assertOk();
 
         Sanctum::actingAs($assignment->saleOrder->customer->user);
         $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/dispute", [
@@ -279,6 +280,7 @@ class DeliveryOperationsTest extends TestCase
             'mobile' => '9' . str_pad((string) random_int(0, 999999999), 9, '0', STR_PAD_LEFT),
             'password' => Hash::make('password'),
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
         $user->assignRole('Delivery Boy');
         $profile = DeliveryBoy::create([
@@ -342,9 +344,239 @@ class DeliveryOperationsTest extends TestCase
             'mobile' => '7' . str_pad((string) random_int(0, 999999999), 9, '0', STR_PAD_LEFT),
             'password' => Hash::make('password'),
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
         $user->assignRole('Customer');
 
         return $user;
+    }
+
+    private function requestCode(DeliveryAssignment $assignment): string
+    {
+        Sanctum::actingAs($assignment->deliveryBoy->user);
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertOk()
+            ->assertJsonMissingPath('data.otp')->assertJsonMissingPath('data.delivery_confirmation.otp_hash');
+        $job = Queue::pushed(SendDeliveryOtp::class)->last();
+        $job->handle();
+        $otp = '';
+        Mail::assertSent(DeliveryOtpMail::class, function ($mail) use (&$otp, $assignment) {
+            if ($mail->orderNumber !== $assignment->saleOrder->sale_no) return false;
+            $otp = $mail->otp;
+            return true;
+        });
+        return $otp;
+    }
+
+    public function test_dispatch_queues_code_but_acceptance_does_not(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('dispatch');
+        $assignment = $this->assignment($profile);
+        Sanctum::actingAs($driver);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/accept")->assertOk();
+        Queue::assertNothingPushed();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/pickup")->assertOk();
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/out-for-delivery")->assertOk()
+            ->assertJsonPath('data.delivery_confirmation.status', 'pending_handover');
+        Queue::assertPushed(SendDeliveryOtp::class, 1);
+        $confirmation = $assignment->fresh()->confirmation;
+        $this->assertSame(86400, (int) $confirmation->otp_issued_at->diffInSeconds($confirmation->otp_expires_at));
+        Queue::pushed(SendDeliveryOtp::class)->last()->handle();
+        Mail::assertSent(DeliveryOtpMail::class, fn ($mail) => $mail->hasTo($assignment->saleOrder->customer->user->email)
+            && Hash::check($mail->otp, $confirmation->otp_hash));
+        $this->assertSame('sent', $confirmation->fresh()->otp_email_status);
+    }
+
+    public function test_admin_dispatch_uses_identical_code_service(): void
+    {
+        [, $profile] = $this->deliveryPerson('admin-dispatch');
+        $assignment = $this->assignment($profile, 'picked');
+        app(DeliveryAssignmentService::class)->outForDelivery($assignment->id);
+        Queue::assertPushed(SendDeliveryOtp::class, 1);
+        $this->assertSame('pending_handover', $assignment->fresh()->confirmation->status);
+    }
+
+    public function test_resend_cooldown_limits_and_old_job_invalidation_are_shared(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('resends');
+        $assignment = $this->assignment($profile, 'out_for_delivery');
+        $this->requestCode($assignment);
+        $firstJob = Queue::pushed(SendDeliveryOtp::class)->last();
+        $customerRoute = "/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/otp";
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->postJson($customerRoute)->assertStatus(429);
+        $this->travel(60)->seconds();
+        $this->postJson($customerRoute)->assertOk()->assertJsonMissingPath('data.otp');
+        $firstJob->handle();
+        Mail::assertSentCount(1);
+        for ($i = 0; $i < 3; $i++) {
+            $this->travel(60)->seconds();
+            Sanctum::actingAs($driver);
+            $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertOk();
+        }
+        $this->travel(60)->seconds();
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertStatus(429);
+        $this->travel(1)->hours();
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertOk();
+    }
+
+    public function test_expired_code_and_missing_cash_do_not_complete_delivery(): void
+    {
+        [, $profile] = $this->deliveryPerson('expiry');
+        $assignment = $this->assignment($profile, 'out_for_delivery', 200);
+        $otp = $this->requestCode($assignment);
+        $route = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
+        $this->postJson($route, ['otp' => $otp])->assertUnprocessable()->assertJsonValidationErrors('cash_collected');
+        $this->travel(24)->hours();
+        $this->postJson($route, ['otp' => $otp, 'cash_collected' => true])->assertUnprocessable();
+        $this->assertSame('confirmed', $assignment->saleOrder->fresh()->status);
+        $this->assertDatabaseCount('payments', 0);
+    }
+
+    public function test_unverified_customer_and_cancelled_assignment_never_send_mail(): void
+    {
+        [, $profile] = $this->deliveryPerson('no-email');
+        $assignment = $this->assignment($profile, 'picked');
+        $assignment->saleOrder->customer->user->update(['email_verified_at' => null]);
+        app(DeliveryAssignmentService::class)->outForDelivery($assignment->id);
+        Queue::assertNothingPushed();
+        $this->assertSame('failed', $assignment->fresh()->confirmation->otp_email_status);
+        $this->assertNull($assignment->fresh()->confirmation->otp_hash);
+        $assignment->saleOrder->customer->user->update(['email_verified_at' => now()]);
+        $this->travel(60)->seconds();
+        $this->requestCode($assignment);
+        $job = Queue::pushed(SendDeliveryOtp::class)->last();
+        app(DeliveryAssignmentService::class)->delete($assignment->id);
+        $job->handle();
+        $this->assertNull($assignment->fresh()->confirmation->otp_hash);
+        Mail::assertSentCount(1);
+    }
+
+    public function test_direct_customer_confirmation_is_blocked_and_codes_are_order_bound(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('bound');
+        $assignment = $this->assignment($profile, 'out_for_delivery');
+        $otp = $this->requestCode($assignment);
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/confirm", ['amount_paid' => 0])->assertForbidden();
+        [, $otherProfile] = $this->deliveryPerson('bound-other');
+        $other = $this->assignment($otherProfile, 'out_for_delivery');
+        Sanctum::actingAs($driver);
+        $this->postJson("/api/v1/delivery/assignments/{$other->id}/confirm-otp", ['otp' => $otp])->assertForbidden();
+        $this->postJson("/api/v1/delivery/assignments/{$other->id}/resend-otp")->assertForbidden();
+    }
+
+    public function test_replacement_codes_email_changes_and_disputes_invalidate_previous_codes(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('invalidated');
+        $assignment = $this->assignment($profile, 'out_for_delivery');
+        $old = $this->requestCode($assignment);
+        $this->travel(60)->seconds();
+        $this->requestCode($assignment);
+        $route = "/api/v1/delivery/assignments/{$assignment->id}/confirm-otp";
+        $this->postJson($route, ['otp' => $old])->assertUnprocessable();
+        $assignment->saleOrder->customer->user->update(['email' => 'changed-delivery@example.com']);
+        $this->postJson($route, ['otp' => $old])->assertUnprocessable();
+        Sanctum::actingAs($assignment->saleOrder->customer->user);
+        $this->postJson("/api/v1/website/checkout/orders/{$assignment->saleOrder->sale_no}/delivery/dispute", ['reason' => 'Incorrect items in order.'])->assertOk();
+        $this->assertNull($assignment->fresh()->confirmation->otp_hash);
+        Sanctum::actingAs($driver);
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertUnprocessable();
+    }
+
+    public function test_queue_failure_is_visible_and_does_not_undo_dispatch_or_complete_order(): void
+    {
+        [, $profile] = $this->deliveryPerson('queue-fail');
+        $assignment = $this->assignment($profile, 'picked');
+        Bus::shouldReceive('dispatch')->once()->andThrow(new \RuntimeException('Queue unavailable'));
+        app(DeliveryAssignmentService::class)->outForDelivery($assignment->id);
+        $this->assertSame('out_for_delivery', $assignment->fresh()->status);
+        $this->assertSame('failed', $assignment->fresh()->confirmation->otp_email_status);
+        $this->assertSame('confirmed', $assignment->saleOrder->fresh()->status);
+        $this->assertDatabaseCount('payments', 0);
+    }
+
+    public function test_mail_failure_is_sanitized_and_stale_failed_jobs_cannot_change_replacements(): void
+    {
+        [, $profile] = $this->deliveryPerson('mail-fail');
+        $assignment = $this->assignment($profile, 'out_for_delivery');
+        $this->requestCode($assignment);
+        $this->travel(60)->seconds();
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertOk();
+        $job = Queue::pushed(SendDeliveryOtp::class)->last();
+        Mail::shouldReceive('to')->once()->andReturnSelf();
+        Mail::shouldReceive('send')->once()->andThrow(new \RuntimeException('Sensitive transport content'));
+        try { $job->handle(); $this->fail('Expected sanitized mail failure'); }
+        catch (\RuntimeException $exception) { $this->assertSame('Delivery email could not be sent to the mail server.', $exception->getMessage()); }
+        $job->failed(null);
+        $this->assertSame('failed', $assignment->fresh()->confirmation->otp_email_status);
+        $this->travel(60)->seconds();
+        $this->postJson("/api/v1/delivery/assignments/{$assignment->id}/resend-otp")->assertOk();
+        $job->failed(null);
+        $this->assertSame('queued', $assignment->fresh()->confirmation->otp_email_status);
+    }
+
+    public function test_database_queue_encrypts_code_and_email_contains_safety_instructions(): void
+    {
+        [, $profile] = $this->deliveryPerson('encrypted');
+        $assignment = $this->assignment($profile, 'out_for_delivery', 200);
+        $otp = $this->requestCode($assignment);
+        $queue = new DatabaseQueue(DB::connection(), 'jobs');
+        $queue->setContainer(app());
+        $id = $queue->push(Queue::pushed(SendDeliveryOtp::class)->last());
+        $payload = DB::table('jobs')->where('id', $id)->value('payload');
+        $this->assertStringNotContainsString($otp, $payload);
+        $command = json_decode($payload, true)['data']['command'];
+        $this->assertStringContainsString($otp, app('encrypter')->decrypt($command));
+        $html = (new DeliveryOtpMail($assignment->saleOrder->sale_no, $otp, now()->addDay()->toIso8601String(), 200))->render();
+        $this->assertStringContainsString('physically handing over', $html);
+        $this->assertStringContainsString('INR 200.00', $html);
+    }
+
+    public function test_manager_completion_requires_permission_and_records_audit_without_duplicate_payment(): void
+    {
+        [$driver, $profile] = $this->deliveryPerson('manager-exception');
+        $assignment = $this->assignment($profile, 'out_for_delivery', 200);
+        $this->requestCode($assignment);
+        PaymentMode::create(['name' => 'Cash', 'code' => 'CASH', 'is_online' => false, 'is_active' => true]);
+        $this->patchJson("/api/v1/delivery/assignments/{$assignment->id}/delivered", ['cash_collected' => true, 'remarks' => 'Customer cannot access mailbox.'])->assertOk();
+        $confirmation = $assignment->fresh()->confirmation;
+        $route = "/api/v1/admin/delivery-confirmations/{$confirmation->id}/resolve";
+        $this->patchJson($route, ['resolution' => 'confirm', 'remarks' => 'Receipt verified by phone.'])->assertForbidden();
+        $driver->syncRoles(['Store Manager']);
+        Sanctum::actingAs($driver);
+        $this->patchJson($route, ['resolution' => 'confirm'])->assertUnprocessable();
+        $this->patchJson($route, ['resolution' => 'confirm', 'remarks' => 'Receipt verified by manager.'])->assertOk();
+        $this->patchJson($route, ['resolution' => 'confirm', 'remarks' => 'Receipt verified by manager.'])->assertUnprocessable();
+        $this->assertSame('manager', $confirmation->fresh()->confirmation_method);
+        $this->assertSame($driver->id, $confirmation->fresh()->resolved_by);
+        $this->assertDatabaseCount('payments', 1);
+    }
+
+    public function test_rolled_back_dispatch_does_not_queue_email(): void
+    {
+        [, $profile] = $this->deliveryPerson('rollback-dispatch');
+        $assignment = $this->assignment($profile, 'picked');
+        DB::beginTransaction();
+        app(DeliveryAssignmentService::class)->outForDelivery($assignment->id);
+        DB::rollBack();
+        Queue::assertNothingPushed();
+        $this->assertSame('picked', $assignment->fresh()->status);
+        $this->assertNull($assignment->fresh()->confirmation);
+    }
+
+    public function test_mail_metadata_migration_round_trip_preserves_historical_confirmation(): void
+    {
+        [, $profile] = $this->deliveryPerson('migration-history');
+        $assignment = $this->assignment($profile, 'delivered');
+        $confirmation = DeliveryConfirmation::create(['delivery_assignment_id' => $assignment->id,
+            'customer_id' => $assignment->saleOrder->customer_id, 'status' => 'legacy_completed',
+            'confirmation_method' => 'legacy', 'delivery_reported_at' => now()]);
+        $migration = require database_path('migrations/2026_10_07_120000_add_delivery_otp_mail_metadata.php');
+        $migration->down();
+        $this->assertSame('legacy_completed', $confirmation->fresh()->status);
+        $migration->up();
+        $this->assertSame('legacy', $confirmation->fresh()->confirmation_method);
+        $this->assertNull($confirmation->fresh()->otp_email_status);
+        $this->assertSame(0, $confirmation->fresh()->otp_send_count);
     }
 }

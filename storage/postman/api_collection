@@ -117,13 +117,11 @@
                                         "header": [
                                             {
                                                 "key": "Accept",
-                                                "value": "application/json",
-                                                "type": "text"
+                                                "value": "application/json"
                                             },
                                             {
                                                 "key": "Content-Type",
-                                                "value": "application/json",
-                                                "type": "text"
+                                                "value": "application/json"
                                             }
                                         ],
                                         "url": {
@@ -143,9 +141,14 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"remarks\": \"sample_text\",\n    \"cash_collected\": 1\n}",
-                                            "options": []
-                                        }
+                                            "raw": "{\n    \"remarks\": \"{{delivery_remarks}}\",\n    \"cash_collected\": false\n}",
+                                            "options": {
+                                                "raw": {
+                                                    "language": "json"
+                                                }
+                                            }
+                                        },
+                                        "description": "Ordered courier actions: accept, reject (remarks required), pickup, out-for-delivery and legacy delivered. Out-for-delivery automatically requests a 24-hour email delivery code via an encrypted database job after commit. Legacy delivered only requests manager assistance (remarks required); it does not complete the order or create payment. Never use it as normal completion."
                                     }
                                 },
                                 {
@@ -158,13 +161,11 @@
                                                 "header": [
                                                     {
                                                         "key": "Accept",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     },
                                                     {
                                                         "key": "Content-Type",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     }
                                                 ],
                                                 "url": {
@@ -184,9 +185,46 @@
                                                 },
                                                 "body": {
                                                     "mode": "raw",
-                                                    "raw": "{\n    \"otp\": \"sample_text\"\n}",
-                                                    "options": []
-                                                }
+                                                    "raw": "{\n    \"otp\": \"{{delivery_otp}}\",\n    \"cash_collected\": true,\n    \"remarks\": \"Handed to customer after checking goods.\"\n}",
+                                                    "options": {
+                                                        "raw": {
+                                                            "language": "json"
+                                                        }
+                                                    }
+                                                },
+                                                "description": "Complete delivery in one transaction using the customer's emailed six-digit code. Must be the assigned active courier on an out-for-delivery order. Code is hashed, single-use, valid for 24 hours, and allows five incorrect attempts. Confirm cash_collected when the current COD balance is positive. Records handover, completes order and settles COD exactly once. No raw code is returned."
+                                            }
+                                        },
+                                        {
+                                            "name": "[POST] api/v1/delivery/assignments/{id}/resend-otp",
+                                            "request": {
+                                                "method": "POST",
+                                                "header": [
+                                                    {
+                                                        "key": "Accept",
+                                                        "value": "application/json"
+                                                    },
+                                                    {
+                                                        "key": "Content-Type",
+                                                        "value": "application/json"
+                                                    }
+                                                ],
+                                                "url": {
+                                                    "raw": "{{base_url}}/api/v1/delivery/assignments/:id/resend-otp",
+                                                    "host": [
+                                                        "{{base_url}}"
+                                                    ],
+                                                    "path": [
+                                                        "api",
+                                                        "v1",
+                                                        "delivery",
+                                                        "assignments",
+                                                        ":id",
+                                                        "resend-otp"
+                                                    ],
+                                                    "variable": []
+                                                },
+                                                "description": "Request a replacement email for this assignment's linked active, verified customer account. Accepts no recipient. Shares 60-second cooldown and five sends/hour per assignment with customer requests. Returns refreshed assignment with pending_handover, masked_recipient, otp_email_status (queued/sent/failed), expiry and resend_available_at. Old codes and queued jobs are invalidated. Queued/sent does not confirm inbox delivery."
                                             }
                                         }
                                     ]
@@ -10173,13 +10211,11 @@
                                                 "header": [
                                                     {
                                                         "key": "Accept",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     },
                                                     {
                                                         "key": "Content-Type",
-                                                        "value": "application/json",
-                                                        "type": "text"
+                                                        "value": "application/json"
                                                     }
                                                 ],
                                                 "url": {
@@ -10196,7 +10232,8 @@
                                                         "out-for-delivery"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Dispatch through the same code-issuance service as the courier. Automatically queues a 24-hour delivery OTP to the verified customer account. Queue/recipient failures are visible and never complete delivery."
                                             }
                                         }
                                     ]
@@ -11682,13 +11719,11 @@
                                                                 "header": [
                                                                     {
                                                                         "key": "Accept",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     },
                                                                     {
                                                                         "key": "Content-Type",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     }
                                                                 ],
                                                                 "url": {
@@ -11711,8 +11746,13 @@
                                                                 "body": {
                                                                     "mode": "raw",
                                                                     "raw": "{\n    \"amount_paid\": 0\n}",
-                                                                    "options": []
-                                                                }
+                                                                    "options": {
+                                                                        "raw": {
+                                                                            "language": "json"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "description": "Deprecated completion method: returns 403. Normal delivery requires courier OTP verification; audited manager resolution handles exceptions. Customer direct confirmation cannot bypass OTP."
                                                             }
                                                         }
                                                     ]
@@ -11727,13 +11767,11 @@
                                                                 "header": [
                                                                     {
                                                                         "key": "Accept",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     },
                                                                     {
                                                                         "key": "Content-Type",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     }
                                                                 ],
                                                                 "url": {
@@ -11752,7 +11790,8 @@
                                                                         "otp"
                                                                     ],
                                                                     "variable": []
-                                                                }
+                                                                },
+                                                                "description": "Owner-only request for a replacement delivery email on an out-for-delivery order. Returns expires_at, order_no, email_status and resend_after, never an OTP. Shares assignment resend limits with the courier. Existing in-flight orders without a confirmation can use this endpoint without resetting delivery status."
                                                             }
                                                         }
                                                     ]
@@ -11767,13 +11806,11 @@
                                                                 "header": [
                                                                     {
                                                                         "key": "Accept",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     },
                                                                     {
                                                                         "key": "Content-Type",
-                                                                        "value": "application/json",
-                                                                        "type": "text"
+                                                                        "value": "application/json"
                                                                     }
                                                                 ],
                                                                 "url": {
@@ -11795,9 +11832,14 @@
                                                                 },
                                                                 "body": {
                                                                     "mode": "raw",
-                                                                    "raw": "{\n    \"reason\": \"sample_text\"\n}",
-                                                                    "options": []
-                                                                }
+                                                                    "raw": "{\n    \"reason\": \"Items received do not match the order.\"\n}",
+                                                                    "options": {
+                                                                        "raw": {
+                                                                            "language": "json"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "description": "Customer can dispute a pending handover or awaiting confirmation. Invalidates outstanding delivery codes; an authorized manager must review and confirm or reopen with audit remarks."
                                                             }
                                                         }
                                                     ]

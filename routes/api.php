@@ -87,6 +87,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:delivery-assignment.update');
             Route::post('/assignments/{id}/confirm-otp', [DeliveryPortalController::class, 'confirmOtp'])
                 ->middleware('permission:delivery-assignment.update');
+            Route::post('/assignments/{id}/resend-otp', [DeliveryPortalController::class, 'resendOtp'])
+                ->middleware('permission:delivery-assignment.update');
         });
 
     Route::middleware('auth:sanctum')

@@ -16,6 +16,8 @@ return [
 
     'default' => env('MAIL_MAILER', 'smtp'),
 
+    'order_notification_email' => env('ORDER_NOTIFICATION_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations

@@ -58,6 +58,7 @@ use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentContr
 use App\Http\Controllers\Api\V1\Website\CheckoutController;
 use App\Http\Controllers\Api\V1\Website\DeliveryConfirmationController as WebsiteDeliveryConfirmationController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Website\ProjectFeedbackController;
 
 
 /*
@@ -67,6 +68,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
+
+    Route::get('/website/project-feedback', [ProjectFeedbackController::class, 'show']);
+    Route::middleware(['auth:sanctum', 'role:Super Admin', 'throttle:10,1'])
+        ->prefix('admin/project-feedback')->group(function () {
+            Route::get('/', [ProjectFeedbackController::class, 'showForAdmin']);
+            Route::put('/', [ProjectFeedbackController::class, 'update']);
+            Route::delete('/', [ProjectFeedbackController::class, 'destroy']);
+        });
 
     Route::middleware([
         'auth:sanctum',

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeliveryConfirmation extends Model
 {
+    public const STATUS_PENDING_HANDOVER = 'pending_handover';
     public const STATUS_AWAITING_CUSTOMER = 'awaiting_customer';
     public const STATUS_CONFIRMED = 'confirmed';
     public const STATUS_DISPUTED = 'disputed';
@@ -29,11 +30,13 @@ class DeliveryConfirmation extends Model
         'customer_confirmed_by', 'customer_confirmed_at', 'customer_confirmed_amount',
         'payment_confirmed_at', 'confirmation_method',
         'otp_hash', 'otp_expires_at', 'otp_attempts', 'otp_max_attempts',
+        'otp_issued_at', 'otp_send_window_at', 'otp_send_count', 'otp_version',
+        'otp_email_status', 'otp_email_sent_at', 'otp_recipient_user_id', 'otp_recipient_email',
         'disputed_by', 'disputed_at', 'dispute_reason',
         'resolved_by', 'resolved_at', 'resolution_remarks',
     ];
 
-    protected $hidden = ['otp_hash'];
+    protected $hidden = ['otp_hash', 'otp_version', 'otp_recipient_email', 'otp_recipient_user_id'];
 
     protected function casts(): array
     {
@@ -47,6 +50,10 @@ class DeliveryConfirmation extends Model
             'otp_expires_at' => 'datetime',
             'otp_attempts' => 'integer',
             'otp_max_attempts' => 'integer',
+            'otp_issued_at' => 'datetime',
+            'otp_send_window_at' => 'datetime',
+            'otp_email_sent_at' => 'datetime',
+            'otp_send_count' => 'integer',
             'disputed_at' => 'datetime',
             'resolved_at' => 'datetime',
         ];

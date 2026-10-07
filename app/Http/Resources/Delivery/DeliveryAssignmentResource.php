@@ -28,7 +28,7 @@ class DeliveryAssignmentResource extends JsonResource
             $this->status === 'assigned' => ['accept', 'reject'],
             $this->status === 'accepted' => ['pickup'],
             $this->status === 'picked' => ['out_for_delivery'],
-            $this->status === 'out_for_delivery' => ['delivered'],
+            $this->status === 'out_for_delivery' => ['confirm_otp', 'request_assistance'],
             default => [],
         };
 

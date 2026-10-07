@@ -18,7 +18,8 @@ class SaleService implements SaleServiceInterface
 {
     public function __construct(
         protected SaleRepositoryInterface $saleRepository,
-        protected SaleOrderItemRepositoryInterface $saleOrderItemRepository
+        protected SaleOrderItemRepositoryInterface $saleOrderItemRepository,
+        protected OrderNotificationService $notifications,
     ) {
     }
 
@@ -141,6 +142,10 @@ class SaleService implements SaleServiceInterface
                         idempotencyKey: "sale:{$sale->id}:product:{$item['product_id']}:created"
                     );
                 }
+            }
+
+            if ($sale->order_source !== SaleOrder::SOURCE_POS) {
+                $this->notifications->orderPlaced($sale);
             }
 
             return $sale->load([
@@ -414,7 +419,11 @@ class SaleService implements SaleServiceInterface
                 }
             }
 
-            return $this->saleRepository->changeStatus($id, $status);
+            $sale = $this->saleRepository->changeStatus($id, $status);
+            if ($oldStatus === SaleOrder::STATUS_DRAFT && $status === SaleOrder::STATUS_CONFIRMED) {
+                $this->notifications->orderPlaced($sale);
+            }
+            return $sale;
         });
     }
 

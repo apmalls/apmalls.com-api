@@ -39,6 +39,14 @@ class DeliveryConfirmationResource extends JsonResource
             'payment_confirmed_at' => $this->payment_confirmed_at,
             'confirmation_method' => $this->confirmation_method,
             'otp_expires_at' => $this->otp_expires_at,
+            'otp_issued_at' => $this->otp_issued_at,
+            'otp_email_status' => $this->otp_email_status,
+            'otp_email_sent_at' => $this->otp_email_sent_at,
+            'masked_recipient' => $this->maskedRecipient(),
+            'resend_after' => $this->otp_issued_at
+                ? max(0, (int) ceil(now()->diffInSeconds($this->otp_issued_at->copy()->addSeconds(60), false))) : 0,
+            'resend_available_at' => $this->otp_send_count >= 5 && $this->otp_send_window_at?->copy()->addHour()->isFuture()
+                ? $this->otp_send_window_at->copy()->addHour() : $this->otp_issued_at?->copy()->addSeconds(60),
             'otp_attempts' => $this->otp_attempts,
             'otp_max_attempts' => $this->otp_max_attempts,
             'disputed_at' => $this->disputed_at,
@@ -48,6 +56,15 @@ class DeliveryConfirmationResource extends JsonResource
             'resolved_by' => $this->userSummary($this->whenLoaded('resolvedBy')),
             'resolution_remarks' => $this->resolution_remarks,
         ];
+    }
+
+    private function maskedRecipient(): ?string
+    {
+        if (! $this->otp_recipient_email || ! str_contains($this->otp_recipient_email, '@')) {
+            return null;
+        }
+        [$local, $domain] = explode('@', $this->otp_recipient_email, 2);
+        return substr($local, 0, min(2, max(1, strlen($local) - 1))) . '***@' . $domain;
     }
 
     private function userSummary($user): ?array

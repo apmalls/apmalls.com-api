@@ -9,6 +9,7 @@ use App\Models\Cart\Cart;
 use App\Models\Sale\SaleOrder;
 use App\Services\Contracts\CartServiceInterface;
 use App\Services\Contracts\CheckoutServiceInterface;
+use App\Services\Sale\OrderNotificationService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +35,8 @@ class CheckoutService implements CheckoutServiceInterface
         protected SaleRepositoryInterface $saleRepository,
 
         protected SaleOrderItemRepositoryInterface $saleOrderItemRepository,
+
+        protected OrderNotificationService $notifications,
 
     ) {
     }
@@ -592,6 +595,8 @@ class CheckoutService implements CheckoutServiceInterface
                 );
 
             }
+
+            $this->notifications->orderPlaced($saleOrder);
 
             return $saleOrder;
 

@@ -43,6 +43,10 @@ class EmailAuthenticationTest extends TestCase
 
         $this->assertNull(User::where('email', 'new@example.com')->firstOrFail()->email_verified_at);
         Mail::assertQueued(EmailVerificationOtpMail::class);
+        $this->postJson('/api/v1/auth/login', ['email' => 'new@example.com', 'password' => 'Password@123'])
+            ->assertForbidden()->assertJsonPath('code', 'email_verification_required');
+        $this->postJson('/api/v1/auth/login/send-otp', ['email' => 'new@example.com'])->assertUnprocessable();
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function test_unverified_user_cannot_log_in(): void
@@ -57,15 +61,14 @@ class EmailAuthenticationTest extends TestCase
             ->assertJsonMissingPath('data.token');
     }
 
-    public function test_password_login_requires_a_valid_one_time_code_before_issuing_a_token(): void
+    public function test_email_otp_login_requires_a_valid_one_time_code_before_issuing_a_token(): void
     {
         Mail::fake();
         $user = $this->verifiedUser('login-otp@example.com');
         $otp = null;
 
-        $login = $this->postJson('/api/v1/auth/login', [
+        $login = $this->postJson('/api/v1/auth/login/send-otp', [
             'email' => $user->email,
-            'password' => 'Password@123',
         ])->assertStatus(202)
             ->assertJsonPath('code', 'login_otp_required')
             ->assertJsonMissingPath('data.token');
@@ -97,9 +100,8 @@ class EmailAuthenticationTest extends TestCase
         Mail::fake();
         $user = $this->verifiedUser('login-limit@example.com');
 
-        $challengeId = $this->postJson('/api/v1/auth/login', [
+        $challengeId = $this->postJson('/api/v1/auth/login/send-otp', [
             'email' => $user->email,
-            'password' => 'Password@123',
         ])->assertStatus(202)->json('data.challenge_id');
 
         for ($attempt = 1; $attempt <= 5; $attempt++) {
@@ -114,9 +116,9 @@ class EmailAuthenticationTest extends TestCase
         $this->assertSame(5, LoginChallenge::where('challenge_id', $challengeId)->firstOrFail()->attempts);
         $this->assertCount(0, $user->tokens);
 
-        $expired = $this->postJson('/api/v1/auth/login', [
+        $this->travel(61)->seconds();
+        $expired = $this->postJson('/api/v1/auth/login/send-otp', [
             'email' => $user->email,
-            'password' => 'Password@123',
         ])->assertStatus(202)->json('data.challenge_id');
         LoginChallenge::where('challenge_id', $expired)->update(['expires_at' => now()->subSecond()]);
 
@@ -132,9 +134,8 @@ class EmailAuthenticationTest extends TestCase
         $user = $this->verifiedUser('login-resend@example.com');
         $firstOtp = null;
 
-        $challengeId = $this->postJson('/api/v1/auth/login', [
+        $challengeId = $this->postJson('/api/v1/auth/login/send-otp', [
             'email' => $user->email,
-            'password' => 'Password@123',
         ])->assertStatus(202)->json('data.challenge_id');
 
         Mail::assertQueued(LoginOtpMail::class, function (LoginOtpMail $mail) use (&$firstOtp) {

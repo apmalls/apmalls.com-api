@@ -24,7 +24,12 @@ class CartItemResource extends JsonResource
 
             'product_slug' => $this->product?->slug,
 
-            'product_image' => $this->product?->image_url,
+            'product_image' => $this->product?->thumbnail_url
+                ?? $this->product?->images->first()?->image_url,
+            'product_images' => $this->product?->images->pluck('image_url')->filter()->values()->all() ?? [],
+            'product_icon' => $this->product?->product_icon,
+            'product_category_slug' => $this->product?->category?->slug,
+            'product_category_name' => $this->product?->category?->name,
 
             'quantity' => (int) $this->quantity,
 

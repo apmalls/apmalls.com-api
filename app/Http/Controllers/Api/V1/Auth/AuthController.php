@@ -26,6 +26,7 @@ use App\Http\Requests\Auth\ResendEmailVerificationRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
 use App\Services\Auth\AccountInvitationService;
 use App\Services\Auth\LoginChallengeService;
+use App\Http\Requests\Auth\SendLoginOtpRequest;
 use App\Exceptions\LoginChallengeException;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
@@ -248,6 +249,14 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if ($user->latestInvitation()->whereNull('accepted_at')->exists()) {
+            return response()->json([
+                'success' => false,
+                'code' => 'account_activation_required',
+                'message' => 'Activate this account using the link in your invitation email.',
+            ], 403);
+        }
+
         if (! $this->otpService->verify(
             recipient: Str::lower($request->email),
             channel: 'email',
@@ -275,7 +284,7 @@ class AuthController extends Controller
             ? $this->otpService->send($user->email, 'email', 'email_verification')
             : [
                 'success' => true,
-                'message' => 'If verification is required, a code has been sent.',
+                'message' => 'If verification is required, a code has been requested. Check your email shortly.',
                 'resend_after' => 60,
             ];
 
@@ -332,6 +341,16 @@ class AuthController extends Controller
 
         }
 
+        if ($user->latestInvitation()->whereNull('accepted_at')->exists()) {
+            Auth::logout();
+
+            return response()->json([
+                'success' => false,
+                'code' => 'account_activation_required',
+                'message' => 'Activate this account using the link in your invitation email.',
+            ], 403);
+        }
+
         if ($user->email_verified_at === null) {
             Auth::logout();
 
@@ -346,6 +365,27 @@ class AuthController extends Controller
         Auth::logout();
 
         try {
+            $result = $this->loginChallengeService->authenticatePassword($user, $credentials['password']);
+        } catch (LoginChallengeException $exception) {
+            return $this->loginChallengeError($exception);
+        }
+
+        return $this->loginResponse($result);
+    }
+
+    public function sendLoginOtp(SendLoginOtpRequest $request): JsonResponse
+    {
+        $user = User::query()->whereRaw('LOWER(email) = ?', [$request->validated('email')])->first();
+
+        if (! $user || ! $this->loginChallengeService->canLogin($user)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'login_otp_unavailable',
+                'message' => 'Unable to request a login code. Check your email address and complete account verification or activation.',
+            ], 422);
+        }
+
+        try {
             $challenge = $this->loginChallengeService->create(
                 $user,
                 $request->ip(),
@@ -358,7 +398,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'code' => 'login_otp_required',
-            'message' => 'A login code has been sent.',
+            'message' => 'A login code has been requested. Check your email shortly.',
             'data' => $challenge,
         ], 202);
     }
@@ -374,6 +414,11 @@ class AuthController extends Controller
             return $this->loginChallengeError($exception);
         }
 
+        return $this->loginResponse($result);
+    }
+
+    private function loginResponse(array $result): JsonResponse
+    {
         /** @var User $user */
         $user = $result['user'];
 
@@ -402,7 +447,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'A new login code has been sent.',
+            'message' => 'A new login code has been requested. Check your email shortly.',
             'data' => $challenge,
         ]);
     }
@@ -684,6 +729,7 @@ class AuthController extends Controller
 
             if ($emailChanged) {
                 $user->tokens()->delete();
+                $this->loginChallengeService->invalidateOutstanding($user);
 
                 try {
                     $this->otpService->send($user->email, 'email', 'email_verification');
@@ -750,6 +796,7 @@ class AuthController extends Controller
 
     private function authenticatedResponse(User $user, string $message): JsonResponse
     {
+        $this->loginChallengeService->invalidateOutstanding($user);
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 

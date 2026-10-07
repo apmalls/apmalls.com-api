@@ -104,6 +104,9 @@ class DeliveryPortalService
 
             $order = SaleOrder::query()->lockForUpdate()->findOrFail($assignment->sale_order_id);
             $order->forceFill(['delivery_status' => $action === 'reject' ? null : $next])->save();
+            if ($next === DeliveryAssignment::STATUS_OUT_FOR_DELIVERY) {
+                $this->confirmationService->prepareDispatch($assignment);
+            }
 
             return $assignment->fresh($this->relations());
         });
@@ -116,10 +119,18 @@ class DeliveryPortalService
         return $this->assignment($user, $id);
     }
 
-    public function confirmOtp(User $user, int $id, string $otp): DeliveryAssignment
+    public function confirmOtp(User $user, int $id, string $otp, bool $cashCollected = false, ?string $remarks = null): DeliveryAssignment
     {
-        $this->confirmationService->confirmByOtp($user, $id, $otp);
+        $this->requireProfile($user);
+        $this->confirmationService->confirmByOtp($user, $id, $otp, $cashCollected, $remarks);
 
+        return $this->assignment($user, $id);
+    }
+
+    public function resendOtp(User $user, int $id): DeliveryAssignment
+    {
+        $this->requireProfile($user);
+        $this->confirmationService->resendByCourier($user, $id);
         return $this->assignment($user, $id);
     }
 

@@ -13,6 +13,10 @@ class ConfirmDeliveryOtpRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['otp' => ['required', 'digits:6']];
+        return [
+            'otp' => ['required', 'string', 'regex:/^[0-9]{6}$/'],
+            'cash_collected' => ['sometimes', 'boolean'],
+            'remarks' => ['nullable', 'string', 'max:1000'],
+        ];
     }
 }

@@ -133,6 +133,16 @@ class OtpAuthController extends Controller
 
             }
 
+            if ($user->latestInvitation()->whereNull('accepted_at')->exists()) {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'code' => 'account_activation_required',
+                    'message' => 'Activate this account using the link in your invitation email.',
+                ], 403);
+            }
+
             if ($request->type === 'email_verification' && $request->channel === 'email') {
                 $user->forceFill(['email_verified_at' => now()])->save();
             } elseif ($user->email_verified_at === null) {

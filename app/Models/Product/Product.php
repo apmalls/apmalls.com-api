@@ -35,6 +35,7 @@ class Product extends Model
         'is_barcode_auto',
         'hsn_code',
         'thumbnail',
+        'product_icon',
         'short_description',
         'description',
         'purchase_price',

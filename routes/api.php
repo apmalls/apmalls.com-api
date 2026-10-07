@@ -58,6 +58,7 @@ use App\Http\Controllers\Api\V1\Website\PaymentController as WebsitePaymentContr
 use App\Http\Controllers\Api\V1\Website\CheckoutController;
 use App\Http\Controllers\Api\V1\Website\DeliveryConfirmationController as WebsiteDeliveryConfirmationController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Website\ProjectFeedbackController;
 
 
 /*
@@ -67,6 +68,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
+
+    Route::get('/website/project-feedback', [ProjectFeedbackController::class, 'show']);
+    Route::middleware(['auth:sanctum', 'role:Super Admin', 'throttle:10,1'])
+        ->prefix('admin/project-feedback')->group(function () {
+            Route::get('/', [ProjectFeedbackController::class, 'showForAdmin']);
+            Route::put('/', [ProjectFeedbackController::class, 'update']);
+            Route::delete('/', [ProjectFeedbackController::class, 'destroy']);
+        });
 
     Route::middleware([
         'auth:sanctum',
@@ -86,6 +95,8 @@ Route::prefix('v1')->group(function () {
                 ->whereIn('action', ['accept', 'reject', 'pickup', 'out-for-delivery', 'out_for_delivery', 'delivered'])
                 ->middleware('permission:delivery-assignment.update');
             Route::post('/assignments/{id}/confirm-otp', [DeliveryPortalController::class, 'confirmOtp'])
+                ->middleware('permission:delivery-assignment.update');
+            Route::post('/assignments/{id}/resend-otp', [DeliveryPortalController::class, 'resendOtp'])
                 ->middleware('permission:delivery-assignment.update');
         });
 
@@ -135,7 +146,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/register', [AuthController::class, 'register']);
 
-        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+
+        Route::post('/login/send-otp', [AuthController::class, 'sendLoginOtp'])->middleware('throttle:10,1');
 
         Route::post('/login/verify-otp', [AuthController::class, 'verifyLoginOtp']);
 

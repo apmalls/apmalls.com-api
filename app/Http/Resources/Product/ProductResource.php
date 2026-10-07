@@ -59,6 +59,7 @@ class ProductResource extends JsonResource
             'thumbnail' => $this->thumbnail,
 
             'thumbnail_url' => $this->thumbnail_url,
+            'product_icon' => $this->product_icon,
 
             'stock' => $this->whenLoaded(
                 'inventoryStock',

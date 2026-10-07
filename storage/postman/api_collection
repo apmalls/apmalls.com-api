@@ -2957,7 +2957,8 @@
                                                 "admin",
                                                 "products"
                                             ]
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 },
                                 {
@@ -2990,9 +2991,10 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 63,\n    \"selling_price\": 57,\n    \"mrp\": 19,\n    \"tax_percent\": 5,\n    \"discount_percent\": 30,\n    \"stock\": 9,\n    \"minimum_stock\": 4,\n    \"manufacture_date\": \"2026-01-01\",\n    \"expiry_date\": \"2027-01-01\",\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 63,\n    \"selling_price\": 57,\n    \"mrp\": 19,\n    \"tax_percent\": 5,\n    \"discount_percent\": 30,\n    \"stock\": 9,\n    \"minimum_stock\": 4,\n    \"manufacture_date\": \"2026-01-01\",\n    \"expiry_date\": \"2027-01-01\",\n    \"featured\": 1,\n    \"new_arrival\": 0,\n    \"best_seller\": 1,\n    \"is_active\": 1,\n    \"product_icon\": \"soap-dispenser-droplet\"\n}",
                                             "options": []
-                                        }
+                                        },
+                                        "description": "Product icon: optional nullable approved identifier (e.g. soap-dispenser-droplet). Missing on create defaults to null; missing on update preserves the choice; null or an empty form value clears it. Raw SVG, URLs, and unknown identifiers are rejected. Images take precedence over icons."
                                     }
                                 },
                                 {
@@ -3026,7 +3028,8 @@
                                                         "products",
                                                         "trash"
                                                     ]
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         }
                                     ]
@@ -3060,7 +3063,8 @@
                                                 ":id"
                                             ],
                                             "variable": []
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 },
                                 {
@@ -3095,9 +3099,10 @@
                                         },
                                         "body": {
                                             "mode": "raw",
-                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 72,\n    \"selling_price\": 46,\n    \"mrp\": 94,\n    \"tax_percent\": 98,\n    \"discount_percent\": 38,\n    \"minimum_stock\": 1,\n    \"manufacture_date\": \"2026-01-01\",\n    \"expiry_date\": \"2027-01-01\",\n    \"featured\": 1,\n    \"new_arrival\": 1,\n    \"best_seller\": 0,\n    \"is_active\": 0\n}",
+                                            "raw": "{\n    \"category_id\": \"sample_text\",\n    \"brand_id\": \"sample_text\",\n    \"unit_id\": \"sample_text\",\n    \"name\": \"sample_text\",\n    \"slug\": \"sample_text\",\n    \"barcode\": \"sample_text\",\n    \"hsn_code\": \"sample_text\",\n    \"thumbnail\": \"sample_text\",\n    \"images\": [\n        []\n    ],\n    \"short_description\": \"sample_text\",\n    \"description\": \"sample_text\",\n    \"purchase_price\": 72,\n    \"selling_price\": 46,\n    \"mrp\": 94,\n    \"tax_percent\": 98,\n    \"discount_percent\": 38,\n    \"minimum_stock\": 1,\n    \"manufacture_date\": \"2026-01-01\",\n    \"expiry_date\": \"2027-01-01\",\n    \"featured\": 1,\n    \"new_arrival\": 1,\n    \"best_seller\": 0,\n    \"is_active\": 0,\n    \"product_icon\": \"soap-dispenser-droplet\"\n}",
                                             "options": []
-                                        }
+                                        },
+                                        "description": "Product icon: optional nullable approved identifier (e.g. soap-dispenser-droplet). Missing on create defaults to null; missing on update preserves the choice; null or an empty form value clears it. Raw SVG, URLs, and unknown identifiers are rejected. Images take precedence over icons."
                                     }
                                 },
                                 {
@@ -3284,7 +3289,8 @@
                                                         "images"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         },
                                         {
@@ -3475,7 +3481,8 @@
                                                         "barcode"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         },
                                         {
@@ -10461,7 +10468,8 @@
                                                 "website",
                                                 "home"
                                             ]
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 }
                             ]
@@ -10501,7 +10509,8 @@
                                             "mode": "raw",
                                             "raw": "{\n    \"search\": \"sample_text\",\n    \"category_id\": 9,\n    \"category\": \"sample_text\",\n    \"brand_id\": 3,\n    \"featured\": 0,\n    \"new_arrival\": 1,\n    \"best_seller\": 1,\n    \"min_price\": 41,\n    \"max_price\": 37,\n    \"sort\": \"sample_text\",\n    \"per_page\": 47\n}",
                                             "options": []
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 },
                                 {
@@ -10533,7 +10542,8 @@
                                                 ":slug"
                                             ],
                                             "variable": []
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 },
                                 {
@@ -10569,7 +10579,8 @@
                                                         ":keyword"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         }
                                     ]
@@ -10607,7 +10618,8 @@
                                                         "related"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         }
                                     ]
@@ -11104,7 +11116,8 @@
                                                 "website",
                                                 "wishlist"
                                             ]
-                                        }
+                                        },
+                                        "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                     }
                                 },
                                 {
@@ -11235,7 +11248,8 @@
                                                         "wishlist",
                                                         "count"
                                                     ]
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         }
                                     ]
@@ -11273,7 +11287,8 @@
                                                         ":productId"
                                                     ],
                                                     "variable": []
-                                                }
+                                                },
+                                                "description": "Product responses include product_icon (nullable string); null uses the category fallback."
                                             }
                                         }
                                     ]
@@ -11310,7 +11325,8 @@
                                                 "website",
                                                 "cart"
                                             ]
-                                        }
+                                        },
+                                        "description": "Cart items retain the flat response and include product_image (thumbnail or gallery URL), product_images (gallery URL array), product_icon (nullable string), product_category_slug and product_category_name. No staff-only date fields are exposed."
                                     }
                                 },
                                 {

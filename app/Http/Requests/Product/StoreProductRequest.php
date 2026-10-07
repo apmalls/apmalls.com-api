@@ -5,6 +5,7 @@ namespace App\Http\Requests\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
 {
@@ -83,6 +84,8 @@ class StoreProductRequest extends FormRequest
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
+
+            'product_icon' => ['nullable', 'string', Rule::in(array_column(config('product_icons'), 'id'))],
 
             'images' => [
                 'nullable',
@@ -203,6 +206,8 @@ class StoreProductRequest extends FormRequest
             'thumbnail.image' => 'Thumbnail must be an image.',
             'thumbnail.mimes' => 'Thumbnail must be jpg, jpeg, png or webp.',
             'thumbnail.max' => 'Thumbnail size must not exceed 2 MB.',
+            'product_icon.in' => 'Choose an approved product icon.',
+            'product_icon.string' => 'Choose an approved product icon.',
 
             'images.array' => 'Gallery images must be an array.',
 

@@ -21,6 +21,8 @@ class CartRepository implements CartRepositoryInterface
             ->with([
                 'items',
                 'items.product',
+                'items.product.images',
+                'items.product.category',
                 'coupon',
             ])
 
@@ -50,6 +52,8 @@ class CartRepository implements CartRepositoryInterface
             ->with([
                 'items',
                 'items.product',
+                'items.product.images',
+                'items.product.category',
                 'coupon',
             ])
 

@@ -78,6 +78,7 @@ class ProductController extends Controller
                 'sku' => $this->productService->generateSku(),
                 'barcode' => $request->barcode,
                 'hsn_code' => $request->hsn_code,
+                'product_icon' => $request->input('product_icon'),
                 'short_description' => $request->short_description,
                 'description' => $request->description,
                 'purchase_price' => $request->purchase_price,
@@ -208,6 +209,10 @@ class ProductController extends Controller
                 'is_active' => $request->boolean('is_active'),
                 'updated_by' => auth()->id(),
             ];
+
+            if (array_key_exists('product_icon', $request->validated())) {
+                $data['product_icon'] = $request->input('product_icon');
+            }
 
             if ($request->hasFile('thumbnail')) {
                 $newThumbnail = $this->replaceFile(

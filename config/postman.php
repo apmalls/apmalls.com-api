@@ -92,6 +92,7 @@ return [
                 'font_size' => 10,
                 'manufacture_date' => '2026-01-01',
                 'expiry_date' => '2027-01-01',
+                'product_icon' => 'soap-dispenser-droplet',
                 // 'email' => 'test@example.com',
                 // 'password' => '123456',
                 // 'otp_code' => '1234',

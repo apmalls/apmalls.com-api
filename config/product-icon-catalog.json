@@ -1,0 +1,390 @@
+[
+  {
+    "id": "shopping-bag",
+    "label": "Shopping bag",
+    "group": "General",
+    "categories": []
+  },
+  {
+    "id": "shopping-basket",
+    "label": "Groceries",
+    "group": "Grocery",
+    "categories": [
+      "grocery"
+    ]
+  },
+  {
+    "id": "cooking-pot",
+    "label": "Cooking essentials",
+    "group": "Grocery",
+    "categories": [
+      "salt",
+      "sugar"
+    ]
+  },
+  {
+    "id": "wheat",
+    "label": "Rice and flour",
+    "group": "Grocery",
+    "categories": [
+      "rice",
+      "flour",
+      "grains-pulses"
+    ]
+  },
+  {
+    "id": "bean",
+    "label": "Pulses",
+    "group": "Grocery",
+    "categories": [
+      "pulses"
+    ]
+  },
+  {
+    "id": "amphora",
+    "label": "Oil and ghee",
+    "group": "Grocery",
+    "categories": [
+      "oil-ghee",
+      "oil-and-ghee"
+    ]
+  },
+  {
+    "id": "coffee",
+    "label": "Tea and coffee",
+    "group": "Grocery",
+    "categories": [
+      "tea-coffee",
+      "tea-and-coffee"
+    ]
+  },
+  {
+    "id": "cookie",
+    "label": "Biscuits",
+    "group": "Grocery",
+    "categories": [
+      "biscuits",
+      "snacks-beverages"
+    ]
+  },
+  {
+    "id": "popcorn",
+    "label": "Snacks",
+    "group": "Grocery",
+    "categories": [
+      "snacks"
+    ]
+  },
+  {
+    "id": "cup-soda",
+    "label": "Beverages",
+    "group": "Grocery",
+    "categories": [
+      "beverages"
+    ]
+  },
+  {
+    "id": "milk",
+    "label": "Dairy products",
+    "group": "Grocery",
+    "categories": [
+      "dairy-products",
+      "dairy-eggs"
+    ]
+  },
+  {
+    "id": "snowflake",
+    "label": "Frozen food",
+    "group": "Grocery",
+    "categories": [
+      "frozen-foods",
+      "frozen-food"
+    ]
+  },
+  {
+    "id": "apple",
+    "label": "Fruit and vegetables",
+    "group": "Grocery",
+    "categories": [
+      "fruits-vegetables"
+    ]
+  },
+  {
+    "id": "wrench",
+    "label": "Tools and fittings",
+    "group": "Hardware",
+    "categories": [
+      "hardware",
+      "tools"
+    ]
+  },
+  {
+    "id": "hammer",
+    "label": "Nails",
+    "group": "Hardware",
+    "categories": [
+      "nails"
+    ]
+  },
+  {
+    "id": "nut",
+    "label": "Fasteners and screws",
+    "group": "Hardware",
+    "categories": [
+      "fasteners",
+      "screws"
+    ]
+  },
+  {
+    "id": "lock",
+    "label": "Locks",
+    "group": "Hardware",
+    "categories": [
+      "locks"
+    ]
+  },
+  {
+    "id": "door-open",
+    "label": "Door fittings",
+    "group": "Hardware",
+    "categories": [
+      "door-fittings"
+    ]
+  },
+  {
+    "id": "paint-bucket",
+    "label": "Paint and primer",
+    "group": "Paint",
+    "categories": [
+      "paint",
+      "interior-paint",
+      "exterior-paint",
+      "primer",
+      "putty"
+    ]
+  },
+  {
+    "id": "paintbrush",
+    "label": "Wood polish",
+    "group": "Paint",
+    "categories": [
+      "wood-polish"
+    ]
+  },
+  {
+    "id": "plug",
+    "label": "Electrical accessories",
+    "group": "Electrical",
+    "categories": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "toggle-left",
+    "label": "Switches",
+    "group": "Electrical",
+    "categories": [
+      "switches"
+    ]
+  },
+  {
+    "id": "cable",
+    "label": "Wires and cables",
+    "group": "Electrical",
+    "categories": [
+      "wires-cables",
+      "wires-and-cables"
+    ]
+  },
+  {
+    "id": "lightbulb",
+    "label": "LED lights",
+    "group": "Electrical",
+    "categories": [
+      "led-lights"
+    ]
+  },
+  {
+    "id": "fan",
+    "label": "Fans",
+    "group": "Electrical",
+    "categories": [
+      "fans"
+    ]
+  },
+  {
+    "id": "circuit-board",
+    "label": "Circuit breakers",
+    "group": "Electrical",
+    "categories": [
+      "mcb"
+    ]
+  },
+  {
+    "id": "pipette",
+    "label": "Pipes and plumbing",
+    "group": "Plumbing",
+    "categories": [
+      "plumbing",
+      "pipes"
+    ]
+  },
+  {
+    "id": "shower-head",
+    "label": "Taps and showers",
+    "group": "Plumbing",
+    "categories": [
+      "taps"
+    ]
+  },
+  {
+    "id": "bath",
+    "label": "Bathroom accessories",
+    "group": "Plumbing",
+    "categories": [
+      "bathroom-accessories"
+    ]
+  },
+  {
+    "id": "cylinder",
+    "label": "Water tanks",
+    "group": "Plumbing",
+    "categories": [
+      "water-tanks"
+    ]
+  },
+  {
+    "id": "soap-dispenser-droplet",
+    "label": "Soap and personal care",
+    "group": "Care",
+    "categories": [
+      "personal-care",
+      "soap",
+      "baby-soap"
+    ]
+  },
+  {
+    "id": "droplets",
+    "label": "Shampoo and hair oil",
+    "group": "Care",
+    "categories": [
+      "shampoo",
+      "hair-oil",
+      "pet-shampoo"
+    ]
+  },
+  {
+    "id": "brush",
+    "label": "Toothpaste",
+    "group": "Care",
+    "categories": [
+      "toothpaste"
+    ]
+  },
+  {
+    "id": "house",
+    "label": "Home care",
+    "group": "Home",
+    "categories": [
+      "home-care",
+      "household"
+    ]
+  },
+  {
+    "id": "spray-can",
+    "label": "Floor cleaner",
+    "group": "Home",
+    "categories": [
+      "floor-cleaner"
+    ]
+  },
+  {
+    "id": "washing-machine",
+    "label": "Detergent",
+    "group": "Home",
+    "categories": [
+      "detergent"
+    ]
+  },
+  {
+    "id": "bubbles",
+    "label": "Dishwash",
+    "group": "Home",
+    "categories": [
+      "dishwash"
+    ]
+  },
+  {
+    "id": "wind",
+    "label": "Air freshener",
+    "group": "Home",
+    "categories": [
+      "air-freshener"
+    ]
+  },
+  {
+    "id": "notebook-pen",
+    "label": "Notebooks and stationery",
+    "group": "Stationery",
+    "categories": [
+      "stationery",
+      "notebook"
+    ]
+  },
+  {
+    "id": "pen",
+    "label": "Pens",
+    "group": "Stationery",
+    "categories": [
+      "pen"
+    ]
+  },
+  {
+    "id": "pencil",
+    "label": "Pencils",
+    "group": "Stationery",
+    "categories": [
+      "pencil"
+    ]
+  },
+  {
+    "id": "baby",
+    "label": "Baby care",
+    "group": "Baby",
+    "categories": [
+      "baby-care"
+    ]
+  },
+  {
+    "id": "utensils",
+    "label": "Baby food",
+    "group": "Baby",
+    "categories": [
+      "baby-food"
+    ]
+  },
+  {
+    "id": "shirt",
+    "label": "Diapers",
+    "group": "Baby",
+    "categories": [
+      "diapers"
+    ]
+  },
+  {
+    "id": "paw-print",
+    "label": "Pet care",
+    "group": "Pets",
+    "categories": [
+      "pet-care"
+    ]
+  },
+  {
+    "id": "bone",
+    "label": "Pet food",
+    "group": "Pets",
+    "categories": [
+      "pet-food"
+    ]
+  }
+]

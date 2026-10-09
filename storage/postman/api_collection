@@ -2176,9 +2176,53 @@
                             "name": "brands",
                             "item": [
                                 {
+                                    "name": "[PATCH] api/v1/admin/brands/featured",
+                                    "request": {
+                                        "method": "PATCH",
+                                        "description": "Set featured for every non-trashed brand, ignoring pagination and filters. Requires brand.update. Explicit boolean sets are retry-safe. Response includes data.updated_count, data.featured and featured_summary { total, featured_count }. Active status and logos remain unchanged.",
+                                        "header": [
+                                            { "key": "Accept", "value": "application/json", "type": "text" },
+                                            { "key": "Content-Type", "value": "application/json", "type": "text" }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"featured\": true\n}",
+                                            "options": { "raw": { "language": "json" } }
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/brands/featured",
+                                            "host": [ "{{base_url}}" ],
+                                            "path": [ "api", "v1", "admin", "brands", "featured" ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[PATCH] api/v1/admin/brands/{id}/featured",
+                                    "request": {
+                                        "method": "PATCH",
+                                        "description": "Set the existing featured flag without changing active status, logo or other brand details. Requires brand.update. Missing/trashed IDs return 404; invalid/missing boolean returns 422. Response data is the updated brand with featured_summary { total, featured_count }. Set false to unfeature.",
+                                        "header": [
+                                            { "key": "Accept", "value": "application/json", "type": "text" },
+                                            { "key": "Content-Type", "value": "application/json", "type": "text" }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"featured\": true\n}",
+                                            "options": { "raw": { "language": "json" } }
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/admin/brands/:id/featured",
+                                            "host": [ "{{base_url}}" ],
+                                            "path": [ "api", "v1", "admin", "brands", ":id", "featured" ],
+                                            "variable": [ { "key": "id", "value": "1" } ]
+                                        }
+                                    }
+                                },
+                                {
                                     "name": "[GET] api/v1/admin/brands",
                                     "request": {
                                         "method": "GET",
+                                        "description": "Paginated brand list with global featured_summary { total, featured_count } across all non-trashed brands, independent of search/status filters. Requires brand.list or brand.view. Homepage returns all active featured brands alphabetically; logos may be omitted by the frontend if missing or failed.",
                                         "header": [
                                             {
                                                 "key": "Accept",

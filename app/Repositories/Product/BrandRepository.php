@@ -335,7 +335,7 @@ class BrandRepository implements BrandRepositoryInterface
      * Featured brands.
      */
     public function featured(
-        int $limit = 10
+        ?int $limit = 10
     ): Collection {
 
         return Brand::query()
@@ -354,7 +354,7 @@ class BrandRepository implements BrandRepositoryInterface
 
             ->orderBy('name')
 
-            ->limit($limit)
+            ->when($limit !== null, fn ($query) => $query->limit($limit))
 
             ->get();
 

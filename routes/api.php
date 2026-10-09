@@ -263,6 +263,8 @@ Route::prefix('v1')->group(function () {
 
 
         Route::prefix('brands')->controller(BrandController::class)->group(function () {
+            Route::patch('/featured', 'bulkFeaturedUpdate')->middleware('permission:brand.update');
+            Route::patch('/{id}/featured', 'changeFeatured')->middleware('permission:brand.update')->whereNumber('id');
             Route::get('/', 'index')->middleware('permission:brand.list|brand.view');
             Route::get('/dropdown', 'dropdown')->middleware('permission:brand.list|brand.view');
             Route::get('/trash', 'trash')->middleware('permission:brand.view');

@@ -50,6 +50,12 @@ interface BrandServiceInterface
      */
     public function changeStatus(int $id, bool $isActive): Brand;
 
+    public function featuredSummary(): array;
+
+    public function changeFeatured(int $id, bool $featured): Brand;
+
+    public function bulkFeaturedUpdate(bool $featured): array;
+
     /**
      * Restore a soft deleted brand.
      */
@@ -99,6 +105,6 @@ interface BrandServiceInterface
      * Featured brands.
      */
     public function featured(
-        int $limit = 10
+        ?int $limit = 10
     ): Collection;
 }

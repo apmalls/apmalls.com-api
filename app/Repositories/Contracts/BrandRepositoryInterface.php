@@ -113,6 +113,6 @@ interface BrandRepositoryInterface
      * Featured brands.
      */
     public function featured(
-        int $limit = 10
+        ?int $limit = 10
     ): Collection;
 }

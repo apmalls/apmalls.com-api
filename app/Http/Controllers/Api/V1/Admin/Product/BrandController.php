@@ -28,7 +28,7 @@ class BrandController extends Controller
         try {
             $filters = [
                 'search' => $request->filled('search') ? $request->search : null,
-                'status' => $request->filled('status') ? $request->boolean('status') : null,
+                'is_active' => $request->filled('status') ? $request->boolean('status') : null,
                 'per_page' => $request->integer('per_page', 10),
             ];
 
@@ -38,6 +38,7 @@ class BrandController extends Controller
                 'success' => true,
                 'message' => 'Brand list fetched successfully.',
                 'data' => $brands,
+                'featured_summary' => $this->brandService->featuredSummary(),
             ]);
 
         } catch (\Exception $e) {
@@ -256,6 +257,44 @@ class BrandController extends Controller
                 'errors' => $e->errors()
             ], 422);
 
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    public function changeFeatured(Request $request, $id): JsonResponse
+    {
+        $request->validate(['featured' => 'required|boolean']);
+
+        try {
+            $brand = $this->brandService->changeFeatured((int) $id, $request->boolean('featured'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Brand featured selection updated successfully.',
+                'data' => $brand,
+                'featured_summary' => $this->brandService->featuredSummary(),
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['success' => false, 'message' => 'Brand not found.'], 404);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    public function bulkFeaturedUpdate(Request $request): JsonResponse
+    {
+        $request->validate(['featured' => 'required|boolean']);
+
+        try {
+            $result = $this->brandService->bulkFeaturedUpdate($request->boolean('featured'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Featured selection updated for all brands.',
+                'data' => ['updated_count' => $result['updated_count'], 'featured' => $result['featured']],
+                'featured_summary' => $result['featured_summary'],
+            ]);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }

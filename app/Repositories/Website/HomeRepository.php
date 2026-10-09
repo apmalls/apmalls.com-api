@@ -66,7 +66,7 @@ class HomeRepository implements HomeRepositoryInterface
             | Featured Brands
             |--------------------------------------------------------------------------
             */
-            'featured_brands' => $this->brandRepository->featured(),
+            'featured_brands' => $this->brandRepository->featured(null),
 
             /*
             |--------------------------------------------------------------------------

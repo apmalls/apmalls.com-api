@@ -34,7 +34,9 @@ class BrandResource extends JsonResource
 
             'is_active' => (bool) $this->is_active,
 
-            'is_featured' => (bool) $this->is_featured,
+            'featured' => (bool) $this->featured,
+
+            'is_featured' => (bool) $this->featured,
 
             'products_count' => $this->whenCounted('products'),
 

@@ -9,6 +9,7 @@ use App\Repositories\Contracts\BrandRepositoryInterface;
 use App\Services\Contracts\BrandServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class BrandService implements BrandServiceInterface
 {
@@ -55,6 +56,42 @@ class BrandService implements BrandServiceInterface
     public function changeStatus(int $id, bool $isActive): Brand
     {
         return $this->brandRepository->find($id);
+    }
+
+    public function featuredSummary(): array
+    {
+        $counts = Brand::query()->selectRaw(
+            'COUNT(*) AS total, COALESCE(SUM(CASE WHEN featured THEN 1 ELSE 0 END), 0) AS featured_count'
+        )->first();
+
+        return ['total' => (int) $counts->total, 'featured_count' => (int) $counts->featured_count];
+    }
+
+    public function changeFeatured(int $id, bool $featured): Brand
+    {
+        return DB::transaction(function () use ($id, $featured) {
+            $brand = Brand::query()->lockForUpdate()->findOrFail($id);
+            if ($brand->featured !== $featured) {
+                $brand->update(['featured' => $featured, 'updated_by' => auth()->id()]);
+            }
+
+            return $brand;
+        });
+    }
+
+    public function bulkFeaturedUpdate(bool $featured): array
+    {
+        return DB::transaction(function () use ($featured) {
+            $updated = Brand::query()
+                ->where(fn ($query) => $query->where('featured', '!=', $featured)->orWhereNull('featured'))
+                ->update(['featured' => $featured, 'updated_by' => auth()->id()]);
+
+            return [
+                'updated_count' => $updated,
+                'featured' => $featured,
+                'featured_summary' => $this->featuredSummary(),
+            ];
+        });
     }
 
     public function restore(int $id): bool
@@ -143,7 +180,7 @@ class BrandService implements BrandServiceInterface
      * Featured brands.
      */
     public function featured(
-        int $limit = 10
+        ?int $limit = 10
     ): Collection {
 
         return $this->brandRepository->featured($limit);
